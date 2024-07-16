@@ -3,60 +3,42 @@ using System.Text;
 
 namespace Camel.Bancho.Packets;
 
-public class PacketStream : IDisposable, IAsyncDisposable
+public class PacketStream : IPacketStream, IDisposable, IAsyncDisposable
 {
     private readonly Stream _stream;
-    private readonly BinaryWriter _binaryWriter;
 
     public PacketStream(Stream stream)
     {
         _stream = stream;
-        _binaryWriter = new BinaryWriter(_stream);
     }
+    
+    public bool AtEnd => _stream.Position >= _stream.Length;
 
     public void Write(Packet packet)
     {
-        _binaryWriter.Write((short)packet.Type);
-        _binaryWriter.Write((byte)0);
-        _binaryWriter.Write((int)packet.Data.Length);
-        _binaryWriter.Write(packet.Data);
+        _stream.Write((short)packet.Type);
+        _stream.WriteByte(0);
+        _stream.Write(packet.Data.Length);
+        _stream.Write(packet.Data);
     }
 
-    public void WriteNotification(string text)
+    public Packet Read()
     {
-        var ms = new MemoryStream();
-        using var w = new BinaryWriter(ms);
-        
-        w.Write((byte)0x0b);
-        var str = Encoding.UTF8.GetBytes(text);
-        ms.WriteLEB128Unsigned((ulong)text.Length);
-        w.Write(str);
-        
-        var packet = new Packet
-        {
-            Type = PacketType.ServerNotification,
-            Data = ms.ToArray()
-        };
-        Write(packet);
-    }
-
-    public void WriteUserId(int id)
-    {
-        var packet = new Packet
-        {
-            Type = PacketType.ServerUserId,
-            Data = BitConverter.GetBytes(id)
-        };
-        Write(packet);
+        using var br = new BinaryReader(_stream, Encoding.Default, true);
+        var type = (PacketType) br.ReadInt16();
+        br.ReadByte();
+        var length = br.ReadInt32();
+        var data = br.ReadBytes(length);
+        return new Packet(type, data);
     }
 
     public void Dispose()
     {
-        _binaryWriter.Dispose();
+        _stream.Dispose();
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _binaryWriter.DisposeAsync();
+        await _stream.DisposeAsync();
     }
 }

@@ -1,9 +1,9 @@
 ﻿namespace Camel.Bancho.Packets;
 
-public struct Packet
+public readonly struct Packet
 {
-    public required PacketType Type { get; set; }
-    public required byte[] Data { get; set; }
+    public PacketType Type { get; }
+    public byte[] Data { get; }
 
     public Packet(PacketType type, byte[] data)
     {

@@ -1,7 +1,7 @@
 ﻿namespace Camel.Bancho.Packets;
 
 // https://github.com/osuAkatsuki/bancho.py/blob/master/app/packets.py
-public enum PacketType
+public enum PacketType : short
 {
     ClientChangeAction = 0,
     ClientSendPublicMessage = 1,
