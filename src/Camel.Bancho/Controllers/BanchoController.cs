@@ -2,6 +2,7 @@
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Packets.Server;
+using Camel.Bancho.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
@@ -9,61 +10,95 @@ namespace Camel.Bancho.Controllers;
 public class BanchoController : ControllerBase
 {
     private readonly PacketHandlerService _packetHandler;
+    private readonly UserSessionService _userSessionService;
     private readonly ILogger<BanchoController> _logger;
 
-    public BanchoController(PacketHandlerService packetHandler, ILogger<BanchoController> logger)
+    public BanchoController(PacketHandlerService packetHandler, UserSessionService userSessionService,
+        ILogger<BanchoController> logger)
     {
         _packetHandler = packetHandler;
+        _userSessionService = userSessionService;
         _logger = logger;
     }
-    
+
     [HttpPost("/")]
     public async Task<IActionResult> Index([FromHeader(Name = "osu-token")] string? accessToken)
     {
-        using var ms = new MemoryStream();
-        using var ps = new PacketStream(ms);
-        var pw = new PacketWriter(new PacketStream(ms));
-        var ctx = new UserContext("player", pw);
-        
-        if (accessToken == null)
-        {
-            pw.WriteProtocolVersion(19);
-            pw.WriteUserId(1);
-            pw.WritePrivileges(0);
-            pw.WriteNotification("Welcome to OSU camel");
-            pw.WriteChannelInfo("#osu", "General channel", 1);
-            pw.WriteChannelInfoEnd();
-
-            var presence = new UserPresencePacket(1, "player", 0, 0, 0, 0, 0, 1);
-            presence.WriteToStream(ps);
-
-            var stats = new UserStatsPacket(1, 1, "Busy", "", 0, GameMode.Standard, 1, 1234, 1, 1, 1, 1, 1);
-            stats.WriteToStream(ps);
-
-            var message = new SendMessagePacket("Camel", "Welcome to camel bro", "player", 2);
-            message.WriteToStream(ps);
-            
-            Response.Headers["cho-token"] = "pog";
-            return File(ms.ToArray(), "application/octet-stream");
-        }
-
         var inStream = new MemoryStream();
         await Request.BodyReader.CopyToAsync(inStream);
         inStream.Position = 0;
-        
-        if (inStream.Length > 0)
-        {
-            var streamIn = new PacketStream(inStream);
-            while (!streamIn.AtEnd)
-            {
-                var p = streamIn.Read();
-                
-                if (p.Type != PacketType.ClientPing)
-                    _logger.LogDebug("Got a packet, type: {}", p.Type);
 
-                var packetMs = new MemoryStream(p.Data);
-                _packetHandler.Handle(p.Type, packetMs, ctx);
-            }
+        if (accessToken == null)
+        {
+            var request = LoginRequest.FromBytes(inStream.ToArray());
+            return HandleLoginRequest(request);
+        }
+
+        var session = _userSessionService.GetSession(accessToken);
+        if (session == null)
+        {
+            var pq = new PacketQueue();
+            pq.WriteRestart(0);
+            return SendPendingPackets(pq);
+        }
+
+        session.LastActive = DateTime.Now;
+
+        if (inStream.Length <= 0) return SendPendingPackets(session.PacketQueue);
+
+        var inPacketStream = new PacketStream(inStream);
+        foreach (var p in inPacketStream.ReadAll())
+        {
+            if (p.Type != PacketType.ClientPing)
+                _logger.LogTrace("{} -> {}", session.Username, p.Type);
+
+            _packetHandler.Handle(p.Type, new MemoryStream(p.Data), session);
+        }
+
+        return SendPendingPackets(session.PacketQueue);
+    }
+
+    private FileContentResult HandleLoginRequest(LoginRequest request)
+    {
+        var pq = new PacketQueue();
+
+        if (request.PasswordMd5 != "40e94d1167f57332fae5cae48f495378")
+        {
+            pq.WriteUserId(-1);
+            Response.Headers["cho-token"] = "";
+
+            return SendPendingPackets(pq);
+        }
+
+        pq.WriteProtocolVersion(19);
+        pq.WriteUserId(1);
+        pq.WritePrivileges(0);
+        pq.WriteNotification("Welcome to OSU camel");
+        pq.WriteChannelInfo("#osu", "General channel", 1);
+        pq.WriteChannelInfoEnd();
+
+        pq.WriteUserPresence(1, request.Username, 0, 0, 0, 0, 0, 1);
+        pq.WriteUserStats(1, ClientAction.Editing, "Darude - Sandstorm", "", 0, GameMode.Standard, 1,
+            long.MaxValue / 2, 0.993f, 10498, long.MaxValue / 2, 12, 0);
+
+        pq.WriteSendMessage("Camel", "Welcome to camel bro", request.Username, 2);
+
+        var newToken = Guid.NewGuid().ToString();
+        var newSession = new UserSession(request.Username, pq);
+        _userSessionService.AddSession(newToken, newSession);
+
+        Response.Headers["cho-token"] = newToken;
+        return SendPendingPackets(pq);
+    }
+
+    private FileContentResult SendPendingPackets(PacketQueue packetQueue)
+    {
+        using var ms = new MemoryStream();
+        using var ps = new PacketStream(ms);
+
+        foreach (var packet in packetQueue.PendingPackets())
+        {
+            packet.WriteToStream(ps);
         }
 
         return File(ms.ToArray(), "application/octet-stream");

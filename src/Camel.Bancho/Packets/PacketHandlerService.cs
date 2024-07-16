@@ -7,11 +7,13 @@ namespace Camel.Bancho.Packets;
 public class PacketHandlerService
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<PacketHandlerService> _logger;
     private readonly Dictionary<PacketType, Type> _handlers = new();
 
-    public PacketHandlerService(IServiceProvider serviceProvider)
+    public PacketHandlerService(IServiceProvider serviceProvider, ILogger<PacketHandlerService> logger)
     {
         _serviceProvider = serviceProvider;
+        _logger = logger;
 
         var handlers = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPacketHandler<>)))
@@ -24,8 +26,11 @@ public class PacketHandlerService
         }
     }
 
-    public void Handle(PacketType type, Stream stream, UserContext userContext)
+    public void Handle(PacketType type, Stream stream, UserSession userSession)
     {
+        if (type == PacketType.ClientPing)
+            return;
+        
         if (_handlers.TryGetValue(type, out var handler))
         {
             var packetType = handler.GetInterfaces()
@@ -36,7 +41,11 @@ public class PacketHandlerService
             var packet = packetType.GetMethod("ReadFromStream").Invoke(null, [stream]);
             
             var handlerInstance = ActivatorUtilities.CreateInstance(_serviceProvider, handler);
-            handler.GetMethod("Handle")!.Invoke(handlerInstance, [packet, userContext]);
+            handler.GetMethod("Handle")!.Invoke(handlerInstance, [packet, userSession]);
+        }
+        else
+        {
+            _logger.LogWarning("Missing packet handler for {}", type);
         }
     }
 }

@@ -4,5 +4,5 @@ namespace Camel.Bancho.Packets;
 
 public interface IPacketHandler<T>
 {
-    void Handle(T packet, UserContext userContext);
+    void Handle(T packet, UserSession userSession);
 }

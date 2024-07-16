@@ -14,10 +14,10 @@ public class SendPublicMessageHandler : IPacketHandler<SendPublicMessagePacket>
         _logger = logger;
     }
 
-    public void Handle(SendPublicMessagePacket packet, UserContext userContext)
+    public void Handle(SendPublicMessagePacket packet, UserSession user)
     {
-        _logger.LogInformation("[{}] {}: {}", packet.Recipient, userContext.Username, packet.Text);
+        _logger.LogInformation("[{}] {}: {}", packet.Recipient, user.Username, packet.Text);
         
-        userContext.PacketWriter.WriteNotification(packet.Text);
+        user.PacketQueue.WriteNotification($"{user.Username}: {packet.Text}");
     }
 }

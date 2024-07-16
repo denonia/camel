@@ -15,6 +15,14 @@ public class PacketStream : IPacketStream, IDisposable, IAsyncDisposable
     
     public bool AtEnd => _stream.Position >= _stream.Length;
 
+    public IEnumerable<Packet> ReadAll()
+    {
+        while (!AtEnd)
+        {
+            yield return Read();
+        }
+    }
+
     public void Write(Packet packet)
     {
         _stream.Write((short)packet.Type);
