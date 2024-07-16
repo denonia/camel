@@ -1,4 +1,6 @@
-﻿namespace Camel.Bancho.Packets.Server;
+﻿using Camel.Bancho.Enums;
+
+namespace Camel.Bancho.Packets.Server;
 
 public readonly struct PrivilegesPacket : IWritePacket
 {

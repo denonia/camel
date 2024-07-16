@@ -1,4 +1,6 @@
-﻿namespace Camel.Bancho.Packets.Server;
+﻿using Camel.Bancho.Enums;
+
+namespace Camel.Bancho.Packets.Server;
 
 public struct SendMessagePacket : IWritePacket
 {
@@ -21,7 +23,7 @@ public struct SendMessagePacket : IWritePacket
         ms.WriteBanchoString(Sender);
         ms.WriteBanchoString(Message);
         ms.WriteBanchoString(Recipient);
-        ms.Write(BitConverter.GetBytes(SenderId));
+        ms.Write(SenderId);
         
         var packet = new Packet(PacketType.ServerSendMessage, ms.ToArray());
         stream.Write(packet);

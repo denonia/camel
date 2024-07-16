@@ -1,6 +1,8 @@
-﻿namespace Camel.Bancho.Packets;
+﻿using Camel.Bancho.Models;
 
-public interface IPacketHandler
+namespace Camel.Bancho.Packets;
+
+public interface IPacketHandler<T>
 {
-    void Handle(Stream stream);
+    void Handle(T packet, UserContext userContext);
 }

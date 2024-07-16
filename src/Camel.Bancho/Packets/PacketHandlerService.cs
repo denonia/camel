@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using Camel.Bancho.Enums;
+using Camel.Bancho.Models;
 
 namespace Camel.Bancho.Packets;
 
@@ -12,7 +14,7 @@ public class PacketHandlerService
         _serviceProvider = serviceProvider;
 
         var handlers = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => t.IsAssignableTo(typeof(IPacketHandler)))
+            .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPacketHandler<>)))
             .Where(t => t.GetCustomAttributes(typeof(PacketHandlerAttribute)).Any());
 
         foreach (var handler in handlers)
@@ -22,12 +24,19 @@ public class PacketHandlerService
         }
     }
 
-    public void Handle(PacketType type, Stream stream)
+    public void Handle(PacketType type, Stream stream, UserContext userContext)
     {
         if (_handlers.TryGetValue(type, out var handler))
         {
-            var handlerInstance = (IPacketHandler)ActivatorUtilities.CreateInstance(_serviceProvider, handler);
-            handlerInstance.Handle(stream);
+            var packetType = handler.GetInterfaces()
+                .Single(i => i.GetGenericTypeDefinition() == typeof(IPacketHandler<>))
+                .GetGenericArguments().Single();
+
+            // TODO: ensure ReadFromStream exists
+            var packet = packetType.GetMethod("ReadFromStream").Invoke(null, [stream]);
+            
+            var handlerInstance = ActivatorUtilities.CreateInstance(_serviceProvider, handler);
+            handler.GetMethod("Handle")!.Invoke(handlerInstance, [packet, userContext]);
         }
     }
 }

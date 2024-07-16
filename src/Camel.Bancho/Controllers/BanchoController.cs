@@ -1,4 +1,6 @@
-﻿using Camel.Bancho.Packets;
+﻿using Camel.Bancho.Enums;
+using Camel.Bancho.Models;
+using Camel.Bancho.Packets;
 using Camel.Bancho.Packets.Server;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +22,8 @@ public class BanchoController : ControllerBase
     {
         using var ms = new MemoryStream();
         using var ps = new PacketStream(ms);
-        var pw = new PacketWriter(ps);
+        var pw = new PacketWriter(new PacketStream(ms));
+        var ctx = new UserContext("player", pw);
         
         if (accessToken == null)
         {
@@ -34,7 +37,7 @@ public class BanchoController : ControllerBase
             var presence = new UserPresencePacket(1, "player", 0, 0, 0, 0, 0, 1);
             presence.WriteToStream(ps);
 
-            var stats = new UserStatsPacket(1, 1, "Busy", "", 0, 1, 1, 1234, 1, 1, 1, 1, 1);
+            var stats = new UserStatsPacket(1, 1, "Busy", "", 0, GameMode.Standard, 1, 1234, 1, 1, 1, 1, 1);
             stats.WriteToStream(ps);
 
             var message = new SendMessagePacket("Camel", "Welcome to camel bro", "player", 2);
@@ -59,7 +62,7 @@ public class BanchoController : ControllerBase
                     _logger.LogDebug("Got a packet, type: {}", p.Type);
 
                 var packetMs = new MemoryStream(p.Data);
-                _packetHandler.Handle(p.Type, packetMs);
+                _packetHandler.Handle(p.Type, packetMs, ctx);
             }
         }
 

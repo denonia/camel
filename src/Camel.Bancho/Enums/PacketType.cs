@@ -1,4 +1,4 @@
-﻿namespace Camel.Bancho.Packets;
+﻿namespace Camel.Bancho.Enums;
 
 // https://github.com/osuAkatsuki/bancho.py/blob/master/app/packets.py
 public enum PacketType : short

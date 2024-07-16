@@ -1,9 +1,11 @@
-﻿using Camel.Bancho.Packets.Client;
+﻿using Camel.Bancho.Enums;
+using Camel.Bancho.Models;
+using Camel.Bancho.Packets.Client;
 
 namespace Camel.Bancho.Packets.Handlers;
 
 [PacketHandler(PacketType.ClientSendPublicMessage)]
-public class SendPublicMessageHandler : IPacketHandler
+public class SendPublicMessageHandler : IPacketHandler<SendPublicMessagePacket>
 {
     private readonly ILogger<SendPublicMessageHandler> _logger;
 
@@ -12,10 +14,10 @@ public class SendPublicMessageHandler : IPacketHandler
         _logger = logger;
     }
 
-    public void Handle(Stream stream)
+    public void Handle(SendPublicMessagePacket packet, UserContext userContext)
     {
-        var packet = SendPublicMessagePacket.ReadFromStream(stream);
-
-        _logger.LogInformation("Message in {}: {}", packet.Recipient, packet.Text);
+        _logger.LogInformation("[{}] {}: {}", packet.Recipient, userContext.Username, packet.Text);
+        
+        userContext.PacketWriter.WriteNotification(packet.Text);
     }
 }

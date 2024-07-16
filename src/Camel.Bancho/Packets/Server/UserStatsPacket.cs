@@ -1,4 +1,6 @@
-﻿namespace Camel.Bancho.Packets.Server;
+﻿using Camel.Bancho.Enums;
+
+namespace Camel.Bancho.Packets.Server;
 
 public readonly struct UserStatsPacket : IWritePacket
 {
@@ -7,7 +9,7 @@ public readonly struct UserStatsPacket : IWritePacket
     public string InfoText { get; }
     public string MapMd5 { get; }
     public int Mods { get; }
-    public byte Mode { get; }
+    public GameMode Mode { get; }
     public int MapId { get; }
     public long RankedScore { get; }
     public float Accuracy { get; }
@@ -16,7 +18,7 @@ public readonly struct UserStatsPacket : IWritePacket
     public int Rank { get; }
     public short Pp { get; }
 
-    public UserStatsPacket(int id, byte action, string infoText, string mapMd5, int mods, byte mode, int mapId,
+    public UserStatsPacket(int id, byte action, string infoText, string mapMd5, int mods, GameMode mode, int mapId,
         long rankedScore, float accuracy, int plays, long totalScore, int rank, short pp)
     {
         Id = id;
@@ -43,7 +45,7 @@ public readonly struct UserStatsPacket : IWritePacket
         ms.WriteBanchoString(InfoText);
         ms.WriteBanchoString(MapMd5);
         ms.Write(BitConverter.GetBytes(Mods));
-        ms.WriteByte(Mode);
+        ms.WriteByte((byte)Mode);
         ms.Write(BitConverter.GetBytes(MapId));
         ms.Write(BitConverter.GetBytes(RankedScore));
         ms.Write(BitConverter.GetBytes(Accuracy));

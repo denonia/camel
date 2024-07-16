@@ -32,4 +32,7 @@ public static class StreamExtensions
 
     public static void Write(this Stream stream, int num) =>
         stream.Write(BitConverter.GetBytes(num));
+    
+    public static void Write(this Stream stream, float num) =>
+        stream.Write(BitConverter.GetBytes(num));
 }

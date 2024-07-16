@@ -1,4 +1,6 @@
-﻿namespace Camel.Bancho.Packets;
+﻿using Camel.Bancho.Enums;
+
+namespace Camel.Bancho.Packets;
 
 public class PacketHandlerAttribute : Attribute
 {

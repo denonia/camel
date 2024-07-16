@@ -24,3 +24,8 @@
     build:
       context: .
       dockerfile: src/Camel.WebApi/Dockerfile
+  camel.web:
+    image: camel.web
+    build:
+      context: .
+      dockerfile: src/Camel.Web/Dockerfile

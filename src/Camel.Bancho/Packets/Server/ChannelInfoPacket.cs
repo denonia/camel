@@ -1,4 +1,6 @@
-﻿namespace Camel.Bancho.Packets.Server;
+﻿using Camel.Bancho.Enums;
+
+namespace Camel.Bancho.Packets.Server;
 
 public readonly struct ChannelInfoPacket : IWritePacket
 {
@@ -19,7 +21,7 @@ public readonly struct ChannelInfoPacket : IWritePacket
         
         ms.WriteBanchoString(Name);
         ms.WriteBanchoString(Topic);
-        ms.Write(BitConverter.GetBytes(PlayerCount));
+        ms.Write(PlayerCount);
         
         var packet = new Packet(PacketType.ServerChannelInfo, ms.ToArray());
         stream.Write(packet);

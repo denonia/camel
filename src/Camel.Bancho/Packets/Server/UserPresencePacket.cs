@@ -1,4 +1,6 @@
-﻿namespace Camel.Bancho.Packets.Server;
+﻿using Camel.Bancho.Enums;
+
+namespace Camel.Bancho.Packets.Server;
 
 public readonly struct UserPresencePacket : IWritePacket
 {
@@ -28,14 +30,14 @@ public readonly struct UserPresencePacket : IWritePacket
     {
         using var ms = new MemoryStream();
         
-        ms.Write(BitConverter.GetBytes(Id));
+        ms.Write(Id);
         ms.WriteBanchoString(Name);
         ms.WriteByte(UtcOffset);
         ms.WriteByte(CountryCode);
         ms.WriteByte(BanchoPrivileges);
-        ms.Write(BitConverter.GetBytes(Longitude));
-        ms.Write(BitConverter.GetBytes(Latitude));
-        ms.Write(BitConverter.GetBytes(GlobalRank));
+        ms.Write(Longitude);
+        ms.Write(Latitude);
+        ms.Write(GlobalRank);
         
         var packet = new Packet(PacketType.ServerUserPresence, ms.ToArray());
         stream.Write(packet);
