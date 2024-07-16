@@ -17,6 +17,7 @@ public class Program
 
         builder.Services.AddSingleton<UserSessionService, UserSessionService>();
         builder.Services.AddSingleton<PacketHandlerService, PacketHandlerService>();
+        builder.Services.AddTransient<AuthService, AuthService>();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("BanchoDbContext"))
@@ -27,7 +28,7 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            // dbContext.Database.EnsureCreated();
+            dbContext.Database.EnsureCreated();
         }
 
         if (app.Environment.IsDevelopment())

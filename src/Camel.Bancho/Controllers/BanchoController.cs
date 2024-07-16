@@ -1,21 +1,25 @@
 ﻿using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
-using Camel.Bancho.Packets.Server;
 using Camel.Bancho.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
 
 public class BanchoController : ControllerBase
 {
+    private readonly AuthService _authService;
     private readonly PacketHandlerService _packetHandler;
     private readonly UserSessionService _userSessionService;
     private readonly ILogger<BanchoController> _logger;
 
-    public BanchoController(PacketHandlerService packetHandler, UserSessionService userSessionService,
+    public BanchoController(
+        AuthService authService,
+        PacketHandlerService packetHandler, UserSessionService userSessionService,
         ILogger<BanchoController> logger)
     {
+        _authService = authService;
         _packetHandler = packetHandler;
         _userSessionService = userSessionService;
         _logger = logger;
@@ -62,29 +66,29 @@ public class BanchoController : ControllerBase
     {
         var pq = new PacketQueue();
 
-        if (request.PasswordMd5 != "40e94d1167f57332fae5cae48f495378")
+        var (user, authResult) = _authService.AuthenticateUser(request.Username, request.PasswordMd5);
+        if (user == null || authResult != PasswordVerificationResult.Success)
         {
             pq.WriteUserId(-1);
             Response.Headers["cho-token"] = "";
-
             return SendPendingPackets(pq);
         }
 
         pq.WriteProtocolVersion(19);
-        pq.WriteUserId(1);
+        pq.WriteUserId(user.Id);
         pq.WritePrivileges(0);
         pq.WriteNotification("Welcome to OSU camel");
         pq.WriteChannelInfo("#osu", "General channel", 1);
         pq.WriteChannelInfoEnd();
 
-        pq.WriteUserPresence(1, request.Username, 0, 0, 0, 0, 0, 1);
+        pq.WriteUserPresence(1, user.UserName, 0, 0, 0, 0, 0, 1);
         pq.WriteUserStats(1, ClientAction.Editing, "Darude - Sandstorm", "", 0, GameMode.Standard, 1,
             long.MaxValue / 2, 0.993f, 10498, long.MaxValue / 2, 12, 0);
 
-        pq.WriteSendMessage("Camel", "Welcome to camel bro", request.Username, 2);
+        pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 2);
 
         var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(request.Username, pq);
+        var newSession = new UserSession(user.UserName, pq);
         _userSessionService.AddSession(newToken, newSession);
 
         Response.Headers["cho-token"] = newToken;
