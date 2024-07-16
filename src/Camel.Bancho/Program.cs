@@ -1,5 +1,7 @@
 
-namespace Camel.WebApi;
+using Camel.Bancho.Data;
+
+namespace Camel.Bancho;
 
 public class Program
 {
@@ -13,6 +15,8 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddSingleton<IDbConnectionProvider, NpgsqlConnectionProvider>();
 
         var app = builder.Build();
 
