@@ -2,6 +2,9 @@
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
+using Camel.Core.Data;
+using Camel.Core.Enums;
+using Camel.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,16 +12,19 @@ namespace Camel.Bancho.Controllers;
 
 public class BanchoController : ControllerBase
 {
+    private readonly StatsService _statsService;
     private readonly AuthService _authService;
     private readonly PacketHandlerService _packetHandler;
     private readonly UserSessionService _userSessionService;
     private readonly ILogger<BanchoController> _logger;
 
     public BanchoController(
+        StatsService statsService,
         AuthService authService,
         PacketHandlerService packetHandler, UserSessionService userSessionService,
         ILogger<BanchoController> logger)
     {
+        _statsService = statsService;
         _authService = authService;
         _packetHandler = packetHandler;
         _userSessionService = userSessionService;
@@ -82,8 +88,10 @@ public class BanchoController : ControllerBase
         pq.WriteChannelInfoEnd();
 
         pq.WriteUserPresence(1, user.UserName, 0, 0, 0, 0, 0, 1);
-        pq.WriteUserStats(1, ClientAction.Editing, "Darude - Sandstorm", "", 0, GameMode.Standard, 1,
-            long.MaxValue / 2, 0.993f, 10498, long.MaxValue / 2, 12, 0);
+
+        var stats = _statsService.GetUserStats(user.Id, GameMode.Standard);
+        pq.WriteUserStats(1, ClientAction.Editing, "Darude - Sandstorm", "", 0, stats.Mode, 1,
+            stats.RankedScore, stats.Accuracy, stats.Plays, stats.TotalScore, 12, stats.Pp);
 
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 2);
 

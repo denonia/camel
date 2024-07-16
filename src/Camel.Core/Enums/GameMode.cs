@@ -1,4 +1,4 @@
-﻿namespace Camel.Bancho.Enums;
+﻿namespace Camel.Core.Enums;
 
 public enum GameMode : byte
 {

@@ -1,6 +1,7 @@
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
 using Camel.Core.Data;
+using Camel.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Camel.Bancho;
@@ -18,6 +19,7 @@ public class Program
         builder.Services.AddSingleton<UserSessionService, UserSessionService>();
         builder.Services.AddSingleton<PacketHandlerService, PacketHandlerService>();
         builder.Services.AddTransient<AuthService, AuthService>();
+        builder.Services.AddTransient<StatsService, StatsService>();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("BanchoDbContext"))

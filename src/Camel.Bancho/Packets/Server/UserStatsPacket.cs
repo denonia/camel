@@ -1,4 +1,5 @@
 ﻿using Camel.Bancho.Enums;
+using Camel.Core.Enums;
 
 namespace Camel.Bancho.Packets.Server;
 

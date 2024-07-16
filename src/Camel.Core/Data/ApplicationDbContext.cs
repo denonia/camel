@@ -7,6 +7,8 @@ namespace Camel.Core.Data;
 
 public class ApplicationDbContext : IdentityDbContext<User, Role, int>
 {
+    public DbSet<Stats> Stats { get; set; }
+    
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
@@ -27,7 +29,6 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
         builder.Entity<IdentityUserRole<int>>(entity =>
         {
             entity.ToTable("user_roles");
-            //in case you chagned the TKey type
             entity.HasKey(key => new { key.UserId, key.RoleId });
         });
 
@@ -39,7 +40,6 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
         builder.Entity<IdentityUserLogin<int>>(entity =>
         {
             entity.ToTable("user_logins");
-            //in case you chagned the TKey type
             entity.HasKey(key => new { key.ProviderKey, key.LoginProvider });       
         });
 
@@ -52,10 +52,16 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
         builder.Entity<IdentityUserToken<int>>(entity =>
         {
             entity.ToTable("user_tokens");
-            //in case you chagned the TKey type
             entity.HasKey(key => new { key.UserId, key.LoginProvider, key.Name });
 
         });
-        
+
+        builder.Entity<Stats>(entity =>
+        {
+            entity.HasOne<User>(u => u.User)
+                .WithMany(u => u.Stats)
+                .HasForeignKey(u => u.UserId);
+        });
+
     }
 }
