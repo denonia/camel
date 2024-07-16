@@ -1,6 +1,7 @@
+using Camel.Core.Data;
+using Camel.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Camel.Web.Data;
 
 namespace Camel.Web;
 
@@ -17,9 +18,18 @@ public class Program
             options.UseSqlite(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services.AddDefaultIdentity<User>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.SignIn.RequireConfirmedAccount = false;
+            })
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddRazorPages();
+
+        builder.Services.Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
 
         var app = builder.Build();
 
