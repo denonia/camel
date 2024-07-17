@@ -1,5 +1,4 @@
 ﻿using Camel.Core.Entities;
-using System.Net.Http;
 using System.Net.Http.Json;
 using Camel.Core.Data;
 using Camel.Core.Dtos;
@@ -11,7 +10,8 @@ namespace Camel.Core.Services;
 
 public class BeatmapService : IBeatmapService
 {
-    private const string ApiBaseUrl = "https://osu.direct/api/get_beatmaps?h=";
+    private const string HashApiBaseUrl = "https://osu.direct/api/get_beatmaps?h=";
+    private const string IdApiBaseUrl = "https://osu.direct/api/get_beatmaps?b=";
 
     private readonly ApplicationDbContext _dbContext;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -25,12 +25,29 @@ public class BeatmapService : IBeatmapService
     public async Task<Beatmap?> FindBeatmapAsync(string md5)
     {
         var map = await _dbContext.Beatmaps.SingleOrDefaultAsync(b => b.Md5 == md5);
-        return map ?? await FetchFromApi(md5);
+        if (map != null) 
+            return map;
+        
+        var setDiffs = await FetchFromApiByHash(md5);
+        return setDiffs.SingleOrDefault(b => b.Md5 == md5);
     }
 
-    private async Task<Beatmap?> FetchFromApi(string md5)
+    public async Task<Beatmap?> FindBeatmapAsync(int beatmapId)
     {
-        var url = ApiBaseUrl + md5;
+        var map = await _dbContext.Beatmaps.SingleOrDefaultAsync(b => b.Id == beatmapId);
+        if (map != null)
+            return map;
+        
+        var setDiffs = await FetchFromApiById(beatmapId);
+        return setDiffs.SingleOrDefault(b => b.Id == beatmapId);
+    }
+
+    private async Task<List<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);
+    
+    private async Task<List<Beatmap>> FetchFromApiById(int beatmapId) => await FetchFromApi(IdApiBaseUrl + beatmapId);
+
+    private async Task<List<Beatmap>> FetchFromApi(string url)
+    {
         var httpClient = _httpClientFactory.CreateClient();
 
         var diffs = await httpClient.GetFromJsonAsync<OsuDirectBeatmap[]>(url);
@@ -63,6 +80,6 @@ public class BeatmapService : IBeatmapService
 
         _dbContext.Beatmaps.AddRange(beatmaps);
         await _dbContext.SaveChangesAsync();
-        return beatmaps.SingleOrDefault(b => b.Md5 == md5);
+        return beatmaps;
     }
 }

@@ -1,0 +1,49 @@
+﻿@page "{beatmapId:int}"
+@model Index
+
+@{
+}
+
+<div>
+    <h3>@Model.Beatmap.Artist - @Model.Beatmap.Title [@Model.Beatmap.Version] by @Model.Beatmap.Creator</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Grade</th>
+            <th>Score</th>
+            <th>Accuracy</th>
+            <th>Player</th>
+            <th>Max Combo</th>
+            <th>300</th>
+            <th>100</th>
+            <th>50</th>
+            <th>Miss</th>
+            <th>Pp</th>
+            <th>Time</th>
+            <th>Mods</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var (score, place) in Model.Scores.Select((s, i) => (s, i + 1)))
+        {
+            <tr>
+                <td>@place</td>
+                <td>@score.Grade</td>
+                <td>@score.ScoreNum</td>
+                <td>@score.Accuracy%</td>
+                <td>@score.UserName</td>
+                <td>@score.MaxCombo</td>
+                <td>@score.Count300</td>
+                <td>@score.Count100</td>
+                <td>@score.Count50</td>
+                <td>@score.CountMiss</td>
+                <td>@score.Pp</td>
+                <td>@score.SetAt</td>
+                <td>@score.Mods</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

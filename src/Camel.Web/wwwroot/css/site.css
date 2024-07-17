@@ -2,3 +2,7 @@ html {
   font-size: 14px;
   font-family: Verdana, Helvetica, sans-serif;
 }
+
+table, th, td {
+  border: 1px solid;
+}

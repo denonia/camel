@@ -1,5 +1,9 @@
 using Camel.Core.Data;
 using Camel.Core.Entities;
+using Camel.Core.Interfaces;
+using Camel.Core.Services;
+using Camel.Web.Services;
+using Camel.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +16,10 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         
         builder.Services.AddTransient<IPasswordHasher<User>, MD5PasswordHasher>();
+        builder.Services.AddTransient<IScoreService, ScoreService>();
+        builder.Services.AddTransient<IBeatmapService, BeatmapService>();
+        
+        builder.Services.AddHttpClient();
 
         // Add services to the container.
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
