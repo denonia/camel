@@ -1,18 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Camel.Bancho.Middlewares;
-using Camel.Bancho.Services;
 using Camel.Bancho.Services.Interfaces;
-using Camel.Core.Data;
 using Camel.Core.Entities;
-using Camel.Core.Enums;
+using Camel.Core.Interfaces;
 using HttpMultipartParser;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Paddings;
-using Org.BouncyCastle.Crypto.Parameters;
 
 namespace Camel.Bancho.Controllers;
 
@@ -108,15 +101,6 @@ public class ScoreController : ControllerBase
 
         if (await _scoreService.ExistsAsync(score.OnlineChecksum))
             return BadRequest();
-
-        var pb = await _scoreService.GetPersonalBestAsync(session.Username, score.MapMd5);
-        if (pb == null)
-            score.Status = SubmissionStatus.Best;
-        else if (score.ScoreNum > pb.ScoreNum)
-        {
-            pb.Status = SubmissionStatus.Submitted;
-            score.Status = SubmissionStatus.Best;
-        }
 
         await _scoreService.SubmitScoreAsync(scoreData[1], score);
 

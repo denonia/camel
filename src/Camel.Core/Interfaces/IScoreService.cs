@@ -1,7 +1,7 @@
-﻿using Camel.Bancho.ViewModels;
-using Camel.Core.Entities;
+﻿using Camel.Core.Entities;
+using Camel.Core.ViewModels;
 
-namespace Camel.Bancho.Services.Interfaces;
+namespace Camel.Core.Interfaces;
 
 public interface IScoreService
 {

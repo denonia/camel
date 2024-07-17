@@ -1,11 +1,11 @@
-﻿using Camel.Bancho.Services.Interfaces;
-using Camel.Bancho.ViewModels;
-using Camel.Core.Data;
+﻿using Camel.Core.Data;
 using Camel.Core.Entities;
 using Camel.Core.Enums;
+using Camel.Core.Interfaces;
+using Camel.Core.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace Camel.Bancho.Services;
+namespace Camel.Core.Services;
 
 public class ScoreService : IScoreService
 {
@@ -18,6 +18,15 @@ public class ScoreService : IScoreService
 
     public async Task SubmitScoreAsync(string userName, Score score)
     {
+        var pb = await GetPersonalBestAsync(userName, score.MapMd5);
+        if (pb == null)
+            score.Status = SubmissionStatus.Best;
+        else if (score.ScoreNum > pb.ScoreNum)
+        {
+            pb.Status = SubmissionStatus.Submitted;
+            score.Status = SubmissionStatus.Best;
+        }
+        
         var user = await _dbContext.Users.SingleAsync(u => u.UserName == userName);
         score.User = user;
         _dbContext.Scores.Add(score);

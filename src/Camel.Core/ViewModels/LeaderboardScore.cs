@@ -1,4 +1,4 @@
-﻿namespace Camel.Bancho.ViewModels;
+﻿namespace Camel.Core.ViewModels;
 
 public class LeaderboardScore
 {
