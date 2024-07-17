@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Camel.Bancho.Models;
+namespace Camel.Bancho.Dtos;
 
 public readonly struct LoginRequest
 {

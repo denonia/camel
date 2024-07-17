@@ -1,4 +1,5 @@
-﻿using Camel.Bancho.Enums;
+﻿using Camel.Bancho.Dtos;
+using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
