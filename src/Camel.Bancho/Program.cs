@@ -1,3 +1,4 @@
+using Camel.Bancho.Middlewares;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
 using Camel.Core.Data;
@@ -45,6 +46,8 @@ public class Program
 
 
         app.MapControllers();
+        
+        app.UseMiddleware<EnableBufferingMiddleware>(); 
 
         app.Run();
     }
