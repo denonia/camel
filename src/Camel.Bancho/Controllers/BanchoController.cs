@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
 
+[Host("c.camel.local", "ce.camel.local", "c4.camel.local")]
 public class BanchoController : ControllerBase
 {
     private readonly IStatsService _statsService;
@@ -43,8 +44,15 @@ public class BanchoController : ControllerBase
 
         if (accessToken == null)
         {
-            var request = LoginRequest.FromBytes(inStream.ToArray());
-            return await HandleLoginRequestAsync(request);
+            try
+            {
+                var request = LoginRequest.FromBytes(inStream.ToArray());
+                return await HandleLoginRequestAsync(request);
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         var session = _userSessionService.GetSession(accessToken);
@@ -99,7 +107,7 @@ public class BanchoController : ControllerBase
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 2);
 
         var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(user.UserName, request.PasswordMd5, pq);
+        var newSession = new UserSession(request, pq);
         _userSessionService.AddSession(newToken, newSession);
 
         Response.Headers["cho-token"] = newToken;

@@ -15,6 +15,7 @@ using Org.BouncyCastle.Crypto.Parameters;
 
 namespace Camel.Bancho.Controllers;
 
+[Host("osu.camel.local")]
 public class ScoreController : ControllerBase
 {
     private readonly IScoreService _scoreService;
