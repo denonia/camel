@@ -15,23 +15,23 @@ namespace Camel.Bancho.Controllers;
 [Host("c.camel.local", "ce.camel.local", "c4.camel.local")]
 public class BanchoController : ControllerBase
 {
-    private readonly IStatsService _statsService;
     private readonly IAuthService _authService;
     private readonly IPacketHandlerService _packetHandler;
     private readonly IUserSessionService _userSessionService;
+    private readonly IStatsService _statsService;
     private readonly ILogger<BanchoController> _logger;
 
     public BanchoController(
-        IStatsService statsService,
         IAuthService authService,
         IPacketHandlerService packetHandler, 
         IUserSessionService userSessionService,
+        IStatsService statsService,
         ILogger<BanchoController> logger)
     {
-        _statsService = statsService;
         _authService = authService;
         _packetHandler = packetHandler;
         _userSessionService = userSessionService;
+        _statsService = statsService;
         _logger = logger;
     }
 
@@ -73,7 +73,7 @@ public class BanchoController : ControllerBase
             if (p.Type != PacketType.ClientPing)
                 _logger.LogTrace("{} -> {}", session.Username, p.Type);
 
-            _packetHandler.Handle(p.Type, new MemoryStream(p.Data), session);
+            await _packetHandler.HandleAsync(p.Type, new MemoryStream(p.Data), session);
         }
 
         return SendPendingPackets(session.PacketQueue);
@@ -99,15 +99,15 @@ public class BanchoController : ControllerBase
         pq.WriteChannelInfoEnd();
 
         pq.WriteUserPresence(user.Id, user.UserName, 0, 0, 0, 0, 0, 1);
-
+        
         var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
-        pq.WriteUserStats(user.Id, ClientAction.Editing, "Darude - Sandstorm", "asdf", 0, stats.Mode, 1,
+        pq.WriteUserStats(user.Id, ClientAction.Idle, "", "", 0, stats.Mode, 0,
             stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore, 12, stats.Pp);
 
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 2);
 
         var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(request, pq);
+        var newSession = new UserSession(request, user, stats, pq);
         _userSessionService.AddSession(newToken, newSession);
 
         Response.Headers["cho-token"] = newToken;

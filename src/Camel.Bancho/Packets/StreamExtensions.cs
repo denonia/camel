@@ -19,6 +19,13 @@ public static class StreamExtensions
         stream.Read(bytes, 0, (int)length);
         return Encoding.UTF8.GetString(bytes);
     }
+    
+    public static int ReadInt16(this Stream stream)
+    {
+        var bytes = new byte[2];
+        stream.Read(bytes, 0, 2);
+        return BitConverter.ToInt16(bytes);
+    }
 
     public static int ReadInt32(this Stream stream)
     {

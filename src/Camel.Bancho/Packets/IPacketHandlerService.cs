@@ -5,5 +5,5 @@ namespace Camel.Bancho.Packets;
 
 public interface IPacketHandlerService
 {
-    void Handle(PacketType type, Stream stream, UserSession userSession);
+    Task HandleAsync(PacketType type, Stream stream, UserSession userSession);
 }

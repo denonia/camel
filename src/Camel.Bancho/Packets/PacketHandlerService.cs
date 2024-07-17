@@ -26,7 +26,7 @@ public class PacketHandlerService : IPacketHandlerService
         }
     }
 
-    public void Handle(PacketType type, Stream stream, UserSession userSession)
+    public async Task HandleAsync(PacketType type, Stream stream, UserSession userSession)
     {
         if (type == PacketType.ClientPing)
             return;
@@ -39,9 +39,11 @@ public class PacketHandlerService : IPacketHandlerService
 
             // TODO: ensure ReadFromStream exists
             var packet = packetType.GetMethod("ReadFromStream").Invoke(null, [stream]);
-            
-            var handlerInstance = ActivatorUtilities.CreateInstance(_serviceProvider, handler);
-            handler.GetMethod("Handle")!.Invoke(handlerInstance, [packet, userSession]);
+
+            using var scope = _serviceProvider.CreateScope();
+            var handlerInstance = ActivatorUtilities.CreateInstance(scope.ServiceProvider, handler);
+            var result = (Task)handler.GetMethod("HandleAsync")!.Invoke(handlerInstance, [packet, userSession]);
+            await result;
         }
         else
         {

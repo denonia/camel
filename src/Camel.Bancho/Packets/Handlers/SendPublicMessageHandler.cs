@@ -14,7 +14,7 @@ public class SendPublicMessageHandler : IPacketHandler<SendPublicMessagePacket>
         _logger = logger;
     }
 
-    public void Handle(SendPublicMessagePacket packet, UserSession user)
+    public async Task HandleAsync(SendPublicMessagePacket packet, UserSession user)
     {
         _logger.LogInformation("[{}] {}: {}", packet.Recipient, user.Username, packet.Text);
         
