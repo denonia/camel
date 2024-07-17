@@ -70,7 +70,7 @@ public class BanchoController : ControllerBase
         var inPacketStream = new PacketStream(inStream);
         foreach (var p in inPacketStream.ReadAll())
         {
-            if (p.Type != PacketType.ClientPing)
+            if (p.Type != PacketType.ClientPing && p.Type != PacketType.ClientUserStatsRequest)
                 _logger.LogTrace("{} -> {}", session.Username, p.Type);
 
             await _packetHandler.HandleAsync(p.Type, new MemoryStream(p.Data), session);
@@ -104,7 +104,7 @@ public class BanchoController : ControllerBase
         pq.WriteUserStats(user.Id, ClientAction.Idle, "", "", 0, stats.Mode, 0,
             stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore, 12, stats.Pp);
 
-        pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 2);
+        pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 3);
 
         var newToken = Guid.NewGuid().ToString();
         var newSession = new UserSession(request, user, stats, pq);

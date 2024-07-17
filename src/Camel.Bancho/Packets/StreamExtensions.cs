@@ -4,11 +4,19 @@ namespace Camel.Bancho.Packets;
 
 public static class StreamExtensions
 {
-    public static void WriteBanchoString(this Stream stream, string str)
+    public static void WriteBanchoString(this Stream stream, string? str)
     {
         stream.WriteByte(0x0b);
-        stream.WriteLEB128Unsigned((ulong)str.Length);
-        stream.Write(Encoding.UTF8.GetBytes(str));
+        
+        if (str == null)
+        {
+            stream.WriteLEB128Unsigned(0);
+        }
+        else
+        {
+            stream.WriteLEB128Unsigned((ulong)str.Length);
+            stream.Write(Encoding.UTF8.GetBytes(str));
+        }
     }
 
     public static string ReadBanchoString(this Stream stream)

@@ -19,6 +19,7 @@ public class UserStatsRequestHandler : IPacketHandler<UserStatsRequestPacket>
 
     public async Task HandleAsync(UserStatsRequestPacket packet, UserSession userSession)
     {
+        // TODO: find out whether the client is really supposed to spam this billion times a second
         foreach (var userId in packet.UserIds)
         {
             var requestedUser = _userSessionService.GetOnlineUsers().SingleOrDefault(u => u.User.Id == userId);
