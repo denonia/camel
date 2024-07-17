@@ -5,6 +5,7 @@ using Camel.Bancho.Services;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Data;
 using Camel.Core.Entities;
+using Camel.Core.Enums;
 using HttpMultipartParser;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,9 @@ public class ScoreController : ControllerBase
     private readonly ILogger<ScoreController> _logger;
 
     public ScoreController(
-        IScoreService scoreService, 
+        IScoreService scoreService,
         IUserSessionService userSessionService,
-        ICryptoService cryptoService, 
+        ICryptoService cryptoService,
         ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
@@ -34,7 +35,7 @@ public class ScoreController : ControllerBase
         _cryptoService = cryptoService;
         _logger = logger;
     }
-    
+
     [HttpGet("/web/osu-osz2-getscores.php")]
     public async Task<IActionResult> GetScores(
         [FromQuery(Name = "us")] string userName,
@@ -55,7 +56,7 @@ public class ScoreController : ControllerBase
         // {ranked_status}|{serv_has_osz2}|{bid}|{bsid}|{len(scores)}|{fa_track_id}|{fa_license_text}
         // {offset}\n{beatmap_name}\n{rating}
 
-        var scores = await _scoreService.GetMapScoresAsync(mapMd5);
+        var scores = await _scoreService.GetLeaderboardScoresAsync(mapMd5);
 
         response.Append($"2|false|123|123|{scores.Count}|0|\n");
         response.AppendFormat("0\nFull name\n10.0\n");
@@ -65,7 +66,7 @@ public class ScoreController : ControllerBase
         foreach (var (score, place) in scores.Select((s, i) => (s, i + 1)))
         {
             response.Append(
-                $"{score.Id}|{score.User.UserName}|{score.ScoreNum}|{score.MaxCombo}|{score.Count50}|{score.Count100}|{score.Count300}|{score.CountMiss}|{score.CountKatu}|{score.CountGeki}|{score.Perfect}|{score.Mods}|{score.UserId}|{place}|{score.SetAt.Subtract(DateTime.UnixEpoch).TotalSeconds}|1\n");
+                $"{score.Id}|{score.UserName}|{score.ScoreNum}|{score.MaxCombo}|{score.Count50}|{score.Count100}|{score.Count300}|{score.CountMiss}|{score.CountKatu}|{score.CountGeki}|{score.Perfect}|{score.Mods}|{score.UserId}|{place}|{score.SetAt.Subtract(DateTime.UnixEpoch).TotalSeconds}|1\n");
         }
 
         return Ok(response.ToString());
@@ -104,8 +105,21 @@ public class ScoreController : ControllerBase
             return Unauthorized();
 
         var score = Score.FromSubmission(scoreData);
+
+        if (await _scoreService.ExistsAsync(score.OnlineChecksum))
+            return BadRequest();
+
+        var pb = await _scoreService.GetPersonalBestAsync(session.Username, score.MapMd5);
+        if (pb == null)
+            score.Status = SubmissionStatus.Best;
+        else if (score.ScoreNum > pb.ScoreNum)
+        {
+            pb.Status = SubmissionStatus.Submitted;
+            score.Status = SubmissionStatus.Best;
+        }
+
         await _scoreService.SubmitScoreAsync(scoreData[1], score);
-        
+
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
 
         return Ok();

@@ -98,7 +98,7 @@ public class BanchoController : ControllerBase
         pq.WriteChannelInfo("#osu", "General channel", 1);
         pq.WriteChannelInfoEnd();
 
-        pq.WriteUserPresence(user.Id, user.UserName, 0, 0, 0, 0, 0, 1);
+        pq.WriteUserPresence(user.Id, user.UserName, 0, 222, 0, 0, 0, 1);
         
         var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
         pq.WriteUserStats(user.Id, ClientAction.Idle, "", "", 0, stats.Mode, 0,
