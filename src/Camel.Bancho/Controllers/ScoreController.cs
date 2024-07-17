@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Camel.Bancho.Middlewares;
+using Camel.Bancho.Services;
+using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Data;
 using Camel.Core.Entities;
 using HttpMultipartParser;
@@ -15,12 +17,14 @@ namespace Camel.Bancho.Controllers;
 
 public class ScoreController : ControllerBase
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly IScoreService _scoreService;
+    private readonly CryptoService _cryptoService;
     private readonly ILogger<ScoreController> _logger;
 
-    public ScoreController(ApplicationDbContext dbContext, ILogger<ScoreController> logger)
+    public ScoreController(IScoreService scoreService, CryptoService cryptoService, ILogger<ScoreController> logger)
     {
-        _dbContext = dbContext;
+        _scoreService = scoreService;
+        _cryptoService = cryptoService;
         _logger = logger;
     }
     
@@ -43,11 +47,8 @@ public class ScoreController : ControllerBase
 
         // {ranked_status}|{serv_has_osz2}|{bid}|{bsid}|{len(scores)}|{fa_track_id}|{fa_license_text}
         // {offset}\n{beatmap_name}\n{rating}
-        
-        var scores = _dbContext.Scores
-            .Where(s => s.MapMd5 == mapMd5)
-            .Include(s => s.User)
-            .ToList();
+
+        var scores = await _scoreService.GetMapScoresAsync(mapMd5);
 
         response.Append($"2|false|123|123|{scores.Count}|0|\n");
         response.AppendFormat("0\nFull name\n10.0\n");
@@ -87,41 +88,15 @@ public class ScoreController : ControllerBase
         var replayFile = content.Files[0];
         Debug.Assert(replayFile.Name == "score");
 
-        var (scoreData, clientHash) = DecryptRijndaelData(
+        var (scoreData, clientHash) = _cryptoService.DecryptRijndaelData(
             Convert.FromBase64String(ivBase64), osuVersion,
             Convert.FromBase64String(scoreBase64), Convert.FromBase64String(clientHashBase64));
 
         var score = Score.FromSubmission(scoreData);
-
-        var user = _dbContext.Users.Single(u => u.UserName == scoreData[1]);
-        score.User = user;
-        _dbContext.Scores.Add(score);
-        await _dbContext.SaveChangesAsync();
+        await _scoreService.SubmitScoreAsync(scoreData[1], score);
         
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
 
         return Ok();
-    }
-
-    private (string[], string) DecryptRijndaelData(byte[] iv, string osuVersion, byte[] scoreData, byte[] clientHash)
-    {
-        var engine = new RijndaelEngine(256);
-        var blockCipher = new CbcBlockCipher(engine);
-        var keyParam = new KeyParameter(Encoding.UTF8.GetBytes($"osu!-scoreburgr---------{osuVersion}"));
-        var keyParamWithIV = new ParametersWithIV(keyParam, iv, 0, 32);
-
-        var scoreDataBytes = Decrypt(blockCipher, keyParamWithIV, scoreData);
-        var clientHashBytes = Decrypt(blockCipher, keyParamWithIV, clientHash);
-        return (Encoding.UTF8.GetString(scoreDataBytes).Split(':'), Encoding.UTF8.GetString(clientHashBytes));
-    }
-
-    private byte[] Decrypt(CbcBlockCipher blockCipher, ParametersWithIV keyParamWithIV, byte[] inputBytes)
-    {
-        var cipher = new PaddedBufferedBlockCipher(blockCipher, new Pkcs7Padding());
-        cipher.Init(false, keyParamWithIV);
-        var result = new byte[cipher.GetOutputSize(inputBytes.Length)];
-        var length = cipher.ProcessBytes(inputBytes, result, 0);
-        cipher.DoFinal(result, length);
-        return result;
     }
 }

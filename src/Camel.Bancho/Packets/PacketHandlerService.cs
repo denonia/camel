@@ -4,7 +4,7 @@ using Camel.Bancho.Models;
 
 namespace Camel.Bancho.Packets;
 
-public class PacketHandlerService
+public class PacketHandlerService : IPacketHandlerService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<PacketHandlerService> _logger;

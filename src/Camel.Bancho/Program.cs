@@ -1,7 +1,9 @@
 using Camel.Bancho.Middlewares;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
+using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Data;
+using Camel.Core.Interfaces;
 using Camel.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +19,12 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<UserSessionService, UserSessionService>();
-        builder.Services.AddSingleton<PacketHandlerService, PacketHandlerService>();
-        builder.Services.AddTransient<AuthService, AuthService>();
-        builder.Services.AddTransient<StatsService, StatsService>();
+        builder.Services.AddSingleton<IUserSessionService, UserSessionService>();
+        builder.Services.AddSingleton<IPacketHandlerService, PacketHandlerService>();
+        builder.Services.AddTransient<IAuthService, AuthService>();
+        builder.Services.AddTransient<IStatsService, StatsService>();
+        builder.Services.AddSingleton<ICryptoService, CryptoService>();
+        builder.Services.AddTransient<IScoreService, ScoreService>();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("BanchoDbContext"))

@@ -2,8 +2,10 @@
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
+using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Data;
 using Camel.Core.Enums;
+using Camel.Core.Interfaces;
 using Camel.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +14,17 @@ namespace Camel.Bancho.Controllers;
 
 public class BanchoController : ControllerBase
 {
-    private readonly StatsService _statsService;
-    private readonly AuthService _authService;
-    private readonly PacketHandlerService _packetHandler;
-    private readonly UserSessionService _userSessionService;
+    private readonly IStatsService _statsService;
+    private readonly IAuthService _authService;
+    private readonly IPacketHandlerService _packetHandler;
+    private readonly IUserSessionService _userSessionService;
     private readonly ILogger<BanchoController> _logger;
 
     public BanchoController(
-        StatsService statsService,
-        AuthService authService,
-        PacketHandlerService packetHandler, UserSessionService userSessionService,
+        IStatsService statsService,
+        IAuthService authService,
+        IPacketHandlerService packetHandler, 
+        IUserSessionService userSessionService,
         ILogger<BanchoController> logger)
     {
         _statsService = statsService;
@@ -41,7 +44,7 @@ public class BanchoController : ControllerBase
         if (accessToken == null)
         {
             var request = LoginRequest.FromBytes(inStream.ToArray());
-            return HandleLoginRequest(request);
+            return await HandleLoginRequestAsync(request);
         }
 
         var session = _userSessionService.GetSession(accessToken);
@@ -68,7 +71,7 @@ public class BanchoController : ControllerBase
         return SendPendingPackets(session.PacketQueue);
     }
 
-    private FileContentResult HandleLoginRequest(LoginRequest request)
+    private async Task<FileContentResult> HandleLoginRequestAsync(LoginRequest request)
     {
         var pq = new PacketQueue();
 
@@ -89,7 +92,7 @@ public class BanchoController : ControllerBase
 
         pq.WriteUserPresence(user.Id, user.UserName, 0, 0, 0, 0, 0, 1);
 
-        var stats = _statsService.GetUserStats(user.Id, GameMode.Standard);
+        var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
         pq.WriteUserStats(user.Id, ClientAction.Editing, "Darude - Sandstorm", "asdf", 0, stats.Mode, 1,
             stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore, 12, stats.Pp);
 

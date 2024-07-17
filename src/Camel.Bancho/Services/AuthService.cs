@@ -1,10 +1,11 @@
-﻿using Camel.Core.Data;
+﻿using Camel.Bancho.Services.Interfaces;
+using Camel.Core.Data;
 using Camel.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace Camel.Bancho.Services;
 
-public class AuthService
+public class AuthService : IAuthService
 {
     private readonly ApplicationDbContext _dbContext;
 

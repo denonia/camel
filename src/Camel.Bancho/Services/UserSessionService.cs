@@ -1,9 +1,10 @@
 ﻿using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
+using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Services;
 
-public class UserSessionService
+public class UserSessionService : IUserSessionService
 {
     private readonly Dictionary<string, UserSession> _activeSessions = new();
 

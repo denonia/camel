@@ -1,10 +1,12 @@
 ﻿using Camel.Core.Data;
 using Camel.Core.Entities;
 using Camel.Core.Enums;
+using Camel.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Camel.Core.Services;
 
-public class StatsService
+public class StatsService : IStatsService
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -13,9 +15,9 @@ public class StatsService
         _dbContext = dbContext;
     }
 
-    public Stats GetUserStats(int userId, GameMode mode)
+    public async Task<Stats> GetUserStatsAsync(int userId, GameMode mode)
     {
-        var stats = _dbContext.Stats.SingleOrDefault(s => s.UserId == userId && s.Mode == mode);
+        var stats = await _dbContext.Stats.SingleOrDefaultAsync(s => s.UserId == userId && s.Mode == mode);
 
         if (stats == null)
         {
@@ -25,7 +27,7 @@ public class StatsService
                 Mode = mode
             };
             _dbContext.Stats.Add(stats);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         return stats;
