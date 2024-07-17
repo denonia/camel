@@ -99,7 +99,7 @@ public class BanchoController : ControllerBase
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 2);
 
         var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(user.UserName, pq);
+        var newSession = new UserSession(user.UserName, request.PasswordMd5, pq);
         _userSessionService.AddSession(newToken, newSession);
 
         Response.Headers["cho-token"] = newToken;

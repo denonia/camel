@@ -18,12 +18,18 @@ namespace Camel.Bancho.Controllers;
 public class ScoreController : ControllerBase
 {
     private readonly IScoreService _scoreService;
+    private readonly IUserSessionService _userSessionService;
     private readonly ICryptoService _cryptoService;
     private readonly ILogger<ScoreController> _logger;
 
-    public ScoreController(IScoreService scoreService, ICryptoService cryptoService, ILogger<ScoreController> logger)
+    public ScoreController(
+        IScoreService scoreService, 
+        IUserSessionService userSessionService,
+        ICryptoService cryptoService, 
+        ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
+        _userSessionService = userSessionService;
         _cryptoService = cryptoService;
         _logger = logger;
     }
@@ -91,6 +97,10 @@ public class ScoreController : ControllerBase
         var (scoreData, clientHash) = _cryptoService.DecryptRijndaelData(
             Convert.FromBase64String(ivBase64), osuVersion,
             Convert.FromBase64String(scoreBase64), Convert.FromBase64String(clientHashBase64));
+
+        var session = _userSessionService.GetSessionFromApi(scoreData[1], passwordMd5);
+        if (session == null)
+            return Unauthorized();
 
         var score = Score.FromSubmission(scoreData);
         await _scoreService.SubmitScoreAsync(scoreData[1], score);

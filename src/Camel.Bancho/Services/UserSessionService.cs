@@ -18,6 +18,12 @@ public class UserSessionService : IUserSessionService
         return _activeSessions.GetValueOrDefault(accessToken);
     }
 
+    public UserSession? GetSessionFromApi(string userName, string passwordMd5)
+    {
+        return GetOnlineUsers()
+            .SingleOrDefault(u => u.Username == userName && u.PasswordMd5 == passwordMd5);
+    }
+
     public IEnumerable<UserSession> GetOnlineUsers()
     {
         return _activeSessions.Values;

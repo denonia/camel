@@ -5,14 +5,16 @@ namespace Camel.Bancho.Models;
 public class UserSession
 {
     public string Username { get; }
+    public string PasswordMd5 { get; }
     public DateTime StartTime { get; } = DateTime.Now;
     public DateTime LastActive { get; set; } = DateTime.Now;
 
     public PacketQueue PacketQueue { get; }
 
-    public UserSession(string username, PacketQueue packetQueue)
+    public UserSession(string username, string passwordMd5, PacketQueue packetQueue)
     {
         Username = username;
+        PasswordMd5 = passwordMd5;
         PacketQueue = packetQueue;
     }
 }
