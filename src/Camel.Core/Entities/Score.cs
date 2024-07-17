@@ -25,7 +25,7 @@ public class Score
     public int ClientFlags { get; set; }
     public bool Perfect { get; set; }
     public string OnlineChecksum { get; set; }
-    
+
     public int UserId { get; set; }
     public User User { get; set; }
 
@@ -49,11 +49,67 @@ public class Score
             //passed
             Status = data[14] == "True" ? SubmissionStatus.Submitted : SubmissionStatus.Failed,
             Mode = (GameMode)Convert.ToInt32(data[15]),
-            SetAt = DateTime.ParseExact(data[16], "yyMMddHHmmss", null).ToUniversalTime()
+            SetAt = DateTime.ParseExact(data[16], "yyMMddHHmmss", null).ToUniversalTime(),
             // client flags
-            
         };
+        result.Accuracy = result.CalculateAccuracy();
 
         return result;
+    }
+
+    public float CalculateAccuracy()
+    {
+        switch (Mode)
+        {
+            case GameMode.Standard:
+            {
+                var total = Count300 + Count100 + Count50 + CountMiss;
+                if (total == 0)
+                    return 0;
+                return 100.0f
+                       * (Count300 * 300.0f + Count100 * 100.0f + Count50 * 50.0f)
+                       / (total * 300.0f);
+            }
+            case GameMode.Taiko:
+            {
+                var total = Count300 + Count100 + CountMiss;
+                if (total == 0)
+                    return 0;
+                return 100.0f * (Count100 * 0.5f + Count300) / total;
+            }
+            case GameMode.CatchTheBeat:
+            {
+                var total = Count300 + Count100 + Count50 + CountKatu + CountMiss;
+                if (total == 0)
+                    return 0;
+                return 100.0f * (Count300 + Count100 + Count50) / total;
+            }
+            case GameMode.Mania:
+            {
+                var total = Count300 + Count100 + Count50 + CountGeki + CountKatu + CountMiss;
+                if (total == 0)
+                    return 0;
+                if ((Mods & (int)Enums.Mods.ScoreV2) != 0)
+                    return 100.0f
+                           * (
+                               (Count50 * 50.0f)
+                               + (Count100 * 100.0f)
+                               + (CountKatu * 200.0f)
+                               + (Count300 * 300.0f)
+                               + (CountGeki * 305.0f)
+                           )
+                           / (total * 305.0f);
+                return 100.0f
+                       * (
+                           Count50 * 50.0f
+                           + Count100 * 100.0f
+                           + CountKatu * 200.0f
+                           + (Count300 + CountGeki) * 300.0f
+                       )
+                       / (total * 300.0f);
+            }
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }
