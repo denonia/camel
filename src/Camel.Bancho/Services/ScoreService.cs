@@ -31,9 +31,30 @@ public class ScoreService : IScoreService
             }
         }
 
-        var user = await _dbContext.Users.SingleAsync(u => u.UserName == userName);
+        var user = await _dbContext.Users
+            .Include(u => u.Stats)
+            .SingleAsync(u => u.UserName == userName);
         score.User = user;
         _dbContext.Scores.Add(score);
+        
+        // User stats
+        var stats = user.Stats.Single(s => s.Mode == score.Mode);
+
+        stats.TotalScore += score.ScoreNum;
+        stats.TotalHits += score.Count300 + score.Count100 + score.Count50;
+        stats.Plays++;
+        
+        if (score.Status == SubmissionStatus.Best)
+        {
+            var rankedScoreToAdd = score.ScoreNum;
+            if (pb != null)
+                rankedScoreToAdd -= pb.ScoreNum;
+
+            stats.RankedScore += rankedScoreToAdd;
+            
+            // TODO: weighted acc, pp, rank count
+        }
+        
         await _dbContext.SaveChangesAsync();
     }
 
