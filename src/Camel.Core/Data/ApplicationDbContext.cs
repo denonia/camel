@@ -8,6 +8,7 @@ namespace Camel.Core.Data;
 public class ApplicationDbContext : IdentityDbContext<User, Role, int>
 {
     public DbSet<Stats> Stats { get; set; }
+    public DbSet<Score> Scores { get; set; }
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -60,6 +61,13 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
         {
             entity.HasOne<User>(u => u.User)
                 .WithMany(u => u.Stats)
+                .HasForeignKey(u => u.UserId);
+        });
+        
+        builder.Entity<Score>(entity =>
+        {
+            entity.HasOne<User>(s => s.User)
+                .WithMany(u => u.Scores)
                 .HasForeignKey(u => u.UserId);
         });
 
