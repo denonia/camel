@@ -25,6 +25,9 @@ public class Program
         builder.Services.AddTransient<IStatsService, StatsService>();
         builder.Services.AddSingleton<ICryptoService, CryptoService>();
         builder.Services.AddTransient<IScoreService, ScoreService>();
+        builder.Services.AddTransient<IBeatmapService, BeatmapService>();
+
+        builder.Services.AddHttpClient();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("BanchoDbContext"))

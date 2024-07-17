@@ -18,10 +18,10 @@ namespace Camel.Bancho.Controllers;
 public class ScoreController : ControllerBase
 {
     private readonly IScoreService _scoreService;
-    private readonly CryptoService _cryptoService;
+    private readonly ICryptoService _cryptoService;
     private readonly ILogger<ScoreController> _logger;
 
-    public ScoreController(IScoreService scoreService, CryptoService cryptoService, ILogger<ScoreController> logger)
+    public ScoreController(IScoreService scoreService, ICryptoService cryptoService, ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
         _cryptoService = cryptoService;

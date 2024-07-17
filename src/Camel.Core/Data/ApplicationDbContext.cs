@@ -9,6 +9,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
 {
     public DbSet<Stats> Stats { get; set; }
     public DbSet<Score> Scores { get; set; }
+    public DbSet<Beatmap> Beatmaps { get; set; }
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -71,5 +72,9 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
                 .HasForeignKey(u => u.UserId);
         });
 
+        builder.Entity<Beatmap>(entity =>
+        {
+            entity.HasIndex(e => e.Md5).IsUnique();
+        });
     }
 }
