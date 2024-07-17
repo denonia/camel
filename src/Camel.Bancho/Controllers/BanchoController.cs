@@ -87,11 +87,11 @@ public class BanchoController : ControllerBase
         pq.WriteChannelInfo("#osu", "General channel", 1);
         pq.WriteChannelInfoEnd();
 
-        pq.WriteUserPresence(1, user.UserName, 0, 0, 0, 0, 0, 1);
+        pq.WriteUserPresence(user.Id, user.UserName, 0, 0, 0, 0, 0, 1);
 
         var stats = _statsService.GetUserStats(user.Id, GameMode.Standard);
-        pq.WriteUserStats(1, ClientAction.Editing, "Darude - Sandstorm", "", 0, stats.Mode, 1,
-            stats.RankedScore, stats.Accuracy, stats.Plays, stats.TotalScore, 12, stats.Pp);
+        pq.WriteUserStats(user.Id, ClientAction.Editing, "Darude - Sandstorm", "asdf", 0, stats.Mode, 1,
+            stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore, 12, stats.Pp);
 
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 2);
 
