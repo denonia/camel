@@ -102,16 +102,14 @@ public class ScoreController : ControllerBase
         var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
         var pp = await _performanceCalculator.CalculateScorePpAsync(score, beatmap.Id);
         score.Pp = (float)pp;
-        
-        if (score.Status == SubmissionStatus.Best)
-            session.PacketQueue.WriteNotification($"u got {(int)pp} pp gz");
 
         var previousPb = await _scoreService.SubmitScoreAsync(scoreData[1], score);
         var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
         await _statsService.UpdateStatsAfterSubmissionAsync(stats, score, previousPb);
         
-        session.PacketQueue.WriteUserStats(session);
+        if (score.Status == SubmissionStatus.Best)
+            session.PacketQueue.WriteNotification($"{(int)pp} pp gz");
 
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
 
