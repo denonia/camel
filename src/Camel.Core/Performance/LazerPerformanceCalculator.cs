@@ -55,7 +55,7 @@ public class LazerPerformanceCalculator : IPerformanceCalculator
         
         var difficultyCalculator = ruleset.CreateDifficultyCalculator(workingBeatmap);
         var attributes = difficultyCalculator.Calculate(
-            LegacyHelper.FilterDifficultyAdjustmentMods(workingBeatmap.BeatmapInfo, ruleset, scoreInfo.Mods));
+            LegacyHelper.FilterDifficultyAdjustmentMods(workingBeatmap.BeatmapInfo, ruleset, (LegacyMods)score.Mods));
         
         var performanceAttributes = performanceCalculator?.Calculate(scoreInfo, attributes);
         
