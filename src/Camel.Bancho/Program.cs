@@ -5,6 +5,7 @@ using Camel.Bancho.Services;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Data;
 using Camel.Core.Interfaces;
+using Camel.Core.Performance;
 using Camel.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,7 @@ public class Program
         builder.Services.AddSingleton<ICryptoService, CryptoService>();
         builder.Services.AddTransient<IScoreService, ScoreService>();
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
+        builder.Services.AddTransient<IPerformanceCalculator, LazerPerformanceCalculator>();
 
         builder.Services.AddHttpClient();
 
