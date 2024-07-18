@@ -1,5 +1,7 @@
 ﻿using Camel.Bancho.Enums;
+using Camel.Bancho.Models;
 using Camel.Bancho.Packets.Server;
+using Camel.Core.Entities;
 using Camel.Core.Enums;
 
 namespace Camel.Bancho.Packets;
@@ -54,6 +56,17 @@ public class PacketQueue
         long rankedScore, float accuracy, int plays, long totalScore, int rank, short pp) =>
         _packetQueue.Enqueue(new UserStatsPacket(id, action, infoText, mapMd5, mods, mode, mapId,
             rankedScore, accuracy, plays, totalScore, rank, pp));
+
+    public void WriteUserStats(UserSession userSession)
+    {
+        var stats = userSession.User.Stats.Single(s => s.Mode == userSession.Status.Mode);
+
+        userSession.PacketQueue.WriteUserStats(userSession.User.Id, 
+            userSession.Status.Action, userSession.Status.InfoText, userSession.Status.MapMd5, userSession.Status.Mods,
+            stats.Mode, userSession.Status.MapId,
+            stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays,
+            stats.TotalScore, 1, stats.Pp);
+    }
 
     public void WriteSendMessage(string sender, string message, string recipient, int senderId) =>
         _packetQueue.Enqueue(new SendMessagePacket(sender, message, recipient, senderId));

@@ -20,22 +20,12 @@ public class UserStatsRequestHandler : IPacketHandler<UserStatsRequestPacket>
     public async Task HandleAsync(UserStatsRequestPacket packet, UserSession userSession)
     {
         // TODO: find out whether the client is really supposed to spam this billion times a second
-        foreach (var userId in packet.UserIds)
+        var requestedUsers = _userSessionService.GetOnlineUsers()
+            .IntersectBy(packet.UserIds, u => u.User.Id);
+        
+        foreach (var user in requestedUsers)
         {
-            var requestedUser = _userSessionService.GetOnlineUsers().SingleOrDefault(u => u.User.Id == userId);
-            if (requestedUser == null)
-            {
-                _logger.LogWarning("{} requested for non-existing user: {}", userSession.Username, userId);
-                return;
-            }
-
-            var stats = requestedUser.User.Stats.Single(s => s.Mode == requestedUser.Status.Mode);
-
-            userSession.PacketQueue.WriteUserStats(userId, 
-                requestedUser.Status.Action, requestedUser.Status.InfoText, requestedUser.Status.MapMd5, requestedUser.Status.Mods,
-                stats.Mode, requestedUser.Status.MapId,
-                stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays,
-                stats.TotalScore, 1, stats.Pp);
+            userSession.PacketQueue.WriteUserStats(user);
         }
     }
 }

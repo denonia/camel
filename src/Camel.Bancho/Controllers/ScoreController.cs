@@ -110,6 +110,8 @@ public class ScoreController : ControllerBase
         var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
         await _statsService.UpdateStatsAfterSubmissionAsync(stats, score, previousPb);
+        
+        session.PacketQueue.WriteUserStats(session);
 
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
 
