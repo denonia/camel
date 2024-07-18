@@ -108,9 +108,16 @@ public class ScoreController : ControllerBase
 
         var previousPb = await _scoreService.SubmitScoreAsync(scoreData[1], score);
         var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
+        var prevStats = new Stats(stats);
         await _statsService.UpdateStatsAfterSubmissionAsync(stats, score, previousPb);
 
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
+
+        if (score.Status != SubmissionStatus.Failed)
+        {
+            var submissionResponse = new ScoreSubmissionResponse(score, beatmap, stats, prevStats, previousPb);
+            return Ok(submissionResponse.ToString());
+        }
 
         return Ok();
     }

@@ -23,4 +23,32 @@ public class Stats
 
     public int UserId { get; set; }
     public User User { get; set; }
+
+    public Stats(int userId, GameMode mode)
+    {
+        UserId = userId;
+        Mode = mode;
+    }
+
+    public Stats(Stats stats)
+    {
+        Id = stats.Id;
+        Mode = stats.Mode;
+        TotalScore = stats.TotalScore;
+        RankedScore = stats.RankedScore;
+        Pp = stats.Pp;
+        Plays = stats.Plays;
+        PlayTime = stats.PlayTime;
+        Accuracy = stats.Accuracy;
+        MaxCombo = stats.MaxCombo;
+        TotalHits = stats.TotalHits;
+        ReplayViews = stats.ReplayViews;
+        XHCount = stats.XHCount;
+        XCount = stats.XCount;
+        SHCount = stats.SHCount;
+        SCount = stats.SCount;
+        ACount = stats.ACount;
+        UserId = stats.UserId;
+        User = stats.User;
+    }
 }

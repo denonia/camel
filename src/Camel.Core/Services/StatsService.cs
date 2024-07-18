@@ -23,11 +23,7 @@ public class StatsService : IStatsService
 
         if (stats == null)
         {
-            stats = new Stats
-            {
-                UserId = userId,
-                Mode = mode
-            };
+            stats = new Stats(userId, mode);
             _dbContext.Stats.Add(stats);
             await _dbContext.SaveChangesAsync();
         }
