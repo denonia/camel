@@ -16,9 +16,10 @@
     ports:
       - 6379:6379
     volumes:
-      - /.data/redis:/root/redis
+      - ./.data/redis:/bitnami/redis/data
     environment:
       - REDIS_PORT=6379
+      - ALLOW_EMPTY_PASSWORD=yes
   nginx:
     restart: always
     image: nginx:1-alpine

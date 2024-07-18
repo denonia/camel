@@ -22,11 +22,11 @@ public class RedisRankingService : IRankingService
 
     public async Task<int> GetGlobalRankPpAsync(int userId, GameMode mode)
     {
-        return (int?)(await _redis.SortedSetRankAsync($"leaderboard:{mode}:pp", userId) + 1) ?? 0;
+        return (int?)(await _redis.SortedSetRankAsync($"leaderboard:{mode}:pp", userId, Order.Descending) + 1) ?? 0;
     }
     
     public async Task<int> GetGlobalRankScoreAsync(int userId, GameMode mode)
     {
-        return (int?)(await _redis.SortedSetRankAsync($"leaderboard:{mode}:score", userId) + 1) ?? 0;
+        return (int?)(await _redis.SortedSetRankAsync($"leaderboard:{mode}:score", userId, Order.Descending) + 1) ?? 0;
     }
 }
