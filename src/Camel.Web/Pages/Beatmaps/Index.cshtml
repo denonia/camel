@@ -33,7 +33,11 @@
                 <td>@score.Grade</td>
                 <td>@score.ScoreNum</td>
                 <td>@score.Accuracy%</td>
-                <td>@score.UserName</td>
+                <td>
+                    <a asp-page="/users/index" asp-route-userId="@score.UserId">
+                        @score.UserName
+                    </a>
+                </td>
                 <td>@score.MaxCombo</td>
                 <td>@score.Count300</td>
                 <td>@score.Count100</td>

@@ -1,0 +1,92 @@
+﻿@page "{userId:int}"
+@using Camel.Core.Entities
+@model Camel.Web.Pages.Users.Index
+
+@{
+}
+
+<div xmlns="http://www.w3.org/1999/html">
+    <h3>@Model.User.UserName</h3>
+
+    <table>
+        <tbody>
+        <tr>
+            <th>Rank</th>
+            <td>#1</td>
+        </tr>
+        <tr>
+            <th>Total pp</th>
+            <td>@Model.Stats.Pp</td>
+        </tr>
+        <tr>
+            <th>Accuracy</th>
+            <td>@Model.Stats.Accuracy</td>
+        </tr>
+        <tr>
+            <th>Play count</th>
+            <td>@Model.Stats.Plays</td>
+        </tr>
+        <tr>
+            <th>Total score</th>
+            <td>@Model.Stats.TotalScore</td>
+        </tr>
+        <tr>
+            <th>Ranked score</th>
+            <td>@Model.Stats.RankedScore</td>
+        </tr>
+        <tr>
+            <th>Total hits</th>
+            <td>@Model.Stats.TotalHits</td>
+        </tr>
+        <tr>
+            <th>Max combo</th>
+            <td>@Model.Stats.MaxCombo</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Grade</th>
+            <th>Score</th>
+            <th>Accuracy</th>
+            <th>Max Combo</th>
+            <th>300</th>
+            <th>100</th>
+            <th>50</th>
+            <th>Miss</th>
+            <th>Pp</th>
+            <th>Time</th>
+            <th>Mods</th>
+        </tr>
+        </thead>
+        <br>
+        <tbody>
+        @foreach (var (score, place) in Model.Scores.Select((s, i) => (s, i + 1)))
+        {
+            <tr>
+                <td>@place</td>
+                <td>
+                    <a asp-page="/beatmaps/index" asp-route-beatmapId="@score.BeatmapId">
+                        @score.Artist - @score.Title [@score.Version]
+                    </a>
+                </td>
+                <td>@score.Grade</td>
+                <td>@score.ScoreNum</td>
+                <td>@score.Accuracy</td>
+                <td>@score.MaxCombo</td>
+                <td>@score.Count300</td>
+                <td>@score.Count100</td>
+                <td>@score.Count50</td>
+                <td>@score.CountMiss</td>
+                <td>@score.Pp</td>
+                <td>@score.SetAt</td>
+                <td>@score.Mods</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

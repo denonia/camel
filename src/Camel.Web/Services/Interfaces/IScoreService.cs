@@ -1,8 +1,10 @@
-﻿using Camel.Web.Dtos;
+﻿using Camel.Core.Enums;
+using Camel.Web.Dtos;
 
 namespace Camel.Web.Services.Interfaces;
 
 public interface IScoreService
 {
-    public Task<IList<LeaderboardScore>> GetLeaderboardScoresAsync(int beatmapId);
+    Task<IList<LeaderboardScore>> GetLeaderboardScoresAsync(int beatmapId);
+    Task<IList<ProfileScore>> GetUserBestScoresAsync(int userId, GameMode mode);
 }
