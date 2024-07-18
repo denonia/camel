@@ -17,6 +17,7 @@ public class ScoreController : ControllerBase
 {
     private readonly IScoreService _scoreService;
     private readonly IStatsService _statsService;
+    private readonly IRankingService _rankingService;
     private readonly IUserSessionService _userSessionService;
     private readonly ICryptoService _cryptoService;
     private readonly IBeatmapService _beatmapService;
@@ -28,6 +29,7 @@ public class ScoreController : ControllerBase
     public ScoreController(
         IScoreService scoreService,
         IStatsService statsService,
+        IRankingService rankingService,
         IUserSessionService userSessionService,
         ICryptoService cryptoService,
         IBeatmapService beatmapService,
@@ -38,6 +40,7 @@ public class ScoreController : ControllerBase
     {
         _scoreService = scoreService;
         _statsService = statsService;
+        _rankingService = rankingService;
         _userSessionService = userSessionService;
         _cryptoService = cryptoService;
         _beatmapService = beatmapService;
@@ -125,9 +128,12 @@ public class ScoreController : ControllerBase
         var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
         await _statsService.UpdateStatsAfterSubmissionAsync(stats, score, previousPb);
-        
+
         if (score.Status == SubmissionStatus.Best)
+        {
+            await _rankingService.FetchRanksAsync();
             session.PacketQueue.WriteNotification($"{(int)pp} pp gz");
+        }
 
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
 

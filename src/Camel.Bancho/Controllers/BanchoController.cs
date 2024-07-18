@@ -20,6 +20,7 @@ public class BanchoController : ControllerBase
     private readonly IPacketHandlerService _packetHandler;
     private readonly IUserSessionService _userSessionService;
     private readonly IStatsService _statsService;
+    private readonly IRankingService _rankingService;
     private readonly ILogger<BanchoController> _logger;
 
     public BanchoController(
@@ -27,12 +28,14 @@ public class BanchoController : ControllerBase
         IPacketHandlerService packetHandler, 
         IUserSessionService userSessionService,
         IStatsService statsService,
+        IRankingService rankingService,
         ILogger<BanchoController> logger)
     {
         _authService = authService;
         _packetHandler = packetHandler;
         _userSessionService = userSessionService;
         _statsService = statsService;
+        _rankingService = rankingService;
         _logger = logger;
     }
 
@@ -103,7 +106,8 @@ public class BanchoController : ControllerBase
         
         var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
         pq.WriteUserStats(user.Id, ClientAction.Idle, "", "", 0, stats.Mode, 0,
-            stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore, 1, stats.Pp);
+            stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore,
+            _rankingService.GetUserGlobalRank(user.Id), stats.Pp);
 
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 3);
 

@@ -34,6 +34,7 @@ public class Program
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
         builder.Services.AddTransient<IPerformanceCalculator, LazerPerformanceCalculator>();
         builder.Services.AddSingleton<ICacheService, CacheService>();
+        builder.Services.AddSingleton<IRankingService, RankingService>();
 
         builder.Services.AddHttpClient();
 
@@ -47,6 +48,9 @@ public class Program
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             dbContext.Database.EnsureCreated();
+            
+            var rankingService = scope.ServiceProvider.GetRequiredService<IRankingService>();
+            rankingService.FetchRanksAsync().Wait();
         }
 
         if (app.Environment.IsDevelopment())

@@ -44,7 +44,7 @@ public class OsuDirectBeatmap
 
     [JsonPropertyName("creator_id")] public int CreatorId { get; set; }
 
-    [JsonPropertyName("bpm")] public int Bpm { get; set; }
+    [JsonPropertyName("bpm")] public float Bpm { get; set; }
 
     [JsonPropertyName("source")] public string Source { get; set; }
 

@@ -57,7 +57,7 @@ public class PacketQueue
         _packetQueue.Enqueue(new UserStatsPacket(id, action, infoText, mapMd5, mods, mode, mapId,
             rankedScore, accuracy, plays, totalScore, rank, pp));
 
-    public void WriteUserStats(UserSession userSession)
+    public void WriteUserStats(UserSession userSession, int rank)
     {
         var stats = userSession.User.Stats.Single(s => s.Mode == userSession.Status.Mode);
 
@@ -65,7 +65,7 @@ public class PacketQueue
             userSession.Status.Action, userSession.Status.InfoText, userSession.Status.MapMd5, userSession.Status.Mods,
             stats.Mode, userSession.Status.MapId,
             stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays,
-            stats.TotalScore, 1, stats.Pp);
+            stats.TotalScore, rank, stats.Pp);
     }
 
     public void WriteSendMessage(string sender, string message, string recipient, int senderId) =>
