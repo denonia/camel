@@ -15,6 +15,7 @@ namespace Camel.Bancho.Controllers;
 public class ScoreController : ControllerBase
 {
     private readonly IScoreService _scoreService;
+    private readonly IStatsService _statsService;
     private readonly IUserSessionService _userSessionService;
     private readonly ICryptoService _cryptoService;
     private readonly IBeatmapService _beatmapService;
@@ -23,6 +24,7 @@ public class ScoreController : ControllerBase
 
     public ScoreController(
         IScoreService scoreService,
+        IStatsService statsService,
         IUserSessionService userSessionService,
         ICryptoService cryptoService,
         IBeatmapService beatmapService,
@@ -30,6 +32,7 @@ public class ScoreController : ControllerBase
         ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
+        _statsService = statsService;
         _userSessionService = userSessionService;
         _cryptoService = cryptoService;
         _beatmapService = beatmapService;
@@ -101,7 +104,8 @@ public class ScoreController : ControllerBase
         
         session.PacketQueue.WriteNotification($"u got {pp} pp gz");
 
-        await _scoreService.SubmitScoreAsync(scoreData[1], score);
+        var previousPb = await _scoreService.SubmitScoreAsync(scoreData[1], score);
+        await _statsService.UpdateStatsAfterSubmissionAsync(session.User.Id, score, previousPb);
 
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
 

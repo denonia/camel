@@ -4,6 +4,7 @@ using Camel.Web.Dtos;
 using Camel.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using IScoreService = Camel.Web.Services.Interfaces.IScoreService;
 
 namespace Camel.Web.Pages.Beatmaps;
 

@@ -16,7 +16,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         
         builder.Services.AddTransient<IPasswordHasher<User>, MD5PasswordHasher>();
-        builder.Services.AddTransient<IScoreService, ScoreService>();
+        builder.Services.AddTransient<Services.Interfaces.IScoreService, Services.ScoreService>();
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
         
         builder.Services.AddHttpClient();

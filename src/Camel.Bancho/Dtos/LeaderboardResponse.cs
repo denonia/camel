@@ -1,13 +1,13 @@
 ﻿using System.Text;
-using Camel.Core.ViewModels;
+using Camel.Core.Dtos;
 
 namespace Camel.Bancho.Dtos;
 
 public class LeaderboardResponse
 {
-    public IList<LeaderboardScore> Scores { get; }
+    public IList<InGameLeaderboardScore> Scores { get; }
     
-    public LeaderboardResponse(IList<LeaderboardScore> scores)
+    public LeaderboardResponse(IList<InGameLeaderboardScore> scores)
     {
         Scores = scores;
     }

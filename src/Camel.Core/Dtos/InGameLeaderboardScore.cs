@@ -1,6 +1,6 @@
-﻿namespace Camel.Core.ViewModels;
+﻿namespace Camel.Core.Dtos;
 
-public class LeaderboardScore
+public class InGameLeaderboardScore
 {
     public int Id { get; set; }
     public int ScoreNum { get; set; }
