@@ -8,6 +8,7 @@ using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using Camel.Core.Services;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace Camel.Bancho;
 
@@ -34,7 +35,10 @@ public class Program
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
         builder.Services.AddTransient<IPerformanceCalculator, LazerPerformanceCalculator>();
         builder.Services.AddSingleton<ICacheService, CacheService>();
-        builder.Services.AddSingleton<IRankingService, RankingService>();
+        builder.Services.AddSingleton<IRankingService, RedisRankingService>();
+        
+        builder.Services.AddSingleton<IConnectionMultiplexer>(
+            ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
 
         builder.Services.AddHttpClient();
 
@@ -47,10 +51,7 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            dbContext.Database.EnsureCreated();
-            
-            var rankingService = scope.ServiceProvider.GetRequiredService<IRankingService>();
-            rankingService.FetchRanksAsync().Wait();
+            dbContext.Database.Migrate();
         }
 
         if (app.Environment.IsDevelopment())

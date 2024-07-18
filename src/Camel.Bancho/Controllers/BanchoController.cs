@@ -105,9 +105,10 @@ public class BanchoController : ControllerBase
         pq.WriteUserPresence(user.Id, user.UserName, 0, 222, 0, 0, 0, 1);
         
         var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
+        var rank = await _rankingService.GetGlobalRankPpAsync(user.Id, stats.Mode);
         pq.WriteUserStats(user.Id, ClientAction.Idle, "", "", 0, stats.Mode, 0,
             stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore,
-            _rankingService.GetUserGlobalRank(user.Id), stats.Pp);
+            rank, stats.Pp);
 
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 3);
 

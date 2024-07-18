@@ -17,6 +17,8 @@ public class RequestStatusUpdateHandler : IPacketHandler<RequestStatusUpdatePack
     
     public async Task HandleAsync(RequestStatusUpdatePacket packet, UserSession userSession)
     {
-        userSession.PacketQueue.WriteUserStats(userSession, _rankingService.GetUserGlobalRank(userSession.User.Id));
+        var rank = await _rankingService.GetGlobalRankPpAsync(userSession.User.Id, userSession.Status.Mode);
+            
+        userSession.PacketQueue.WriteUserStats(userSession, rank);
     }
 }

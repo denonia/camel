@@ -29,7 +29,8 @@ public class UserStatsRequestHandler : IPacketHandler<UserStatsRequestPacket>
 
         foreach (var user in requestedUsers)
         {
-            userSession.PacketQueue.WriteUserStats(user, _rankingService.GetUserGlobalRank(user.User.Id));
+            var rank = await _rankingService.GetGlobalRankPpAsync(userSession.User.Id, userSession.Status.Mode);
+            userSession.PacketQueue.WriteUserStats(user, rank);
         }
     }
 }

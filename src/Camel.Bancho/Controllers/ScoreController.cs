@@ -131,7 +131,7 @@ public class ScoreController : ControllerBase
 
         if (score.Status == SubmissionStatus.Best)
         {
-            await _rankingService.FetchRanksAsync();
+            await _rankingService.UpdateUserStatsAsync(session.User.Id, score.Mode, stats.Pp, stats.RankedScore);
             session.PacketQueue.WriteNotification($"{(int)pp} pp gz");
         }
 

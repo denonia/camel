@@ -1,7 +1,10 @@
-﻿namespace Camel.Core.Interfaces;
+﻿using Camel.Core.Enums;
+
+namespace Camel.Core.Interfaces;
 
 public interface IRankingService
 {
-    int GetUserGlobalRank(int userId);
-    Task FetchRanksAsync();
+    Task UpdateUserStatsAsync(int userId, GameMode mode, int pp, long rankedScore);
+    Task<int> GetGlobalRankPpAsync(int userId, GameMode mode);
+    Task<int> GetGlobalRankScoreAsync(int userId, GameMode mode);
 }

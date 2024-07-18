@@ -10,6 +10,15 @@
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=camel_user
       - POSTGRES_DB=camel_db
+  redis:
+    restart: always
+    image: bitnami/redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - /.data/redis:/root/redis
+    environment:
+      - REDIS_PORT=6379
   nginx:
     restart: always
     image: nginx:1-alpine

@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Camel.Core.Services;
 
-public class RankingService : IRankingService
+[Obsolete("use redis lol")]
+public class RankingService
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -30,9 +31,6 @@ public class RankingService : IRankingService
     
     public async Task FetchRanksAsync()
     {
-        // TODO come up with something better
-        // and add other mods idc now
-
         using var scope = _serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
