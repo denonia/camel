@@ -28,7 +28,7 @@ public class OsuDirectBeatmap
 
     [JsonPropertyName("mode")] public int Mode { get; set; }
 
-    [JsonPropertyName("approved_date")] public DateTime ApprovedDate { get; set; }
+    [JsonPropertyName("approved_date")] public DateTime? ApprovedDate { get; set; }
 
     [JsonPropertyName("last_update")] public DateTime LastUpdate { get; set; }
 
@@ -67,7 +67,7 @@ public class OsuDirectBeatmap
 
     [JsonPropertyName("passcount")] public int Passcount { get; set; }
 
-    [JsonPropertyName("packs")] public List<string> Packs { get; set; }
+    [JsonPropertyName("packs")] public List<string>? Packs { get; set; }
 
     [JsonPropertyName("max_combo")] public int MaxCombo { get; set; }
 

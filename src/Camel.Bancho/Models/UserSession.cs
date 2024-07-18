@@ -23,11 +23,10 @@ public class UserSession
     public UserStatus Status { get; set; }
     
     public User User { get; }
-    public Stats Stats { get; }
 
     public PacketQueue PacketQueue { get; }
 
-    public UserSession(LoginRequest loginRequest, User user, Stats stats, PacketQueue packetQueue)
+    public UserSession(LoginRequest loginRequest, User user, PacketQueue packetQueue)
     {
         Username = loginRequest.Username;
         PasswordMd5 = loginRequest.PasswordMd5;
@@ -37,7 +36,6 @@ public class UserSession
         ClientHashes = loginRequest.ClientHashes;
         BlockNonFriendPm = loginRequest.BlockNonFriendPm;
         User = user;
-        Stats = stats;
         PacketQueue = packetQueue;
     }
 }

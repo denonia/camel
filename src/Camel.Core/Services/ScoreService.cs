@@ -59,7 +59,7 @@ public class ScoreService : IScoreService
     {
         return await _dbContext.Database.SqlQuery<ScorePpAcc>(
             $"""
-             SELECT s.pp, s.acc
+             SELECT s.pp, s.accuracy
              FROM scores s 
              WHERE s.user_id = {userId} AND s.status = {SubmissionStatus.Best} AND s.mode = {mode}
              ORDER BY s.pp DESC

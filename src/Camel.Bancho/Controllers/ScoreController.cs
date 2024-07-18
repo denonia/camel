@@ -4,6 +4,7 @@ using Camel.Bancho.Dtos;
 using Camel.Bancho.Middlewares;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Entities;
+using Camel.Core.Enums;
 using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using HttpMultipartParser;
@@ -102,10 +103,12 @@ public class ScoreController : ControllerBase
         var pp = await _performanceCalculator.CalculateScorePpAsync(score, beatmap.Id);
         score.Pp = (float)pp;
         
-        session.PacketQueue.WriteNotification($"u got {pp} pp gz");
+        if (score.Status == SubmissionStatus.Best)
+            session.PacketQueue.WriteNotification($"u got {(int)pp} pp gz");
 
         var previousPb = await _scoreService.SubmitScoreAsync(scoreData[1], score);
-        await _statsService.UpdateStatsAfterSubmissionAsync(session.User.Id, score, previousPb);
+        var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
+        await _statsService.UpdateStatsAfterSubmissionAsync(stats, score, previousPb);
 
         _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
 

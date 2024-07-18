@@ -103,12 +103,12 @@ public class BanchoController : ControllerBase
         
         var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
         pq.WriteUserStats(user.Id, ClientAction.Idle, "", "", 0, stats.Mode, 0,
-            stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore, 12, stats.Pp);
+            stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore, 1, stats.Pp);
 
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 3);
 
         var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(request, user, stats, pq);
+        var newSession = new UserSession(request, user, pq);
         _userSessionService.AddSession(newToken, newSession);
 
         Response.Headers["cho-token"] = newToken;

@@ -29,11 +29,13 @@ public class UserStatsRequestHandler : IPacketHandler<UserStatsRequestPacket>
                 return;
             }
 
+            var stats = requestedUser.User.Stats.Single(s => s.Mode == requestedUser.Status.Mode);
+
             userSession.PacketQueue.WriteUserStats(userId, 
                 requestedUser.Status.Action, requestedUser.Status.InfoText, requestedUser.Status.MapMd5, requestedUser.Status.Mods,
-                requestedUser.Stats.Mode, requestedUser.Status.MapId,
-                requestedUser.Stats.RankedScore, requestedUser.Stats.Accuracy / 100.0f, requestedUser.Stats.Plays,
-                requestedUser.Stats.TotalScore, 12, requestedUser.Stats.Pp);
+                stats.Mode, requestedUser.Status.MapId,
+                stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays,
+                stats.TotalScore, 1, stats.Pp);
         }
     }
 }

@@ -35,9 +35,9 @@ public class StatsService : IStatsService
         return stats;
     }
 
-    public async Task UpdateStatsAfterSubmissionAsync(int userId, Score score, Score? personalBest)
+    public async Task UpdateStatsAfterSubmissionAsync(Stats stats, Score score, Score? personalBest)
     {
-        var stats = await GetUserStatsAsync(userId, score.Mode);
+        
         stats.TotalScore += score.ScoreNum;
         stats.TotalHits += score.Count300 + score.Count100 + score.Count50;
         stats.Plays++;
@@ -66,5 +66,8 @@ public class StatsService : IStatsService
             var bonusPp = 416.667 * (1 - Math.Pow(0.9994, bestScores.Count));
             stats.Pp = (short)(weightedPp + bonusPp);
         }
+
+        _dbContext.Entry(stats).State = EntityState.Modified;
+        await _dbContext.SaveChangesAsync();
     }
 }

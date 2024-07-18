@@ -1,6 +1,7 @@
 ﻿using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services.Interfaces;
+using Camel.Core.Entities;
 
 namespace Camel.Bancho.Services;
 
@@ -10,6 +11,12 @@ public class UserSessionService : IUserSessionService
 
     public void AddSession(string accessToken, UserSession userSession)
     {
+        var existing = _activeSessions
+            .SingleOrDefault(s => s.Value.Username == userSession.Username);
+        
+        if (!existing.Equals(default(KeyValuePair<string, UserSession>)))
+            _activeSessions.Remove(existing.Key);
+        
         _activeSessions[accessToken] = userSession;
     }
 
