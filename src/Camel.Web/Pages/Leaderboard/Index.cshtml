@@ -1,0 +1,29 @@
+﻿@page
+@model Camel.Web.Pages.Leaderboard.Index
+
+@{
+}
+
+<div>
+    <table>
+        <thead>
+        <th>#</th>
+        <th>Name</th>
+        <th>pp</th>
+        </thead>
+        <tbody>
+        @foreach (var entry in Model.RankingEntries)
+        {
+            <tr>
+                <td>@entry.Rank</td>
+                <td>
+                    <a asp-page="/users/index" asp-route-userId="@entry.UserId">
+                        @entry.UserName
+                    </a>
+                </td>
+                <td>@entry.Pp</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
