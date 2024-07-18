@@ -1,5 +1,6 @@
 ﻿using Camel.Core.Entities;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Camel.Core.Data;
 using Camel.Core.Dtos;
 using Camel.Core.Enums;
@@ -77,17 +78,24 @@ public class BeatmapService : IBeatmapService
         return fs;
     }
 
-    private async Task<List<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);
+    private async Task<IEnumerable<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);
     
-    private async Task<List<Beatmap>> FetchFromApiById(int beatmapId) => await FetchFromApi(IdApiBaseUrl + beatmapId);
+    private async Task<IEnumerable<Beatmap>> FetchFromApiById(int beatmapId) => await FetchFromApi(IdApiBaseUrl + beatmapId);
 
-    private async Task<List<Beatmap>> FetchFromApi(string url)
+    private async Task<IEnumerable<Beatmap>> FetchFromApi(string url)
     {
         var httpClient = _httpClientFactory.CreateClient();
 
-        var diffs = await httpClient.GetFromJsonAsync<OsuDirectBeatmap[]>(url);
-        if (diffs == null)
-            return null;
+        var response = await httpClient.GetAsync(url);
+        // Why do they not just return 404 (39 is length of 'not found' message)
+        if (response.Content.Headers.ContentLength <= 39)
+            return [];
+        
+        var stream = await response.Content.ReadAsStreamAsync();
+        var diffs = await JsonSerializer.DeserializeAsync<OsuDirectBeatmap[]>(stream);
+
+        if (diffs is null)
+            return [];
         
         var beatmaps = diffs.Select(d =>
             new Beatmap

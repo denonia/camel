@@ -33,6 +33,7 @@ public class Program
         builder.Services.AddTransient<IScoreService, ScoreService>();
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
         builder.Services.AddTransient<IPerformanceCalculator, LazerPerformanceCalculator>();
+        builder.Services.AddSingleton<ICacheService, CacheService>();
 
         builder.Services.AddHttpClient();
 

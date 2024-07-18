@@ -1,14 +1,22 @@
 ﻿using System.Text;
 using Camel.Core.Dtos;
+using Camel.Core.Entities;
+using Camel.Core.Enums;
 
 namespace Camel.Bancho.Dtos;
 
 public class LeaderboardResponse
 {
+    public Beatmap Beatmap { get; }
+    public Score? PersonalBest { get; }
+    public string UserName { get; }
     public IList<InGameLeaderboardScore> Scores { get; }
     
-    public LeaderboardResponse(IList<InGameLeaderboardScore> scores)
+    public LeaderboardResponse(Beatmap beatmap, Score? personalBest, string userName, IList<InGameLeaderboardScore> scores)
     {
+        Beatmap = beatmap;
+        PersonalBest = personalBest;
+        UserName = userName;
         Scores = scores;
     }
 
@@ -16,13 +24,26 @@ public class LeaderboardResponse
     {
         var sb = new StringBuilder();
         
-        // {ranked_status}|{serv_has_osz2}|{bid}|{bsid}|{len(scores)}|{fa_track_id}|{fa_license_text}
-        // {offset}\n{beatmap_name}\n{rating}
-
-        sb.Append($"2|false|123|123|{Scores.Count}|0|\n");
-        sb.AppendFormat("0\nFull name\n10.0\n");
-        // no personal best
-        sb.Append("\n");
+        // TODO: status and rating
+        sb.Append($"{RankedStatus.Ranked}|false|{Beatmap.Id}|{Beatmap.MapsetId}|{Scores.Count}|0|\n");
+        sb.Append($"0\n{Beatmap.Artist} - {Beatmap.Title} [{Beatmap.Version}]\n10.0\n");
+        
+        if (PersonalBest is not null)
+        {
+            var fields = new object[]
+            {
+                // TODO: WHAT'S THE PLACE
+                PersonalBest.Id, UserName, PersonalBest.ScoreNum, PersonalBest.MaxCombo, 
+                PersonalBest.Count50, PersonalBest.Count100, PersonalBest.Count300,
+                PersonalBest.CountMiss, PersonalBest.CountKatu, PersonalBest.CountGeki,
+                PersonalBest.Perfect, PersonalBest.Mods, PersonalBest.UserId, 1,
+                PersonalBest.SetAt.Subtract(DateTime.UnixEpoch).TotalSeconds,
+                1
+            };
+            sb.Append(string.Join('|', fields));
+        }
+        
+        sb.Append('\n');
 
         foreach (var (score, place) in Scores.Select((s, i) => (s, i + 1)))
         {

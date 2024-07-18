@@ -22,6 +22,7 @@ public class ScoreController : ControllerBase
     private readonly IBeatmapService _beatmapService;
     private readonly IPerformanceCalculator _performanceCalculator;
     private readonly IConfiguration _configuration;
+    private readonly ICacheService _cacheService;
     private readonly ILogger<ScoreController> _logger;
 
     public ScoreController(
@@ -32,6 +33,7 @@ public class ScoreController : ControllerBase
         IBeatmapService beatmapService,
         IPerformanceCalculator performanceCalculator,
         IConfiguration configuration,
+        ICacheService cacheService,
         ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
@@ -41,6 +43,7 @@ public class ScoreController : ControllerBase
         _beatmapService = beatmapService;
         _performanceCalculator = performanceCalculator;
         _configuration = configuration;
+        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -59,8 +62,20 @@ public class ScoreController : ControllerBase
         [FromQuery(Name = "h")] int mapPackageHash,
         [FromQuery(Name = "a")] int aqnFilesFound)
     {
+        if (_cacheService.IsInUnsubmittedCache(mapMd5))
+            return Ok("-1|false");
+        
+        var beatmap = await _beatmapService.FindBeatmapAsync(mapMd5);
+        if (beatmap is null)
+        {
+            _cacheService.AddUnsubmittedMap(mapMd5);
+            return Ok("-1|false");
+        }
+        
+        var personalBest = await _scoreService.GetPersonalBestAsync(userName, mapMd5);
         var scores = await _scoreService.GetLeaderboardScoresAsync(mapMd5);
-        var response = new LeaderboardResponse(scores);
+        
+        var response = new LeaderboardResponse(beatmap, personalBest, userName, scores);
 
         return Ok(response.ToString());
     }
