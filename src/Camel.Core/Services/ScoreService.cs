@@ -16,6 +16,11 @@ public class ScoreService : IScoreService
         _dbContext = dbContext;
     }
 
+    public async Task<Score?> FindScoreAsync(int scoreId)
+    {
+        return await _dbContext.Scores.SingleOrDefaultAsync(s => s.Id == scoreId);
+    }
+
     public async Task<Score?> SubmitScoreAsync(string userName, Score score)
     {
         var pb = await GetPersonalBestAsync(userName, score.MapMd5);

@@ -6,6 +6,7 @@ namespace Camel.Core.Interfaces;
 
 public interface IScoreService
 {
+    public Task<Score?> FindScoreAsync(int scoreId);
     public Task<Score?> SubmitScoreAsync(string userName, Score score);
     public Task<IList<InGameLeaderboardScore>> GetLeaderboardScoresAsync(string mapMd5);
     public Task<IList<ScorePpAcc>> GetUserBestScoresAsync(int userId, GameMode mode);

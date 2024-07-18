@@ -21,6 +21,7 @@ public class ScoreController : ControllerBase
     private readonly ICryptoService _cryptoService;
     private readonly IBeatmapService _beatmapService;
     private readonly IPerformanceCalculator _performanceCalculator;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<ScoreController> _logger;
 
     public ScoreController(
@@ -30,6 +31,7 @@ public class ScoreController : ControllerBase
         ICryptoService cryptoService,
         IBeatmapService beatmapService,
         IPerformanceCalculator performanceCalculator,
+        IConfiguration configuration,
         ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
@@ -38,6 +40,7 @@ public class ScoreController : ControllerBase
         _cryptoService = cryptoService;
         _beatmapService = beatmapService;
         _performanceCalculator = performanceCalculator;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -115,6 +118,11 @@ public class ScoreController : ControllerBase
 
         if (score.Status != SubmissionStatus.Failed)
         {
+            var dataDir = _configuration.GetRequiredSection("DataDir").Value;
+            var path = Path.Combine(Path.GetFullPath(dataDir), "osr", $"{score.Id}.osr");
+            await using var fs = new FileStream(path, FileMode.Create);
+            await replayFile.Data.CopyToAsync(fs);
+            
             var submissionResponse = new ScoreSubmissionResponse(score, beatmap, stats, prevStats, previousPb);
             return Ok(submissionResponse.ToString());
         }
