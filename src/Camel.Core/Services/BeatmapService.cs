@@ -5,6 +5,7 @@ using Camel.Core.Dtos;
 using Camel.Core.Enums;
 using Camel.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Camel.Core.Services;
 
@@ -12,14 +13,18 @@ public class BeatmapService : IBeatmapService
 {
     private const string HashApiBaseUrl = "https://osu.direct/api/get_beatmaps?h=";
     private const string IdApiBaseUrl = "https://osu.direct/api/get_beatmaps?b=";
+    private const string OsuApiBaseUrl = "https://old.ppy.sh/osu/";
 
     private readonly ApplicationDbContext _dbContext;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
 
-    public BeatmapService(ApplicationDbContext dbContext, IHttpClientFactory httpClientFactory)
+    public BeatmapService(ApplicationDbContext dbContext, 
+        IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _dbContext = dbContext;
         _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
     }
 
     public async Task<Beatmap?> FindBeatmapAsync(string md5)
@@ -40,6 +45,35 @@ public class BeatmapService : IBeatmapService
         
         var setDiffs = await FetchFromApiById(beatmapId);
         return setDiffs.SingleOrDefault(b => b.Id == beatmapId);
+    }
+
+    public async Task<Stream?> GetBeatmapStreamAsync(int beatmapId)
+    {
+        var dataDir = _configuration.GetRequiredSection("DataDir").Value;
+        
+        var beatmap = await FindBeatmapAsync(beatmapId);
+        if (!string.IsNullOrEmpty(beatmap.FileName))
+        {
+            var existingPath = Path.Combine(Path.GetFullPath(dataDir), "osu", beatmap.FileName);
+            return new FileStream(existingPath, FileMode.Open);
+        }
+        
+        var httpClient = _httpClientFactory.CreateClient();
+        var url = OsuApiBaseUrl + beatmapId;
+
+        var file = await httpClient.GetAsync(url);
+
+        var fileName = file.Content.Headers.ContentDisposition.FileName.Trim('"');
+        var path = Path.Combine(Path.GetFullPath(dataDir), "osu", fileName);
+
+        var fs = new FileStream(path, FileMode.Create);
+        var contentStream = await file.Content.ReadAsStreamAsync();
+        await contentStream.CopyToAsync(fs);
+
+        beatmap.FileName = fileName;
+        await _dbContext.SaveChangesAsync();
+        
+        return fs;
     }
 
     private async Task<List<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);
@@ -78,7 +112,7 @@ public class BeatmapService : IBeatmapService
             }
         ).ToList();
 
-        _dbContext.Beatmaps.AddRange(beatmaps);
+        await _dbContext.Beatmaps.AddRangeAsync(beatmaps);
         await _dbContext.SaveChangesAsync();
         return beatmaps;
     }
