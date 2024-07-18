@@ -5,6 +5,7 @@ using Camel.Bancho.Middlewares;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Entities;
 using Camel.Core.Interfaces;
+using Camel.Core.Performance;
 using HttpMultipartParser;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,17 +17,23 @@ public class ScoreController : ControllerBase
     private readonly IScoreService _scoreService;
     private readonly IUserSessionService _userSessionService;
     private readonly ICryptoService _cryptoService;
+    private readonly IBeatmapService _beatmapService;
+    private readonly IPerformanceCalculator _performanceCalculator;
     private readonly ILogger<ScoreController> _logger;
 
     public ScoreController(
         IScoreService scoreService,
         IUserSessionService userSessionService,
         ICryptoService cryptoService,
+        IBeatmapService beatmapService,
+        IPerformanceCalculator performanceCalculator,
         ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
         _userSessionService = userSessionService;
         _cryptoService = cryptoService;
+        _beatmapService = beatmapService;
+        _performanceCalculator = performanceCalculator;
         _logger = logger;
     }
 
@@ -87,6 +94,12 @@ public class ScoreController : ControllerBase
 
         if (await _scoreService.ExistsAsync(score.OnlineChecksum))
             return BadRequest();
+
+        var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
+        var pp = await _performanceCalculator.CalculateScorePpAsync(score, beatmap.Id);
+        score.Pp = (float)pp;
+        
+        session.PacketQueue.WriteNotification($"u got {pp} pp gz");
 
         await _scoreService.SubmitScoreAsync(scoreData[1], score);
 

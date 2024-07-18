@@ -69,6 +69,7 @@ public class BeatmapService : IBeatmapService
         var fs = new FileStream(path, FileMode.Create);
         var contentStream = await file.Content.ReadAsStreamAsync();
         await contentStream.CopyToAsync(fs);
+        fs.Position = 0;
 
         beatmap.FileName = fileName;
         await _dbContext.SaveChangesAsync();
