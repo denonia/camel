@@ -2,8 +2,10 @@
 
 namespace Camel.Bancho.Packets.Server;
 
-public struct SendMessagePacket : IWritePacket
+public struct SendMessagePacket : IPacket
 {
+    public PacketType Type => PacketType.ServerSendMessage;
+    
     public string Sender { get; }
     public string Message { get; }
     public string Recipient { get; }
@@ -16,16 +18,12 @@ public struct SendMessagePacket : IWritePacket
         Recipient = recipient;
         SenderId = senderId;
     }
-    
-    public void WriteToStream(IPacketStream stream)
+
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        using var ms = new MemoryStream();
-        ms.WriteBanchoString(Sender);
-        ms.WriteBanchoString(Message);
-        ms.WriteBanchoString(Recipient);
-        ms.Write(SenderId);
-        
-        var packet = new Packet(PacketType.ServerSendMessage, ms.ToArray());
-        stream.Write(packet);
+        writer.Write(Sender);
+        writer.Write(Message);
+        writer.Write(Recipient);
+        writer.Write(SenderId);
     }
 }

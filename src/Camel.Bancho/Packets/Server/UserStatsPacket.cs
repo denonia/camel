@@ -3,8 +3,10 @@ using Camel.Core.Enums;
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct UserStatsPacket : IWritePacket
+public readonly struct UserStatsPacket : IPacket
 {
+    public PacketType Type => PacketType.ServerUserStats;
+    
     public int Id { get; }
     public ClientAction Action { get; }
     public string InfoText { get; }
@@ -37,25 +39,20 @@ public readonly struct UserStatsPacket : IWritePacket
         Pp = pp;
     }
 
-    public void WriteToStream(IPacketStream stream)
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        using var ms = new MemoryStream();
-        
-        ms.Write(Id);
-        ms.WriteByte((byte)Action);
-        ms.WriteBanchoString(InfoText);
-        ms.WriteBanchoString(MapMd5);
-        ms.Write(Mods);
-        ms.WriteByte((byte)Mode);
-        ms.Write(MapId);
-        ms.Write(RankedScore);
-        ms.Write(Accuracy);
-        ms.Write(Plays);
-        ms.Write(TotalScore);
-        ms.Write(Rank);
-        ms.Write(Pp);
-        
-        var packet = new Packet(PacketType.ServerUserStats, ms.ToArray());
-        stream.Write(packet);
+        writer.Write(Id);
+        writer.Write((byte)Action);
+        writer.Write(InfoText);
+        writer.Write(MapMd5);
+        writer.Write(Mods);
+        writer.Write((byte)Mode);
+        writer.Write(MapId);
+        writer.Write(RankedScore);
+        writer.Write(Accuracy);
+        writer.Write(Plays);
+        writer.Write(TotalScore);
+        writer.Write(Rank);
+        writer.Write(Pp);
     }
 }

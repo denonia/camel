@@ -2,6 +2,6 @@
 
 public interface IPacketStream
 {
-    void Write(Packet packet);
+    void Write(IPacket packet);
     Packet Read();
 }

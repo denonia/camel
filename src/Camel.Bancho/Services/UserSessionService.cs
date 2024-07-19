@@ -36,7 +36,7 @@ public class UserSessionService : IUserSessionService
         return _activeSessions.Values;
     }
 
-    public void WriteGlobalPacket(IWritePacket packet, Func<UserSession, bool>? predicate = null)
+    public void WriteGlobalPacket(IPacket packet, Func<UserSession, bool>? predicate = null)
     {
         var targets = predicate == null ? GetOnlineUsers() 
             : GetOnlineUsers().Where(predicate);

@@ -2,7 +2,7 @@
 
 public readonly struct RequestStatusUpdatePacket
 {
-    public static RequestStatusUpdatePacket ReadFromStream(Stream stream)
+    public static RequestStatusUpdatePacket ReadFromStream(PacketBinaryReader reader)
     {
         return new RequestStatusUpdatePacket();
     }

@@ -20,13 +20,13 @@ public readonly struct ChangeActionPacket
         Mode = mode;
     }
     
-    public static ChangeActionPacket ReadFromStream(Stream stream)
+    public static ChangeActionPacket ReadFromStream(PacketBinaryReader reader)
     {
         return new ChangeActionPacket(
-            (ClientAction)stream.ReadByte(),
-            stream.ReadBanchoString(),
-            stream.ReadBanchoString(),
-            stream.ReadInt32(),
-            (GameMode)stream.ReadByte());
+            (ClientAction)reader.ReadByte(),
+            reader.ReadString(),
+            reader.ReadString(),
+            reader.ReadInt32(),
+            (GameMode)reader.ReadByte());
     }
 }

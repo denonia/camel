@@ -2,8 +2,10 @@
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct ChannelInfoPacket : IWritePacket
+public readonly struct ChannelInfoPacket : IPacket
 {
+    public PacketType Type => PacketType.ServerChannelInfo;
+    
     public string Name { get; }
     public string Topic { get; }
     public int PlayerCount { get; }
@@ -15,15 +17,10 @@ public readonly struct ChannelInfoPacket : IWritePacket
         PlayerCount = playerCount;
     }
 
-    public void WriteToStream(IPacketStream stream)
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        using var ms = new MemoryStream();
-        
-        ms.WriteBanchoString(Name);
-        ms.WriteBanchoString(Topic);
-        ms.Write(PlayerCount);
-        
-        var packet = new Packet(PacketType.ServerChannelInfo, ms.ToArray());
-        stream.Write(packet);
+        writer.Write(Name);
+        writer.Write(Topic);
+        writer.Write(PlayerCount);
     }
 }

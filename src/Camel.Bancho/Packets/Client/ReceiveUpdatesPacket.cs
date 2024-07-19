@@ -11,8 +11,8 @@ public readonly struct ReceiveUpdatesPacket
         Value = value;
     }
 
-    public static ReceiveUpdatesPacket ReadFromStream(Stream stream)
+    public static ReceiveUpdatesPacket ReadFromStream(PacketBinaryReader reader)
     {
-        return new ReceiveUpdatesPacket((PresenceFilter)stream.ReadInt32());
+        return new ReceiveUpdatesPacket((PresenceFilter)reader.ReadInt32());
     }
 }

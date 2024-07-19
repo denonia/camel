@@ -2,8 +2,10 @@
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct RestartPacket : IWritePacket
+public readonly struct RestartPacket : IPacket
 {
+    public PacketType Type => PacketType.ServerRestart;
+    
     public int DelayMs { get; }
     
     public RestartPacket(int delayMs)
@@ -11,9 +13,8 @@ public readonly struct RestartPacket : IWritePacket
         DelayMs = delayMs;
     }
 
-    public void WriteToStream(IPacketStream stream)
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        var packet = new Packet(PacketType.ServerRestart, BitConverter.GetBytes(DelayMs));
-        stream.Write(packet);
+        writer.Write(DelayMs);
     }
 }

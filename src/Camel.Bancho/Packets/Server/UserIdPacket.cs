@@ -2,8 +2,10 @@
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct UserIdPacket : IWritePacket
+public readonly struct UserIdPacket : IPacket
 {
+    public PacketType Type => PacketType.ServerUserId;
+    
     public int Id { get; }
 
     public UserIdPacket(int id)
@@ -11,9 +13,8 @@ public readonly struct UserIdPacket : IWritePacket
         Id = id;
     }
 
-    public void WriteToStream(IPacketStream stream)
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        var packet = new Packet(PacketType.ServerUserId, BitConverter.GetBytes(Id));
-        stream.Write(packet);
+        writer.Write(Id);
     }
 }

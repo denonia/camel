@@ -3,8 +3,10 @@ using Camel.Bancho.Enums;
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct NotificationPacket : IWritePacket
+public readonly struct NotificationPacket : IPacket
 {
+    public PacketType Type => PacketType.ServerNotification;
+    
     public string Text { get; }
 
     public NotificationPacket(string text)
@@ -12,12 +14,8 @@ public readonly struct NotificationPacket : IWritePacket
         Text = text;
     }
 
-    public void WriteToStream(IPacketStream stream)
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        using var ms = new MemoryStream();
-        ms.WriteBanchoString(Text);
-
-        var packet = new Packet(PacketType.ServerNotification, ms.ToArray());
-        stream.Write(packet);
+        writer.Write(Text);
     }
 }

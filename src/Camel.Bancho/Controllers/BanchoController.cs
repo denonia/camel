@@ -83,7 +83,7 @@ public class BanchoController : ControllerBase
         return SendPendingPackets(session.PacketQueue);
     }
 
-    private async Task<FileContentResult> HandleLoginRequestAsync(LoginRequest request)
+    private async Task<FileStreamResult> HandleLoginRequestAsync(LoginRequest request)
     {
         var pq = new PacketQueue();
 
@@ -116,7 +116,7 @@ public class BanchoController : ControllerBase
         foreach (var otherSession in _userSessionService.GetOnlineUsers().Where(u => u != newSession))
         {
             otherSession.PacketQueue.WriteUserPresence(newSession, rank);
-            
+
             var otherRank = await _rankingService.GetGlobalRankPpAsync(otherSession.User.Id, otherSession.Status.Mode);
             pq.WriteUserPresence(otherSession, otherRank);
         }
@@ -125,17 +125,18 @@ public class BanchoController : ControllerBase
         return SendPendingPackets(pq);
     }
 
-    private FileContentResult SendPendingPackets(PacketQueue packetQueue)
+    private FileStreamResult SendPendingPackets(PacketQueue packetQueue)
     {
-        using var ms = new MemoryStream();
-        using var ps = new PacketStream(ms);
+        var ms = new MemoryStream();
+        var ps = new PacketStream(ms);
 
         foreach (var packet in packetQueue.PendingPackets())
         {
-            packet.WriteToStream(ps);
+            ps.Write(packet);
         }
 
-        return File(ms.ToArray(), "application/octet-stream");
+        ms.Position = 0;
+        return File(ms, "application/octet-stream", "");
     }
 
     [HttpGet("web/bancho_connect.php")]

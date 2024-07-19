@@ -2,8 +2,10 @@
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct ProtocolVersionPacket : IWritePacket
+public readonly struct ProtocolVersionPacket : IPacket
 {
+    public PacketType Type => PacketType.ServerProtocolVersion;
+    
     public int ProtocolVersion { get; }
 
     public ProtocolVersionPacket(int protocolVersion)
@@ -11,9 +13,8 @@ public readonly struct ProtocolVersionPacket : IWritePacket
         ProtocolVersion = protocolVersion;
     }
 
-    public void WriteToStream(IPacketStream stream)
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        var packet = new Packet(PacketType.ServerProtocolVersion, BitConverter.GetBytes(ProtocolVersion));
-        stream.Write(packet);
+        writer.Write(ProtocolVersion);
     }
 }

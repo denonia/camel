@@ -38,7 +38,8 @@ public class PacketHandlerService : IPacketHandlerService
                 .GetGenericArguments().Single();
 
             // TODO: ensure ReadFromStream exists
-            var packet = packetType.GetMethod("ReadFromStream").Invoke(null, [stream]);
+            var reader = new PacketBinaryReader(stream);
+            var packet = packetType.GetMethod("ReadFromStream").Invoke(null, [reader]);
 
             using var scope = _serviceProvider.CreateScope();
             var handlerInstance = ActivatorUtilities.CreateInstance(scope.ServiceProvider, handler);

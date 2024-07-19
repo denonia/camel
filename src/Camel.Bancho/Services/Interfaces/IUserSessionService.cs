@@ -9,5 +9,5 @@ public interface IUserSessionService
     UserSession? GetSession(string accessToken);
     UserSession? GetSessionFromApi(string userName, string passwordMd5);
     IEnumerable<UserSession> GetOnlineUsers();
-    void WriteGlobalPacket(IWritePacket packet, Func<UserSession, bool>? predicate = null);
+    void WriteGlobalPacket(IPacket packet, Func<UserSession, bool>? predicate = null);
 }

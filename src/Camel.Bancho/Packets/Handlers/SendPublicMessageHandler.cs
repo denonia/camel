@@ -17,7 +17,7 @@ public class SendPublicMessageHandler : IPacketHandler<SendPublicMessagePacket>
     public async Task HandleAsync(SendPublicMessagePacket packet, UserSession user)
     {
         _logger.LogInformation("[{}] {}: {}", packet.Recipient, user.Username, packet.Text);
-        
+
         user.PacketQueue.WriteNotification($"{user.Username}: {packet.Text}");
     }
 }

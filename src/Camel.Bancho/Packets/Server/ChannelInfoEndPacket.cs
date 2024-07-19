@@ -2,11 +2,11 @@
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct ChannelInfoEndPacket : IWritePacket
+public readonly struct ChannelInfoEndPacket : IPacket
 {
-    public void WriteToStream(IPacketStream stream)
+    public PacketType Type => PacketType.ServerChannelInfoEnd;
+    
+    public void WriteToStream(PacketBinaryWriter writer)
     {
-        var packet = new Packet(PacketType.ServerChannelInfoEnd, []);
-        stream.Write(packet);
     }
 }

@@ -8,13 +8,13 @@ namespace Camel.Bancho.Packets;
 
 public class PacketQueue
 {
-    private readonly Queue<IWritePacket> _packetQueue = new();
+    private readonly Queue<IPacket> _packetQueue = new();
 
     public PacketQueue()
     {
     }
 
-    public IEnumerable<IWritePacket> PendingPackets()
+    public IEnumerable<IPacket> PendingPackets()
     {
         while (_packetQueue.Count > 0)
         {
@@ -22,7 +22,7 @@ public class PacketQueue
         }
     }
 
-    public void WritePacket(IWritePacket packet) =>
+    public void WritePacket(IPacket packet) =>
         _packetQueue.Enqueue(packet);
 
     public void WriteNotification(string text) =>

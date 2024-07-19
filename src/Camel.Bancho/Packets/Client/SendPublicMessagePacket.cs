@@ -15,12 +15,12 @@ public readonly struct SendPublicMessagePacket
         SenderId = senderId;
     }
     
-    public static SendPublicMessagePacket ReadFromStream(Stream stream)
+    public static SendPublicMessagePacket ReadFromStream(PacketBinaryReader reader)
     {
         return new SendPublicMessagePacket(
-            stream.ReadBanchoString(),
-            stream.ReadBanchoString(),
-            stream.ReadBanchoString(),
-            stream.ReadInt32());
+            reader.ReadString(),
+            reader.ReadString(),
+            reader.ReadString(),
+            reader.ReadInt32());
     }
 }
