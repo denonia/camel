@@ -17,6 +17,15 @@ public readonly struct ReplayFrame
         Time = time;
     }
 
+    public void WriteToStream(PacketBinaryWriter writer)
+    {
+        writer.Write(ButtonState);
+        writer.Write(TaikoByte);
+        writer.Write(X);
+        writer.Write(Y);
+        writer.Write(Time);
+    }
+
     public static ReplayFrame ReadFromStream(PacketBinaryReader reader)
     {
         return new ReplayFrame(reader.ReadByte(), reader.ReadByte(),
