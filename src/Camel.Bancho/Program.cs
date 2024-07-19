@@ -7,6 +7,7 @@ using Camel.Core.Data;
 using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using Camel.Core.Services;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -17,6 +18,14 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.WebHost.UseKestrel(builder =>
+        {
+            builder.ListenLocalhost(13380, options =>
+            {
+                options.UseConnectionHandler<BanchoTcpConnectionHandler>();
+            });
+        });
 
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
