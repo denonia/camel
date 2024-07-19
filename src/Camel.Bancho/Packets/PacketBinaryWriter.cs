@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Text;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace Camel.Bancho.Packets;
 
@@ -25,5 +26,24 @@ public class PacketBinaryWriter : BinaryWriter
             OutStream.Write(arr, 0, bytes);
             ArrayPool<byte>.Shared.Return(arr);
         }
+    }
+
+    public void Write(IPacket packet)
+    {
+        // don't know the packet body length beforehand
+        // so we just return back and write it lmao
+        OutStream.Write((short)packet.Type);
+        OutStream.WriteByte(0);
+        
+        var lengthPos = OutStream.Position;
+        OutStream.Write((int)0);
+        
+        packet.WriteToStream(this);
+        var endPos = OutStream.Position;
+        
+        var dataLength = OutStream.Position - lengthPos - 4;
+        OutStream.Position = lengthPos;
+        OutStream.Write((int)dataLength);
+        OutStream.Position = endPos;
     }
 }

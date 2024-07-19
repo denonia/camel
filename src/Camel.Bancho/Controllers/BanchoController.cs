@@ -1,13 +1,11 @@
-﻿using Camel.Bancho.Dtos;
+﻿using System.Text;
+using Camel.Bancho.Dtos;
 using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
-using Camel.Bancho.Services;
 using Camel.Bancho.Services.Interfaces;
-using Camel.Core.Data;
 using Camel.Core.Enums;
 using Camel.Core.Interfaces;
-using Camel.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,7 +40,7 @@ public class BanchoController : ControllerBase
     [HttpPost("/")]
     public async Task<IActionResult> Index([FromHeader(Name = "osu-token")] string? accessToken)
     {
-        var inStream = new MemoryStream();
+        using var inStream = new MemoryStream();
         await Request.BodyReader.CopyToAsync(inStream);
         inStream.Position = 0;
 
@@ -71,9 +69,10 @@ public class BanchoController : ControllerBase
 
         if (inStream.Length <= 0) return SendPendingPackets(session.PacketQueue);
 
-        var inPacketStream = new PacketStream(inStream);
-        foreach (var p in inPacketStream.ReadAll())
+        var reader = new PacketBinaryReader(inStream, Encoding.Default, true);
+        while (inStream.Position < inStream.Length)
         {
+            var p = reader.ReadPacket();
             if (p.Type != PacketType.ClientPing && p.Type != PacketType.ClientUserStatsRequest)
                 _logger.LogTrace("{} -> {}", session.Username, p.Type);
 
@@ -128,7 +127,7 @@ public class BanchoController : ControllerBase
     private FileStreamResult SendPendingPackets(PacketQueue packetQueue)
     {
         var ms = new MemoryStream();
-        var ps = new PacketStream(ms);
+        var ps = new PacketBinaryWriter(ms);
 
         foreach (var packet in packetQueue.PendingPackets())
         {

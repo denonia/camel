@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Camel.Bancho.Enums;
 
 namespace Camel.Bancho.Packets;
 
@@ -21,7 +22,16 @@ public class PacketBinaryReader : BinaryReader
         BaseStream.ReadByte();
         var length = BaseStream.ReadLEB128Unsigned();
         var bytes = new byte[length];
-        BaseStream.Read(bytes, 0, (int)length);
+        BaseStream.ReadExactly(bytes, 0, (int)length);
         return Encoding.UTF8.GetString(bytes.AsSpan());
+    }
+    
+    public Packet ReadPacket()
+    {
+        var type = (PacketType) ReadInt16();
+        ReadByte();
+        var length = ReadInt32();
+        var data = ReadBytes(length);
+        return new Packet(type, data);
     }
 }
