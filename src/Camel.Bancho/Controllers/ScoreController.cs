@@ -111,7 +111,12 @@ public class ScoreController : ControllerBase
             Convert.FromBase64String(ivBase64), osuVersion,
             Convert.FromBase64String(scoreBase64), Convert.FromBase64String(clientHashBase64));
 
-        var session = _userSessionService.GetSessionFromApi(scoreData[1], passwordMd5);
+        // Why
+        var userName = scoreData[1];
+        if (userName.EndsWith(' '))
+            userName = userName[..^1];
+        
+        var session = _userSessionService.GetSessionFromApi(userName, passwordMd5);
         if (session == null)
             return Unauthorized();
 
@@ -124,7 +129,7 @@ public class ScoreController : ControllerBase
         var pp = await _performanceCalculator.CalculateScorePpAsync(score, beatmap.Id);
         score.Pp = (float)pp;
 
-        var previousPb = await _scoreService.SubmitScoreAsync(scoreData[1], score);
+        var previousPb = await _scoreService.SubmitScoreAsync(userName, score);
         var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
         await _statsService.UpdateStatsAfterSubmissionAsync(stats, score, previousPb);
@@ -135,7 +140,7 @@ public class ScoreController : ControllerBase
             session.PacketQueue.WriteNotification($"{(int)pp} pp gz");
         }
 
-        _logger.LogInformation("{} has submitted a new score: {}", scoreData[1], string.Join('|', scoreData));
+        _logger.LogInformation("{} has submitted a new score: {}", userName, string.Join('|', scoreData));
 
         if (score.Status != SubmissionStatus.Failed)
         {
