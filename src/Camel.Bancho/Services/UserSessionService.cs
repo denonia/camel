@@ -11,13 +11,18 @@ public class UserSessionService : IUserSessionService
 
     public void AddSession(string accessToken, UserSession userSession)
     {
+        EndSession(userSession);
+        
+        _activeSessions[accessToken] = userSession;
+    }
+
+    public void EndSession(UserSession userSession)
+    {
         var existing = _activeSessions
             .SingleOrDefault(s => s.Value.Username == userSession.Username);
         
         if (!existing.Equals(default(KeyValuePair<string, UserSession>)))
             _activeSessions.Remove(existing.Key);
-        
-        _activeSessions[accessToken] = userSession;
     }
 
     public UserSession? GetSession(string accessToken)

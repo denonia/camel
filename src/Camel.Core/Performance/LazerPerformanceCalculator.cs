@@ -28,7 +28,7 @@ public class LazerPerformanceCalculator : IPerformanceCalculator
         var performanceCalculator = ruleset.CreatePerformanceCalculator();
 
         await using var osuStream = await _beatmapService.GetBeatmapStreamAsync(beatmapId);
-        var reader = new LineBufferedReader(osuStream);
+        using var reader = new LineBufferedReader(osuStream);
         var osuBeatmap = Decoder.GetDecoder<Beatmap>(reader).Decode(reader);
         var workingBeatmap = new CalculatorWorkingBeatmap(osuBeatmap, beatmapId);
 
