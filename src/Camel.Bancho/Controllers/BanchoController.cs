@@ -25,7 +25,7 @@ public class BanchoController : ControllerBase
 
     public BanchoController(
         IAuthService authService,
-        IPacketHandlerService packetHandler, 
+        IPacketHandlerService packetHandler,
         IUserSessionService userSessionService,
         IStatsService statsService,
         IRankingService rankingService,
@@ -102,19 +102,24 @@ public class BanchoController : ControllerBase
         pq.WriteChannelInfo("#osu", "General channel", 1);
         pq.WriteChannelInfoEnd();
 
-        pq.WriteUserPresence(user.Id, user.UserName, 0, 222, 0, 0, 0, 1);
-        
-        var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
-        var rank = await _rankingService.GetGlobalRankPpAsync(user.Id, stats.Mode);
-        pq.WriteUserStats(user.Id, ClientAction.Idle, "", "", 0, stats.Mode, 0,
-            stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays, stats.TotalScore,
-            rank, stats.Pp);
-
-        pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 3);
-
         var newToken = Guid.NewGuid().ToString();
         var newSession = new UserSession(request, user, pq);
         _userSessionService.AddSession(newToken, newSession);
+
+        var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
+        var rank = await _rankingService.GetGlobalRankPpAsync(user.Id, stats.Mode);
+        pq.WriteUserPresence(newSession, rank);
+        pq.WriteUserStats(newSession, rank);
+
+        pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 3);
+
+        foreach (var otherSession in _userSessionService.GetOnlineUsers().Where(u => u != newSession))
+        {
+            otherSession.PacketQueue.WriteUserPresence(newSession, rank);
+            
+            var otherRank = await _rankingService.GetGlobalRankPpAsync(otherSession.User.Id, otherSession.Status.Mode);
+            pq.WriteUserPresence(otherSession, otherRank);
+        }
 
         Response.Headers["cho-token"] = newToken;
         return SendPendingPackets(pq);

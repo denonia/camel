@@ -51,6 +51,10 @@ public class PacketQueue
         _packetQueue.Enqueue(new UserPresencePacket(id, name, utcOffset, countryCode, banchoPrivileges,
             longitude, latitude, globalRank));
 
+    public void WriteUserPresence(UserSession userSession, int rank) =>
+        WriteUserPresence(userSession.User.Id, userSession.User.UserName,
+            (byte)userSession.UtcOffset, 222, 0, 0, 0, rank);
+
     public void WriteUserStats(int id, ClientAction action, string infoText, string mapMd5, int mods, GameMode mode,
         int mapId,
         long rankedScore, float accuracy, int plays, long totalScore, int rank, short pp) =>
@@ -61,7 +65,7 @@ public class PacketQueue
     {
         var stats = userSession.User.Stats.Single(s => s.Mode == userSession.Status.Mode);
 
-        userSession.PacketQueue.WriteUserStats(userSession.User.Id, 
+        WriteUserStats(userSession.User.Id,
             userSession.Status.Action, userSession.Status.InfoText, userSession.Status.MapMd5, userSession.Status.Mods,
             stats.Mode, userSession.Status.MapId,
             stats.RankedScore, stats.Accuracy / 100.0f, stats.Plays,

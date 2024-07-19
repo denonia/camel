@@ -23,13 +23,13 @@ public class UserStatsRequestHandler : IPacketHandler<UserStatsRequestPacket>
 
     public async Task HandleAsync(UserStatsRequestPacket packet, UserSession userSession)
     {
-        // TODO: find out whether the client is really supposed to spam this billion times a second
         var requestedUsers = _userSessionService.GetOnlineUsers()
+            .Where(u => u.User.Id != userSession.User.Id)
             .IntersectBy(packet.UserIds, u => u.User.Id);
 
         foreach (var user in requestedUsers)
         {
-            var rank = await _rankingService.GetGlobalRankPpAsync(userSession.User.Id, userSession.Status.Mode);
+            var rank = await _rankingService.GetGlobalRankPpAsync(user.User.Id, user.Status.Mode);
             userSession.PacketQueue.WriteUserStats(user, rank);
         }
     }
