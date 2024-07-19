@@ -96,7 +96,7 @@ public class BanchoController : ControllerBase
 
         pq.WriteProtocolVersion(19);
         pq.WriteUserId(user.Id);
-        pq.WritePrivileges(0);
+        pq.WritePrivileges(Privileges.Supporter);
         pq.WriteNotification("Welcome to OSU camel");
         pq.WriteChannelInfo("#osu", "General channel", 1);
         pq.WriteChannelInfoEnd();

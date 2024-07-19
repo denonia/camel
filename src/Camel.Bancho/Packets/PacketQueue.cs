@@ -34,7 +34,7 @@ public class PacketQueue
     public void WriteProtocolVersion(int version) =>
         _packetQueue.Enqueue(new ProtocolVersionPacket(version));
 
-    public void WritePrivileges(int privileges) =>
+    public void WritePrivileges(Privileges privileges) =>
         _packetQueue.Enqueue(new PrivilegesPacket(privileges));
 
     public void WriteChannelInfo(string name, string topic, int playerCount) =>
