@@ -73,7 +73,7 @@ public class BanchoController : ControllerBase
         while (inStream.Position < inStream.Length)
         {
             var p = reader.ReadPacket();
-            if (p.Type != PacketType.ClientPing && p.Type != PacketType.ClientUserStatsRequest)
+            if (p.Type != PacketType.ClientPing)
                 _logger.LogTrace("{} -> {}", session.Username, p.Type);
 
             await _packetHandler.HandleAsync(p.Type, new MemoryStream(p.Data), session);
@@ -111,6 +111,7 @@ public class BanchoController : ControllerBase
         pq.WriteUserStats(newSession, rank);
 
         pq.WriteSendMessage("Camel", "Welcome to camel bro", user.UserName, 3);
+        _logger.LogInformation($"{user.UserName} (ID: {user.Id}) has logged in");
 
         foreach (var otherSession in _userSessionService.GetOnlineUsers().Where(u => u != newSession))
         {
