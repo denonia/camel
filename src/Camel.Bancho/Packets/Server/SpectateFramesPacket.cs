@@ -1,4 +1,5 @@
 ﻿using Camel.Bancho.Enums;
+using Camel.Bancho.Packets.Client.Spectating;
 
 namespace Camel.Bancho.Packets.Server;
 
@@ -6,18 +7,20 @@ public readonly struct SpectateFramesPacket : IPacket
 {
     public PacketType Type => PacketType.ServerSpectateFrames;
 
-    public byte[] Data { get; }
+    public ReplayFrameBundle FrameBundle { get; }
 
-    public SpectateFramesPacket(byte[] data)
+    public SpectateFramesPacket(ReplayFrameBundle frameBundle)
     {
-        Data = data;
+        FrameBundle = frameBundle;
     }
-    
+
     public void WriteToStream(PacketBinaryWriter writer)
     {
         writer.Write((ushort)15);
         writer.Write((byte)0);
-        writer.Write((uint)Data.Length);
-        writer.Write(Data);
+
+        writer.Write(FrameBundle.Length);
+        FrameBundle.WriteToStream(writer);
     }
 }
+    
