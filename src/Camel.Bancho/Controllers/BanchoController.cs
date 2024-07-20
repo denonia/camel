@@ -17,6 +17,7 @@ public class BanchoController : ControllerBase
     private readonly IAuthService _authService;
     private readonly IPacketHandlerService _packetHandler;
     private readonly IUserSessionService _userSessionService;
+    private readonly IChatService _chatService;
     private readonly IStatsService _statsService;
     private readonly IRankingService _rankingService;
     private readonly ILogger<BanchoController> _logger;
@@ -25,6 +26,7 @@ public class BanchoController : ControllerBase
         IAuthService authService,
         IPacketHandlerService packetHandler,
         IUserSessionService userSessionService,
+        IChatService chatService,
         IStatsService statsService,
         IRankingService rankingService,
         ILogger<BanchoController> logger)
@@ -32,6 +34,7 @@ public class BanchoController : ControllerBase
         _authService = authService;
         _packetHandler = packetHandler;
         _userSessionService = userSessionService;
+        _chatService = chatService;
         _statsService = statsService;
         _rankingService = rankingService;
         _logger = logger;
@@ -97,8 +100,11 @@ public class BanchoController : ControllerBase
         pq.WriteProtocolVersion(19);
         pq.WriteUserId(user.Id);
         pq.WritePrivileges(Privileges.Supporter);
-        pq.WriteNotification("Welcome to OSU camel");
-        pq.WriteChannelInfo("#osu", "General channel", 1);
+
+        foreach (var channel in _chatService.AllChannels())
+        {
+            pq.WriteChannelInfo(channel.Name, channel.Topic, channel.ParticipantCount);
+        }
         pq.WriteChannelInfoEnd();
 
         var newToken = Guid.NewGuid().ToString();

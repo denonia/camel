@@ -36,6 +36,7 @@ public class Program
         builder.Services.AddTransient<IPerformanceCalculator, LazerPerformanceCalculator>();
         builder.Services.AddSingleton<ICacheService, CacheService>();
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
+        builder.Services.AddSingleton<IChatService, ChatService>();
         
         builder.Services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
