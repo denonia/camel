@@ -1,4 +1,4 @@
-﻿namespace Camel.Bancho.Packets.Client.Spectating;
+﻿namespace Camel.Bancho.Packets.Spectating;
 
 public readonly struct ReplayFrame
 {

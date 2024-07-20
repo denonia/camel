@@ -1,10 +1,10 @@
-﻿using Camel.Bancho.Enums;
+﻿using System.Diagnostics;
+using Camel.Bancho.Enums;
 
-namespace Camel.Bancho.Packets.Client.Spectating;
+namespace Camel.Bancho.Packets.Spectating;
 
 public readonly struct ReplayFrameBundle
 {
-    public uint Length { get; }
     public int Extra { get; }
     public ushort FrameCount { get; }
     public IEnumerable<ReplayFrame> ReplayFrames { get; }
@@ -12,10 +12,9 @@ public readonly struct ReplayFrameBundle
     public ScoreFrame ScoreFrame { get; }
     public ushort Sequence { get; }
 
-    public ReplayFrameBundle(uint length, int extra, ushort frameCount, IEnumerable<ReplayFrame> replayFrames,
+    public ReplayFrameBundle(int extra, ushort frameCount, IEnumerable<ReplayFrame> replayFrames,
         ReplayAction action, ScoreFrame scoreFrame, ushort sequence)
     {
-        Length = length;
         Extra = extra;
         FrameCount = frameCount;
         ReplayFrames = replayFrames;
@@ -37,13 +36,15 @@ public readonly struct ReplayFrameBundle
 
     public static ReplayFrameBundle ReadFromStream(PacketBinaryReader reader)
     {
-        var length = (uint)reader.BaseStream.Length;
         var extra = reader.ReadInt32();
         var frameCount = reader.ReadUInt16();
-        var frames = Enumerable.Range(0, frameCount).Select(_ => ReplayFrame.ReadFromStream(reader));
+        var frames = Enumerable.Range(0, frameCount).Select(_ => ReplayFrame.ReadFromStream(reader)).ToList();
         var action = (ReplayAction)reader.ReadByte();
         var scoreFrame = ScoreFrame.ReadFromStream(reader);
         var sequence = reader.ReadUInt16();
-        return new ReplayFrameBundle(length, extra, frameCount, frames, action, scoreFrame, sequence);
+
+        Debug.Assert(reader.BaseStream.Length == reader.BaseStream.Position);
+
+        return new ReplayFrameBundle(extra, frameCount, frames, action, scoreFrame, sequence);
     }
 }

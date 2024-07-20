@@ -1,6 +1,4 @@
-﻿using System.Buffers;
-using Camel.Bancho.Enums;
-using Camel.Bancho.Packets.Client.Spectating;
+﻿using Camel.Bancho.Packets.Spectating;
 
 namespace Camel.Bancho.Packets.Client;
 

@@ -1,5 +1,6 @@
 ﻿using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
+using Camel.Bancho.Packets.Server;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Entities;
 
@@ -20,9 +21,26 @@ public class UserSessionService : IUserSessionService
     {
         var existing = _activeSessions
             .SingleOrDefault(s => s.Value.Username == userSession.Username);
-        
+
         if (!existing.Equals(default(KeyValuePair<string, UserSession>)))
+        {
             _activeSessions.Remove(existing.Key);
+            
+            // TODO same as StopSpectatingHandler
+            // move this somewhere else
+            var session = existing.Value;
+            if (session.Spectating is not null)
+            {
+                var target = session.Spectating;
+                target.Spectators.Remove(userSession);
+                target.PacketQueue.WritePacket(new SpectatorLeftPacket(userSession.User.Id));
+                var leftPacket = new FellowSpectatorLeftPacket(userSession.User.Id);
+                foreach (var spectator in target.Spectators)
+                {
+                    spectator.PacketQueue.WritePacket(leftPacket);
+                }
+            }
+        }
     }
 
     public UserSession? GetSession(string accessToken)
