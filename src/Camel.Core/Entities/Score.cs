@@ -49,7 +49,7 @@ public class Score
             //passed
             Status = data[14] == "True" ? SubmissionStatus.Submitted : SubmissionStatus.Failed,
             Mode = (GameMode)Convert.ToInt32(data[15]),
-            SetAt = DateTime.ParseExact(data[16], "yyMMddHHmmss", null).ToUniversalTime(),
+            SetAt = DateTime.SpecifyKind(DateTime.ParseExact(data[16], "yyMMddHHmmss", null), DateTimeKind.Utc),
             // client flags
         };
         result.Accuracy = result.CalculateAccuracy();
