@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
 
-[Host("camel.local")]
+[Host("osu.ppy.sh", "osu.camel.local")]
 public class AdminController : ControllerBase
 {
     private readonly IUserSessionService _userSessionService;

@@ -25,10 +25,11 @@
       "launchBrowser": false,
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:443",
+      "workingDirectory": "../..",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_Kestrel__Certificates__Default__Password": "password",
-        "ASPNETCORE_Kestrel__Certificates__Default__Path": "C:\\certs\\camel.local.pfx"
+        "ASPNETCORE_Kestrel__Certificates__Default__Path": ".data/certs/camel.local.pfx",
+        "ASPNETCORE_Kestrel__Certificates__Default__Password": "password"
       }
     },
     "IIS Express": {

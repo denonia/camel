@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Camel.Bancho.Controllers;
 
-[Host("osu.camel.local")]
+[Host("osu.ppy.sh", "osu.camel.local")]
 public class DirectController : ControllerBase
 {
     private readonly IHttpClientFactory _httpClientFactory;

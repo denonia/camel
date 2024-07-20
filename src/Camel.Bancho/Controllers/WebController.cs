@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
 
-[Host("osu.camel.local")]
+[Host("osu.ppy.sh", "osu.camel.local")]
 public class WebController : ControllerBase
 {
     private readonly IScoreService _scoreService;
@@ -27,7 +27,7 @@ public class WebController : ControllerBase
         if (score is null)
             return NotFound();
         
-        var dataDir = _configuration.GetRequiredSection("DataDir").Value;
+        var dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
         var path = Path.Combine(Path.GetFullPath(dataDir), "osr", $"{score.Id}.osr");
 
         if (!System.IO.File.Exists(path))

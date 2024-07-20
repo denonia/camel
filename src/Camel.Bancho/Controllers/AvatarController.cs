@@ -12,11 +12,10 @@ public class AvatarController : ControllerBase
         _configuration = configuration;
     }
     
-    // TODO: this should probably go to nginx
     [HttpGet("/{userId}")]
     public IActionResult Avatar(int userId)
     {
-        var dataDir = _configuration.GetRequiredSection("DataDir").Value;
+        var dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
         var path = Path.Combine(Path.GetFullPath(dataDir), "a", userId + ".jpg");
 
         if (!System.IO.File.Exists(path))

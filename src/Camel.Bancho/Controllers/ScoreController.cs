@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
 
-[Host("osu.camel.local")]
+[Host("osu.ppy.sh", "osu.camel.local")]
 public class ScoreController : ControllerBase
 {
     private readonly IScoreService _scoreService;
@@ -144,7 +144,7 @@ public class ScoreController : ControllerBase
 
         if (score.Status != SubmissionStatus.Failed)
         {
-            var dataDir = _configuration.GetRequiredSection("DataDir").Value;
+            var dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
             var path = Path.Combine(Path.GetFullPath(dataDir), "osr", $"{score.Id}.osr");
             await using var fs = new FileStream(path, FileMode.Create);
             await replayFile.Data.CopyToAsync(fs);

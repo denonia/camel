@@ -2,7 +2,7 @@
 
 namespace Camel.Bancho.Controllers;
 
-[Host("b.camel.local")]
+[Host("b.ppy.sh", "b.camel.local")]
 public class BeatmapController : ControllerBase
 {
     [HttpGet("/{*path}")]

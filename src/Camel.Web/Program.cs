@@ -13,6 +13,11 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        if (builder.Environment.IsDevelopment())
+            DotEnv.Load(".env.development");
+        else
+            DotEnv.Load(".env");
+        builder.Configuration.AddEnvironmentVariables();
         
         builder.Services.AddTransient<IPasswordHasher<User>, MD5PasswordHasher>();
         builder.Services.AddTransient<Services.Interfaces.IScoreService, Services.ScoreService>();
@@ -20,13 +25,14 @@ public class Program
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
         
         builder.Services.AddSingleton<IConnectionMultiplexer>(
-            ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
+            ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"] ?? 
+                                          throw new InvalidOperationException("Redis connection string not set")));
         
         builder.Services.AddHttpClient();
 
         // Add services to the container.
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                               throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        var connectionString = builder.Configuration["POSTGRES_CONNECTION"] ??
+                               throw new InvalidOperationException("PostgreSQL connection string not set");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();

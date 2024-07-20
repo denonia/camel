@@ -17,12 +17,17 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        if (builder.Environment.IsDevelopment())
+            DotEnv.Load(".env.development");
+        else
+            DotEnv.Load(".env");
+        builder.Configuration.AddEnvironmentVariables();
 
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
         });
-        
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -37,14 +42,14 @@ public class Program
         builder.Services.AddSingleton<ICacheService, CacheService>();
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
         builder.Services.AddSingleton<IChatService, ChatService>();
-        
+
         builder.Services.AddSingleton<IConnectionMultiplexer>(
-            ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
+            ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"]));
 
         builder.Services.AddHttpClient();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("BanchoDbContext"))
+            options.UseNpgsql(builder.Configuration["POSTGRES_CONNECTION"])
                 .UseSnakeCaseNamingConvention());
 
         var app = builder.Build();
@@ -65,10 +70,23 @@ public class Program
 
         app.UseAuthorization();
 
-
         app.MapControllers();
-        
-        app.UseMiddleware<EnableBufferingMiddleware>(); 
+        var domain = app.Configuration["DOMAIN"];
+        app.MapAreaControllerRoute("Bancho", "Bancho", "Bancho/Bancho/Index")
+            .RequireHost($"c.{domain}", $"ce.{domain}", $"c4.{domain}");
+        // app.MapControllerRoute("beatmap", "Beatmap/{action}")
+        //     .RequireHost($"b.{domain}");
+        // app.MapControllerRoute("web", "Web/{action}")
+        //     .RequireHost($"osu.{domain}");
+        // app.MapControllerRoute("score", "Score/{action}")
+        //     .RequireHost($"osu.{domain}");
+        // app.MapControllerRoute("direct", "Direct/{action}")
+        //     .RequireHost($"osu.{domain}");
+        // app.MapAreaControllerRoute("Avatar", "Avatar", "Avatar/{controller=Avatar}/{action}")
+        //     .RequireHost($"a.{domain}");
+        // if (app.Environment.IsDevelopment())
+
+        app.UseMiddleware<EnableBufferingMiddleware>();
 
         app.Run();
     }

@@ -1,0 +1,19 @@
+﻿services:
+  postgres:
+    container_name: camel.postgres
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    env_file:
+      - '.env.development'
+  redis:
+    container_name: camel.redis
+    image: bitnami/redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - ./.data/redis:/bitnami/redis/data
+    env_file:
+      - '.env.development'

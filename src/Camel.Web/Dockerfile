@@ -7,9 +7,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Camel.Web/Camel.Web.csproj", "Camel.Web/"]
+COPY "src" .
 RUN dotnet restore "Camel.Web/Camel.Web.csproj"
-COPY . .
 WORKDIR "/src/Camel.Web"
 RUN dotnet build "Camel.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

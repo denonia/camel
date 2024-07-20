@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
 
-[Host("c.camel.local", "ce.camel.local", "c4.camel.local")]
+[Host("c.ppy.sh", "ce.ppy.sh", "c4.ppy.sh", "c.camel.local", "ce.camel.local", "c4.camel.local")]
 public class BanchoController : ControllerBase
 {
     private readonly IAuthService _authService;

@@ -50,7 +50,7 @@ public class BeatmapService : IBeatmapService
 
     public async Task<Stream?> GetBeatmapStreamAsync(int beatmapId)
     {
-        var dataDir = _configuration.GetRequiredSection("DataDir").Value;
+        var dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
         
         var beatmap = await FindBeatmapAsync(beatmapId);
         if (!string.IsNullOrEmpty(beatmap.FileName))
