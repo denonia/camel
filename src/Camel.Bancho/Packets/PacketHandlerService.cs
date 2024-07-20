@@ -24,6 +24,8 @@ public class PacketHandlerService : IPacketHandlerService
             var attr = (PacketHandlerAttribute)handler.GetCustomAttribute(typeof(PacketHandlerAttribute))!;
             _handlers[attr.Type] = handler;
         }
+        
+        _logger.LogInformation($"Registered {_handlers.Count} client packet handlers (out of total 48)");
     }
 
     public async Task HandleAsync(PacketType type, Stream stream, UserSession userSession)
