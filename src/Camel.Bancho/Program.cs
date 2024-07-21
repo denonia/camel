@@ -42,6 +42,7 @@ public class Program
         builder.Services.AddSingleton<ICacheService, CacheService>();
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
         builder.Services.AddSingleton<IChatService, ChatService>();
+        builder.Services.AddSingleton<IMultiplayerService, MultiplayerService>();
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"]));
