@@ -73,7 +73,6 @@ public class Match
         slot.Status = SlotStatus.NotReady;
         
         EnqueueUpdates();
-
         return true;
     }
 
@@ -85,7 +84,57 @@ public class Match
 
         slot.Reset();
         EnqueueUpdates();
+        return true;
+    }
+    
+    public bool Ready(bool ready, UserSession userSession)
+    {
+        var slot = Slots.SingleOrDefault(s => s.User == userSession);
+        if (slot is null)
+            return false;
 
+        slot.Status = ready ? SlotStatus.Ready : SlotStatus.NotReady;
+        EnqueueUpdates();
+        return true;
+    }
+
+    public bool ChangeSlot(int slotId, UserSession userSession)
+    {
+        if (slotId is >= 16 or < 0)
+            return false;
+
+        var slot = Slots[slotId];
+        if ((slot.Status & SlotStatus.Open) == 0)
+            return false;
+
+        var oldSlot = Slots.SingleOrDefault(s => s.User == userSession);
+        if (oldSlot is null)
+            return false;
+
+        Slots[slotId] = new MatchSlot(oldSlot);
+        oldSlot.Reset();
+        EnqueueUpdates();
+        return true;
+    }
+
+    public bool LockSlot(int slotId, UserSession requester)
+    {
+        if (slotId is >= 16 or < 0 || requester != Host)
+            return false;
+
+        var slot = Slots[slotId];
+
+        if ((slot.Status & SlotStatus.Locked) != 0)
+            slot.Status = SlotStatus.Open;
+        else if (slot.User != Host)
+        {
+            // TODO erm how do we notify them that they got kicked
+            // and remove from channel
+            slot.Reset();
+            slot.Status = SlotStatus.Locked;
+        }
+        
+        EnqueueUpdates();
         return true;
     }
 

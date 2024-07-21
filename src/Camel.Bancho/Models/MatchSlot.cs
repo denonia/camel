@@ -17,6 +17,14 @@ public class MatchSlot
         Team = team;
     }
 
+    public MatchSlot(MatchSlot other)
+    {
+        User = other.User;
+        Status = other.Status;
+        Team = other.Team;
+        Mods = other.Mods;
+    }
+
     public void Reset()
     {
         User = null;
