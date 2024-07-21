@@ -7,6 +7,7 @@ public interface IChatService
     IEnumerable<ChatChannel> AutoJoinChannels();
     bool JoinChannel(string channelName, UserSession user);
     bool JoinSpectatorChannel(UserSession target, UserSession user);
+    bool JoinMultiplayerChannel(Match match, UserSession user);
     bool LeaveChannel(string channelName, UserSession user);
     bool LeaveSpectatorChannel(UserSession target, UserSession user);
     bool SendMessage(string channelName, string message, UserSession user);

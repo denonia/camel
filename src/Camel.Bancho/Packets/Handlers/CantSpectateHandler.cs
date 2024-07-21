@@ -5,11 +5,11 @@ using Camel.Bancho.Packets.Client;
 namespace Camel.Bancho.Packets.Handlers;
 
 [PacketHandler(PacketType.ClientCantSpectate)]
-public class CantSpectatePacketHandler : IPacketHandler<CantSpectatePacket>
+public class CantSpectateHandler : IPacketHandler<CantSpectatePacket>
 {
-    private readonly ILogger<CantSpectatePacketHandler> _logger;
+    private readonly ILogger<CantSpectateHandler> _logger;
 
-    public CantSpectatePacketHandler(ILogger<CantSpectatePacketHandler> logger)
+    public CantSpectateHandler(ILogger<CantSpectateHandler> logger)
     {
         _logger = logger;
     }

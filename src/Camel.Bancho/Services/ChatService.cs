@@ -45,6 +45,18 @@ public class ChatService : IChatService
         return JoinChannel(channelName, user);
     }
 
+    public bool JoinMultiplayerChannel(Match match, UserSession user)
+    {
+        var channelName = $"#multiplayer_{match.Id}";
+        if (_channels.ContainsKey(channelName))
+            return JoinChannel(channelName, user);
+        
+        var newChannel = new ChatChannel(channelName, "Multi room channel", false);
+        _channels[channelName] = newChannel;
+        JoinChannel(channelName, user);
+        return JoinChannel(channelName, user);
+    }
+
     public bool LeaveChannel(string channelName, UserSession user)
     {
         return _channels.TryGetValue(channelName, out var channel) && channel.RemoveParticipant(user);
@@ -62,6 +74,12 @@ public class ChatService : IChatService
         {
             var userName = user.Spectating?.Username ?? user.Username;
             channelName = $"#spectator_{userName}";
+        }
+        else if (channelName == "#multiplayer")
+        {
+            if (user.Match is null) 
+                return false;
+            channelName = $"#multiplayer_{user.Match.Id}";
         }
 
         return _channels.TryGetValue(channelName, out var channel) && channel.SendMessage(message, user);

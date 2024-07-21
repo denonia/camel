@@ -4,11 +4,19 @@ public class ChatChannel
 {
     private readonly List<UserSession> _participants = [];
 
-    private readonly string name;
+    private readonly string _name;
+
     public string Name
     {
-        get => name.StartsWith("#spectator") ? "#spectator" : name;
-        private init => name = value;
+        get
+        {
+            if (_name.StartsWith("#spectator"))
+                return "#spectator";
+            if (_name.StartsWith("#multiplayer"))
+                return "#multiplayer";
+            return _name;
+        }
+        private init => _name = value;
     }
 
     public string Topic { get; }

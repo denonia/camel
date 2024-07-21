@@ -3,19 +3,19 @@ using Camel.Bancho.Packets.Multiplayer;
 
 namespace Camel.Bancho.Packets.Server;
 
-public readonly struct NewMatchPacket : IPacket
+public readonly struct MatchJoinSuccessPacket : IPacket
 {
-    public PacketType Type => PacketType.ServerNewMatch;
+    public PacketType Type => PacketType.ServerMatchJoinSuccess;
 
     public MatchState Match { get; }
-    
-    public NewMatchPacket(MatchState match)
+
+    public MatchJoinSuccessPacket(MatchState match)
     {
         Match = match;
     }
     
     public void WriteToStream(PacketBinaryWriter writer)
     {
-        Match.WriteToStream(writer, false);
+        Match.WriteToStream(writer, true);
     }
 }
