@@ -53,7 +53,6 @@ public class ChatService : IChatService
         
         var newChannel = new ChatChannel(channelName, "Multi room channel", false);
         _channels[channelName] = newChannel;
-        JoinChannel(channelName, user);
         return JoinChannel(channelName, user);
     }
 
@@ -65,6 +64,12 @@ public class ChatService : IChatService
     public bool LeaveSpectatorChannel(UserSession target, UserSession user)
     {
         var channelName = $"#spectator_{target.Username}";
+        return LeaveChannel(channelName, user);
+    }
+
+    public bool LeaveMultiplayerChannel(Match match, UserSession user)
+    {
+        var channelName = $"#multiplayer_{match.Id}";
         return LeaveChannel(channelName, user);
     }
 

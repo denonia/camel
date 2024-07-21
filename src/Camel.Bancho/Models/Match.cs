@@ -1,5 +1,6 @@
 ﻿using Camel.Bancho.Enums.Multiplayer;
 using Camel.Bancho.Packets.Multiplayer;
+using Camel.Bancho.Packets.Server;
 using Camel.Core.Enums;
 
 namespace Camel.Bancho.Models;
@@ -26,6 +27,11 @@ public class Match
     public TeamType TeamType { get; set; } = TeamType.HeadToHead;
     public bool FreeMods { get; } = false;
     public int Seed { get; }
+
+    public int FreeSlots => Slots.Count(s => (s.Status & SlotStatus.Open) != 0);
+
+    public IEnumerable<UserSession> Players =>
+        Slots.Where(s => (s.Status & SlotStatus.HasPlayer) != 0).Select(s => s.User!);
 
     public Match(short id, string name, string? password, bool matchHistoryPublic, string mapName, int mapId,
         string mapMd5, UserSession host, GameMode mode)
@@ -54,4 +60,41 @@ public class Match
         Slots.Select(s => s.Status), Slots.Select(s => s.Team),
         Slots.Where(s => s.User is not null).Select(s => s.User!.User.Id),
         Host.User.Id, Mode, WinCondition, TeamType, FreeMods, Slots.Select(s => s.Mods), Seed);
+
+    private MatchSlot NextFreeSlot() => Slots.First(s => (s.Status & SlotStatus.Open) != 0);
+
+    public bool Join(string? password, UserSession userSession)
+    {
+        if (FreeSlots <= 0 || Password != password)
+            return false;
+
+        var slot = NextFreeSlot();
+        slot.User = userSession;
+        slot.Status = SlotStatus.NotReady;
+        
+        EnqueueUpdates();
+
+        return true;
+    }
+
+    public bool Leave(UserSession userSession)
+    {
+        var slot = Slots.SingleOrDefault(s => s.User == userSession);
+        if (slot is null)
+            return false;
+
+        slot.Reset();
+        EnqueueUpdates();
+
+        return true;
+    }
+
+    public void EnqueueUpdates()
+    {
+        foreach (var userSession in Players)
+        {
+            var packet = new UpdateMatchPacket(State);
+            userSession.PacketQueue.WritePacket(packet);
+        }
+    }
 }

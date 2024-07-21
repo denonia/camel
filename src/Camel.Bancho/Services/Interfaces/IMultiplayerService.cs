@@ -7,5 +7,6 @@ public interface IMultiplayerService
 {
     IEnumerable<Match> ActiveMatches();
     Match CreateMatch(MatchState initialState, UserSession host);
+    bool JoinMatch(int matchId, string? password, UserSession user);
     bool LeaveMatch(UserSession user);
 }

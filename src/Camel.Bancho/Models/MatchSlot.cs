@@ -16,4 +16,12 @@ public class MatchSlot
         Status = status;
         Team = team;
     }
+
+    public void Reset()
+    {
+        User = null;
+        Status = SlotStatus.Open;
+        Team = Team.Neutral;
+        Mods = Mods.NoMod;
+    }
 }
