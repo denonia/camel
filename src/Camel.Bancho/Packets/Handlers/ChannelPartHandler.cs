@@ -23,7 +23,6 @@ public class ChannelPartHandler : IPacketHandler<ChannelPartPacket>
         if (_chatService.LeaveChannel(packet.ChannelName, userSession))
         {
             _logger.LogDebug("{} has left {}", userSession.Username, packet.ChannelName);
-            userSession.PacketQueue.WritePacket(new ChannelJoinSuccessPacket(packet.ChannelName));
         }
         else
         {

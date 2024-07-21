@@ -101,7 +101,7 @@ public class BanchoController : ControllerBase
         pq.WriteUserId(user.Id);
         pq.WritePrivileges(Privileges.Supporter);
 
-        foreach (var channel in _chatService.AllChannels())
+        foreach (var channel in _chatService.AutoJoinChannels())
         {
             pq.WriteChannelInfo(channel.Name, channel.Topic, channel.ParticipantCount);
         }

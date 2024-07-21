@@ -1,4 +1,5 @@
 ﻿using Camel.Bancho.Models;
+using Camel.Bancho.Packets.Server;
 using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Services;
@@ -9,20 +10,35 @@ public class ChatService : IChatService
 
     public ChatService()
     {
-        _channels["#osu"] = new ChatChannel("#osu", "The primary channel");
-        _channels["#test2"] = new ChatChannel("#test2", "Testing");
+        _channels["#osu"] = new ChatChannel("#osu", "The primary channel", true);
+        _channels["#test2"] = new ChatChannel("#test2", "Testing", false);
     }
 
-    public IEnumerable<ChatChannel> AllChannels() => _channels.Values;
-    
-    public ChatChannel? GetChannel(string channelName)
-    {
-        return _channels.GetValueOrDefault(channelName);
-    }
+    public IEnumerable<ChatChannel> AutoJoinChannels() => _channels.Values.Where(c => c.AutoJoin);
 
     public bool JoinChannel(string channelName, UserSession user)
     {
-        return _channels.TryGetValue(channelName, out var channel) && channel.AddParticipant(user);
+        if (_channels.TryGetValue(channelName, out var channel) && channel.AddParticipant(user))
+        {
+            user.PacketQueue.WritePacket(new ChannelJoinSuccessPacket(channel.Name));
+            user.PacketQueue.WriteChannelInfo(channel.Name, channel.Topic, channel.ParticipantCount);
+            return true;
+        }
+        
+        return false;
+    }
+
+    public bool JoinSpectatorChannel(UserSession target, UserSession user)
+    {
+        var channelName = $"#spectator_{target.Username}";
+
+        if (_channels.ContainsKey(channelName))
+            return JoinChannel(channelName, user);
+        
+        var newChannel = new ChatChannel(channelName, $"{target.Username}'s spectator channel", false);
+        _channels[channelName] = newChannel;
+        JoinChannel(channelName, target);
+        return JoinChannel(channelName, user);
     }
 
     public bool LeaveChannel(string channelName, UserSession user)
@@ -30,8 +46,20 @@ public class ChatService : IChatService
         return _channels.TryGetValue(channelName, out var channel) && channel.RemoveParticipant(user);
     }
 
+    public bool LeaveSpectatorChannel(UserSession target, UserSession user)
+    {
+        var channelName = $"#spectator_{target.Username}";
+        return LeaveChannel(channelName, user);
+    }
+
     public bool SendMessage(string channelName, string message, UserSession user)
     {
+        if (channelName == "#spectator")
+        {
+            var userName = user.Spectating?.Username ?? user.Username;
+            channelName = $"#spectator_{userName}";
+        }
+
         return _channels.TryGetValue(channelName, out var channel) && channel.SendMessage(message, user);
     }
 }
