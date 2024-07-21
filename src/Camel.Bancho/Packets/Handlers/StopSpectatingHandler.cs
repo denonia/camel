@@ -2,16 +2,19 @@
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets.Client;
 using Camel.Bancho.Packets.Server;
+using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Packets.Handlers;
 
 [PacketHandler(PacketType.ClientStopSpectating)]
 public class StopSpectatingHandler : IPacketHandler<StopSpectatingPacket>
 {
+    private readonly IChatService _chatService;
     private readonly ILogger<StopSpectatingHandler> _logger;
 
-    public StopSpectatingHandler(ILogger<StopSpectatingHandler> logger)
+    public StopSpectatingHandler(IChatService chatService, ILogger<StopSpectatingHandler> logger)
     {
+        _chatService = chatService;
         _logger = logger;
     }
     
@@ -33,5 +36,7 @@ public class StopSpectatingHandler : IPacketHandler<StopSpectatingPacket>
         {
             spectator.PacketQueue.WritePacket(leftPacket);
         }
+        
+        _chatService.LeaveSpectatorChannel(target, userSession);
     }
 }

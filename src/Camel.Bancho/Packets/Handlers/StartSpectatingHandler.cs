@@ -11,11 +11,15 @@ namespace Camel.Bancho.Packets.Handlers;
 public class StartSpectatingHandler : IPacketHandler<StartSpectatingPacket>
 {
     private readonly IUserSessionService _userSessionService;
+    private readonly IChatService _chatService;
     private readonly ILogger _logger;
 
-    public StartSpectatingHandler(IUserSessionService userSessionService, ILogger<StartSpectatingHandler> logger)
+    public StartSpectatingHandler(IUserSessionService userSessionService, 
+        IChatService chatService,
+        ILogger<StartSpectatingHandler> logger)
     {
         _userSessionService = userSessionService;
+        _chatService = chatService;
         _logger = logger;
     }
 
@@ -40,7 +44,9 @@ public class StartSpectatingHandler : IPacketHandler<StartSpectatingPacket>
             spectator.PacketQueue.WritePacket(joinPacket);
             userSession.PacketQueue.WritePacket(new FellowSpectatorJoinedPacket(spectator.User.Id));
         }
-        
+
+        _chatService.JoinSpectatorChannel(target, userSession);
+
         target.Spectators.Add(userSession);
         userSession.Spectating = target;
     }

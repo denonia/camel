@@ -23,10 +23,6 @@ public class ChannelJoinHandler : IPacketHandler<ChannelJoinPacket>
         if (_chatService.JoinChannel(packet.ChannelName, userSession))
         {
             _logger.LogDebug("{} has joined {}", userSession.Username, packet.ChannelName);
-            userSession.PacketQueue.WritePacket(new ChannelJoinSuccessPacket(packet.ChannelName));
-
-            var channelInfo = _chatService.GetChannel(packet.ChannelName)!;
-            userSession.PacketQueue.WriteChannelInfo(channelInfo.Name, channelInfo.Topic, channelInfo.ParticipantCount);
         }
         else
         {
