@@ -109,7 +109,7 @@ public class BeatmapService : IBeatmapService
                 FileName = "",
                 LastUpdate = d.LastUpdate,
                 TotalLength = d.TotalLength,
-                MaxCombo = d.MaxCombo,
+                MaxCombo = d.MaxCombo ?? 0,
                 Mode = (GameMode)d.Mode,
                 Bpm = d.Bpm,
                 CircleSize = d.DiffSize,

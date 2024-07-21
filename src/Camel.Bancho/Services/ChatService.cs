@@ -11,7 +11,8 @@ public class ChatService : IChatService
     public ChatService()
     {
         _channels["#osu"] = new ChatChannel("#osu", "The primary channel", true);
-        _channels["#test2"] = new ChatChannel("#test2", "Testing", false);
+        _channels["#camel"] = new ChatChannel("#camel", "Camel", true);
+        _channels["#mapping"] = new ChatChannel("#mapping", "For the mappers", true);
     }
 
     public IEnumerable<ChatChannel> AutoJoinChannels() => _channels.Values.Where(c => c.AutoJoin);
@@ -21,7 +22,10 @@ public class ChatService : IChatService
         if (_channels.TryGetValue(channelName, out var channel) && channel.AddParticipant(user))
         {
             user.PacketQueue.WritePacket(new ChannelJoinSuccessPacket(channel.Name));
-            user.PacketQueue.WriteChannelInfo(channel.Name, channel.Topic, channel.ParticipantCount);
+
+            foreach (var participant in channel.Participants)
+                participant.PacketQueue.WriteChannelInfo(channel.Name, channel.Topic, channel.ParticipantCount);
+            
             return true;
         }
         

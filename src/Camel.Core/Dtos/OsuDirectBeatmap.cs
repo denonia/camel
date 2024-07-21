@@ -69,7 +69,7 @@ public class OsuDirectBeatmap
 
     [JsonPropertyName("packs")] public List<string>? Packs { get; set; }
 
-    [JsonPropertyName("max_combo")] public int MaxCombo { get; set; }
+    [JsonPropertyName("max_combo")] public int? MaxCombo { get; set; }
 
     [JsonPropertyName("difficultyrating")] public float Difficultyrating { get; set; }
 }
