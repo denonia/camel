@@ -3,7 +3,6 @@ using Camel.Core.Dtos;
 using Camel.Core.Enums;
 using Camel.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Realms;
 using StackExchange.Redis;
 
 namespace Camel.Core.Services;

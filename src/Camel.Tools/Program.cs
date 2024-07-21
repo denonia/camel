@@ -1,4 +1,5 @@
-﻿using Camel.Core.Data;
+﻿using Camel.Bancho;
+using Camel.Core.Data;
 using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using Camel.Core.Services;
@@ -14,16 +15,17 @@ class Program
     static void Main(string[] args)
     {
         var builder = Host.CreateApplicationBuilder(args);
+        DotEnv.Load(".env.development");
+        builder.Configuration.AddEnvironmentVariables();
 
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
-        builder.Services.AddTransient<IPerformanceCalculator, LazerPerformanceCalculator>();
+        builder.Services.AddTransient<IPerformanceCalculator, ExternalPerformanceCalculator>();
         builder.Services.AddHttpClient();
 
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json").Build();
+        builder.Configuration.AddEnvironmentVariables();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("BanchoDbContext"))
+            options.UseNpgsql(builder.Configuration["POSTGRES_CONNECTION"])
                 .UseSnakeCaseNamingConvention());
 
         using var host = builder.Build();

@@ -1,5 +1,4 @@
 ﻿using Camel.Core.Entities;
-using System.Net.Http.Json;
 using System.Text.Json;
 using Camel.Core.Data;
 using Camel.Core.Dtos;
@@ -7,6 +6,7 @@ using Camel.Core.Enums;
 using Camel.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Camel.Core.Services;
 
@@ -19,13 +19,17 @@ public class BeatmapService : IBeatmapService
     private readonly ApplicationDbContext _dbContext;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
+    
+    private readonly string _dataDir;
 
-    public BeatmapService(ApplicationDbContext dbContext, 
+    public BeatmapService(ApplicationDbContext dbContext,
         IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _dbContext = dbContext;
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
+
+        _dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
     }
 
     public async Task<Beatmap?> FindBeatmapAsync(string md5)
@@ -48,34 +52,29 @@ public class BeatmapService : IBeatmapService
         return setDiffs.SingleOrDefault(b => b.Id == beatmapId);
     }
 
-    public async Task<Stream?> GetBeatmapStreamAsync(int beatmapId)
+    public async Task<string?> GetBeatmapPathAsync(int beatmapId)
     {
-        var dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
-        
         var beatmap = await FindBeatmapAsync(beatmapId);
         if (!string.IsNullOrEmpty(beatmap.FileName))
         {
-            var existingPath = Path.Combine(Path.GetFullPath(dataDir), "osu", beatmap.FileName);
-            return new FileStream(existingPath, FileMode.Open);
+            var existingPath = Path.Combine(Path.GetFullPath(_dataDir), "osu", beatmap.FileName);
+            return existingPath;
         }
         
-        var httpClient = _httpClientFactory.CreateClient();
-        var url = OsuApiBaseUrl + beatmapId;
+        return await FetchBeatmapFile(beatmap);
+    }
 
-        var file = await httpClient.GetAsync(url);
+    public async Task<Stream?> GetBeatmapStreamAsync(int beatmapId)
+    {
+        var beatmap = await FindBeatmapAsync(beatmapId);
+        if (!string.IsNullOrEmpty(beatmap.FileName))
+        {
+            var existingPath = Path.Combine(Path.GetFullPath(_dataDir), "osu", beatmap.FileName);
+            return new FileStream(existingPath, FileMode.Open);
+        }
 
-        var fileName = file.Content.Headers.ContentDisposition.FileName.Trim('"');
-        var path = Path.Combine(Path.GetFullPath(dataDir), "osu", fileName);
-
-        var fs = new FileStream(path, FileMode.Create);
-        var contentStream = await file.Content.ReadAsStreamAsync();
-        await contentStream.CopyToAsync(fs);
-        fs.Position = 0;
-
-        beatmap.FileName = fileName;
-        await _dbContext.SaveChangesAsync();
-        
-        return fs;
+        var newPath = await FetchBeatmapFile(beatmap);
+        return new FileStream(newPath, FileMode.Open);
     }
 
     private async Task<IEnumerable<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);
@@ -124,5 +123,24 @@ public class BeatmapService : IBeatmapService
         await _dbContext.Beatmaps.AddRangeAsync(beatmaps);
         await _dbContext.SaveChangesAsync();
         return beatmaps;
+    }
+
+    private async Task<string?> FetchBeatmapFile(Beatmap beatmap)
+    {
+        var httpClient = _httpClientFactory.CreateClient();
+        var url = OsuApiBaseUrl + beatmap.Id;
+
+        var file = await httpClient.GetAsync(url);
+
+        var fileName = file.Content.Headers.ContentDisposition.FileName.Trim('"');
+        var path = Path.Combine(Path.GetFullPath(_dataDir), "osu", fileName);
+
+        await using var fs = new FileStream(path, FileMode.Create);
+        var contentStream = await file.Content.ReadAsStreamAsync();
+        await contentStream.CopyToAsync(fs);
+
+        beatmap.FileName = fileName;
+        await _dbContext.SaveChangesAsync();
+        return path;
     }
 }

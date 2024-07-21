@@ -1,6 +1,6 @@
 ﻿using System.Buffers;
 using System.Text;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace Camel.Bancho.Packets;
 

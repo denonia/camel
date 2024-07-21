@@ -1,4 +1,5 @@
-﻿using Camel.Core.Enums;
+﻿#if false
+using Camel.Core.Enums;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Legacy;
 using osu.Game.Rulesets;
@@ -64,3 +65,4 @@ public class LegacyHelper
     public static Mod[] FilterDifficultyAdjustmentMods(BeatmapInfo beatmapInfo, Ruleset ruleset, LegacyMods mods)
         => ruleset.ConvertFromLegacyMods(ConvertToLegacyDifficultyAdjustmentMods(beatmapInfo, ruleset, mods)).ToArray();
 }
+#endif

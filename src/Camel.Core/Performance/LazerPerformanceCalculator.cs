@@ -1,4 +1,5 @@
-﻿using Camel.Core.Enums;
+﻿#if false
+using Camel.Core.Enums;
 using Camel.Core.Interfaces;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Formats;
@@ -62,3 +63,4 @@ public class LazerPerformanceCalculator : IPerformanceCalculator
         return performanceAttributes.Total;
     }
 }
+#endif

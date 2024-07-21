@@ -42,6 +42,7 @@
       - '.env'
     volumes:
       - ./.data:/.data
+      - ./bin:/.bin
     networks:
       - camel-net
   camel.web:

@@ -1,4 +1,5 @@
-﻿using Camel.Core.Enums;
+﻿#if false
+using Camel.Core.Enums;
 using osu.Framework.Audio.Track;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Beatmaps;
@@ -26,3 +27,4 @@ public class CalculatorWorkingBeatmap : WorkingBeatmap
     protected override ISkin GetSkin() => null;
     public override Stream GetStream(string storagePath) => null;
 }
+#endif

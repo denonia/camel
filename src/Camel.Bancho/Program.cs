@@ -38,7 +38,7 @@ public class Program
         builder.Services.AddSingleton<ICryptoService, CryptoService>();
         builder.Services.AddTransient<IScoreService, ScoreService>();
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
-        builder.Services.AddTransient<IPerformanceCalculator, LazerPerformanceCalculator>();
+        builder.Services.AddTransient<IPerformanceCalculator, ExternalPerformanceCalculator>();
         builder.Services.AddSingleton<ICacheService, CacheService>();
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
         builder.Services.AddSingleton<IChatService, ChatService>();
@@ -71,20 +71,6 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers();
-        var domain = app.Configuration["DOMAIN"];
-        app.MapAreaControllerRoute("Bancho", "Bancho", "Bancho/Bancho/Index")
-            .RequireHost($"c.{domain}", $"ce.{domain}", $"c4.{domain}");
-        // app.MapControllerRoute("beatmap", "Beatmap/{action}")
-        //     .RequireHost($"b.{domain}");
-        // app.MapControllerRoute("web", "Web/{action}")
-        //     .RequireHost($"osu.{domain}");
-        // app.MapControllerRoute("score", "Score/{action}")
-        //     .RequireHost($"osu.{domain}");
-        // app.MapControllerRoute("direct", "Direct/{action}")
-        //     .RequireHost($"osu.{domain}");
-        // app.MapAreaControllerRoute("Avatar", "Avatar", "Avatar/{controller=Avatar}/{action}")
-        //     .RequireHost($"a.{domain}");
-        // if (app.Environment.IsDevelopment())
 
         app.UseMiddleware<EnableBufferingMiddleware>();
 
