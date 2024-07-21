@@ -38,8 +38,4 @@ public class WebController : ControllerBase
         var fs = new FileStream(path, FileMode.Open);
         return File(fs, "application/octet-stream");
     }
-
-    [HttpGet("/beatmaps/{beatmapId}")]
-    public IActionResult BeatmapsRoute([FromRoute] int beatmapId) => 
-        Redirect($"https://localhost:7270/beatmaps/{beatmapId}");
 }

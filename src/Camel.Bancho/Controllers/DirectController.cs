@@ -1,20 +1,26 @@
 ﻿using System.Text;
 using System.Web;
 using Camel.Bancho.Dtos;
+using Camel.Core.Data;
+using Camel.Core.Entities;
 using Camel.Core.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Camel.Bancho.Controllers;
 
 [Host("osu.ppy.sh", "osu.camel.local")]
 public class DirectController : ControllerBase
 {
+    private readonly ApplicationDbContext _dbContext;
     private readonly IHttpClientFactory _httpClientFactory;
+
     private static string[] Keywords = ["Newest", "Top+Rated", "Most+Played"];
 
-    public DirectController(IHttpClientFactory httpClientFactory)
+    public DirectController(ApplicationDbContext dbContext, IHttpClientFactory httpClientFactory)
     {
+        _dbContext = dbContext;
         _httpClientFactory = httpClientFactory;
     }
 
@@ -53,6 +59,39 @@ public class DirectController : ControllerBase
         return Ok(response.ToString());
     }
 
+    [HttpGet("/web/osu-search-set.php")]
+    public async Task<IActionResult> SearchSet(
+        [FromQuery(Name = "u")] string userName,
+        [FromQuery(Name = "h")] string passwordMd5,
+        [FromQuery(Name = "s")] int? mapsetId,
+        [FromQuery(Name = "b")] int? mapId,
+        [FromQuery(Name = "c")] string? beatmapMd5)
+    {
+        if (mapsetId == null && mapId == null && string.IsNullOrEmpty(beatmapMd5))
+            return BadRequest();
+
+        IQueryable<Beatmap> beatmaps = _dbContext.Beatmaps;
+
+        if (mapsetId is not null)
+            beatmaps = beatmaps.Where(b => b.MapsetId == mapsetId);
+        if (mapId is not null)
+            beatmaps = beatmaps.Where(b => b.Id == mapId);
+        if (beatmapMd5 is not null)
+            beatmaps = beatmaps.Where(b => b.Md5 == beatmapMd5);
+
+        var result = await beatmaps
+            .Select(b => new { b.MapsetId, b.Artist, b.Title, b.Creator, b.LastUpdate })
+            .FirstOrDefaultAsync();
+        if (result is null)
+            return NotFound();
+
+        var response = new SearchSetResponse(
+            $"{result.MapsetId}.osz", result.Artist, result.Title, result.Creator, 2, 10.0f, result.LastUpdate,
+            result.MapsetId,
+            0, false, false, 0, 0);
+        return Ok(response.ToString());
+    }
+
     [HttpGet("/d/{mapsetId}")]
     public IActionResult Download(string mapsetId)
     {
@@ -62,7 +101,7 @@ public class DirectController : ControllerBase
 
         var noVideoParam = !noVideo ? "1" : "0";
         var url = $"https://catboy.best/d/{mapsetId}?n={noVideoParam}";
-        
+
         return RedirectPermanent(url);
     }
 }
