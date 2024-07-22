@@ -83,32 +83,41 @@ public class ScoreController : ControllerBase
         return Ok(response.ToString());
     }
 
+    [HttpPost("/web/osu-submit-modular.php")]
     [HttpPost("/web/osu-submit-modular-selector.php")]
     [EnableBuffering]
     public async Task<IActionResult> SubmitScore(
         [FromForm(Name = "x")] bool exitedOut,
         [FromForm(Name = "ft")] int failTime,
         [FromForm(Name = "score")] string scoreBase64,
-        [FromForm(Name = "token")] string token,
         [FromForm(Name = "fs")] byte[] visualSettings,
-        [FromForm(Name = "bmk")] string beatmapHash,
-        [FromForm(Name = "sbk")] string? storyboardMd5,
         [FromForm(Name = "iv")] string ivBase64,
         [FromForm(Name = "c1")] string uniqueIds,
-        [FromForm(Name = "st")] int scoreTime,
         [FromForm(Name = "pass")] string passwordMd5,
-        [FromForm(Name = "osuver")] string osuVersion,
         [FromForm(Name = "s")] string clientHashBase64,
-        [FromForm(Name = "i")] byte[]? flCheatScreenshot)
+        [FromForm(Name = "i")] byte[]? flCheatScreenshot,
+        
+        // 2015 client
+        [FromForm(Name = "pl")] string? processListHash,
+            
+        // latest
+        [FromForm(Name = "st")] int? scoreTime,
+        [FromForm(Name = "osuver")] string? osuVersion,
+        [FromForm(Name = "token")] string? token,
+        [FromForm(Name = "bmk")] string? beatmapHash,
+        [FromForm(Name = "sbk")] string? storyboardMd5)
     {
         // asp.net ignores the second field with the same name (score)
         // so replay file (also 'score') is read separately - _-
         var content = await MultipartFormDataParser.ParseAsync(Request.Body, Encoding.UTF8);
         var replayFile = content.Files[0];
         Debug.Assert(replayFile.Name == "score");
+        
+        var decryptionKey = string.IsNullOrEmpty(osuVersion) ? "h89f2-890h2h89b34g-h80g134n90133" 
+            : $"osu!-scoreburgr---------{osuVersion}";
 
         var (scoreData, clientHash) = _cryptoService.DecryptRijndaelData(
-            Convert.FromBase64String(ivBase64), osuVersion,
+            Convert.FromBase64String(ivBase64), Encoding.UTF8.GetBytes(decryptionKey),
             Convert.FromBase64String(scoreBase64), Convert.FromBase64String(clientHashBase64));
 
         // Why
@@ -148,8 +157,9 @@ public class ScoreController : ControllerBase
             var path = Path.Combine(Path.GetFullPath(dataDir), "osr", $"{score.Id}.osr");
             await using var fs = new FileStream(path, FileMode.Create);
             await replayFile.Data.CopyToAsync(fs);
-            
-            var submissionResponse = new ScoreSubmissionResponse(score, beatmap, stats, prevStats, previousPb);
+
+            var newFormat = Request.Path.Value.Contains("-selector");
+            var submissionResponse = new ScoreSubmissionResponse(newFormat, score, beatmap, stats, prevStats, previousPb);
             return Ok(submissionResponse.ToString());
         }
 

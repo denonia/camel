@@ -17,11 +17,9 @@ public class CryptoService : ICryptoService
         _blockCipher = new CbcBlockCipher(engine);
     }
     
-    public (string[], string) DecryptRijndaelData(byte[] iv, string osuVersion, byte[] scoreData, byte[] clientHash)
+    public (string[], string) DecryptRijndaelData(byte[] iv, byte[] decryptionKey, byte[] scoreData, byte[] clientHash)
     {
-        var key = Encoding.UTF8.GetBytes($"osu!-scoreburgr---------{osuVersion}");
-        
-        var keyParam = new KeyParameter(key);
+        var keyParam = new KeyParameter(decryptionKey);
         var keyParamWithIV = new ParametersWithIV(keyParam, iv, 0, 32);
 
         var scoreDataBytes = Decrypt(_blockCipher, keyParamWithIV, scoreData);
