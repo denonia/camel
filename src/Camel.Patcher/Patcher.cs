@@ -6,25 +6,16 @@ namespace Camel.Patcher;
 public class Patcher
 {
     public string FileName { get; }
-    public string? ResultFileName { get; }
+    public string ResultFileName { get; }
     public string FromDomain { get; }
     public string ToDomain { get; }
 
-    public Patcher(string fileName, string? resultFileName, string fromDomain, string toDomain)
+    public Patcher(string fileName, string resultFileName, string fromDomain, string toDomain)
     {
         FileName = fileName;
         ResultFileName = resultFileName;
         FromDomain = fromDomain;
         ToDomain = toDomain;
-
-        if (string.IsNullOrEmpty(ResultFileName))
-        {
-            var dir = Path.GetDirectoryName(FileName);
-            var fnWithoutExtension = Path.GetFileNameWithoutExtension(FileName);
-            var extension = Path.GetExtension(FileName);
-            var newFileName = $"{fnWithoutExtension}-patched{extension}";
-            ResultFileName = string.IsNullOrEmpty(dir) ? newFileName : Path.Combine(dir, newFileName);
-        }
     }
 
     public void Run()
