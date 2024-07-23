@@ -16,7 +16,7 @@ public readonly struct ClientHashes
     {
         var entries = hashesString[..^1].Split(':', 5);
         OsuPathMd5 = entries[0];
-        AdaptersStr = entries[1];
+        AdaptersStr = entries[1][..^1];
         AdaptersMd5 = entries[2];
         UninstallMd5 = entries[3];
         DiskSignatureMd5 = entries[4];
@@ -24,7 +24,6 @@ public readonly struct ClientHashes
         RunningUnderWine = AdaptersStr == "runningunderwine";
         if (!RunningUnderWine)
         {
-            AdaptersStr = AdaptersStr[..^1];
             Adapters = AdaptersStr.Split('.').ToList();
         }
     }
