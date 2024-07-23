@@ -63,7 +63,7 @@ public class PacketQueue
 
     public void WriteUserStats(UserSession userSession, int rank)
     {
-        var stats = userSession.User.Stats.Single(s => s.Mode == userSession.Status.Mode);
+        var stats = userSession.Stats.Single(s => s.Mode == userSession.Status.Mode);
 
         WriteUserStats(userSession.User.Id,
             userSession.Status.Action, userSession.Status.InfoText, userSession.Status.MapMd5, userSession.Status.Mods,

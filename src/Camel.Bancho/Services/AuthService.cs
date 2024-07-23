@@ -18,7 +18,6 @@ public class AuthService : IAuthService
     public (User?, PasswordVerificationResult) AuthenticateUser(string userName, string passwordMd5)
     {
         var user = _dbContext.Users
-            .Include(u => u.Stats)
             .SingleOrDefault(u => u.UserName == userName);
         var hasher = new PasswordHasher<User>();
 

@@ -36,6 +36,7 @@ public class ScoreService : IScoreService
         }
 
         var user = await _dbContext.Users
+            .AsTracking()
             .SingleAsync(u => u.UserName == userName);
         score.User = user;
         _dbContext.Scores.Add(score);

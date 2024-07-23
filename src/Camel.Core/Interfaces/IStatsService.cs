@@ -5,6 +5,6 @@ namespace Camel.Core.Interfaces;
 
 public interface IStatsService
 {
-    Task<Stats> GetUserStatsAsync(int userId, GameMode mode);
+    Task<IEnumerable<Stats>> GetUserStatsAsync(int userId);
     Task UpdateStatsAfterSubmissionAsync(Stats stats, Score score, Score? personalBest);
 }

@@ -34,7 +34,10 @@ public class Program
         var connectionString = builder.Configuration["POSTGRES_CONNECTION"] ??
                                throw new InvalidOperationException("PostgreSQL connection string not set");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+        {
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
+        });
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         builder.Services.AddDefaultIdentity<User>(options =>

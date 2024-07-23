@@ -107,12 +107,13 @@ public class BanchoController : ControllerBase
         }
         pq.WriteChannelInfoEnd();
 
+        var stats = await _statsService.GetUserStatsAsync(user.Id);
+        var rank = await _rankingService.GetGlobalRankPpAsync(user.Id, GameMode.Standard);
+        
         var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(request, user, pq);
+        var newSession = new UserSession(request, user, stats, pq);
         _userSessionService.AddSession(newToken, newSession);
 
-        var stats = await _statsService.GetUserStatsAsync(user.Id, GameMode.Standard);
-        var rank = await _rankingService.GetGlobalRankPpAsync(user.Id, stats.Mode);
         pq.WriteUserPresence(newSession, rank);
         pq.WriteUserStats(newSession, rank);
 

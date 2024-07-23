@@ -50,8 +50,11 @@ public class Program
         builder.Services.AddHttpClient();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        {
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             options.UseNpgsql(builder.Configuration["POSTGRES_CONNECTION"])
-                .UseSnakeCaseNamingConvention());
+                .UseSnakeCaseNamingConvention();
+        });
 
         var app = builder.Build();
 

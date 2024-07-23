@@ -23,13 +23,14 @@ public class UserSession
     public UserStatus Status { get; set; }
     
     public User User { get; }
+    public IEnumerable<Stats> Stats { get; }
 
     public PacketQueue PacketQueue { get; }
     public List<UserSession> Spectators { get; } = [];
     public UserSession? Spectating { get; set; } = null;
     public Match? Match { get; set; } = null;
 
-    public UserSession(LoginRequest loginRequest, User user, PacketQueue packetQueue)
+    public UserSession(LoginRequest loginRequest, User user, IEnumerable<Stats> stats, PacketQueue packetQueue)
     {
         Username = loginRequest.Username;
         PasswordMd5 = loginRequest.PasswordMd5;
@@ -39,6 +40,7 @@ public class UserSession
         ClientHashes = loginRequest.ClientHashes;
         BlockNonFriendPm = loginRequest.BlockNonFriendPm;
         User = user;
+        Stats = stats;
         PacketQueue = packetQueue;
     }
 }

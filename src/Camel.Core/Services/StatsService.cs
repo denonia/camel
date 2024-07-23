@@ -17,14 +17,23 @@ public class StatsService : IStatsService
         _scoreService = scoreService;
     }
 
-    public async Task<Stats> GetUserStatsAsync(int userId, GameMode mode)
+    public async Task<IEnumerable<Stats>> GetUserStatsAsync(int userId)
     {
-        var stats = await _dbContext.Stats.SingleOrDefaultAsync(s => s.UserId == userId && s.Mode == mode);
+        var stats = await _dbContext.Stats
+            .AsTracking()
+            .Where(s => s.UserId == userId)
+            .ToListAsync();
 
-        if (stats == null)
+        if (stats.Count < 4)
         {
-            stats = new Stats(userId, mode);
-            _dbContext.Stats.Add(stats);
+            var modesToCreate = Enum.GetValues<GameMode>()
+                .Except(stats.Select(s => s.Mode));
+            foreach (var mode in modesToCreate)
+            {
+                var modeStats = new Stats(userId, mode);
+                _dbContext.Stats.Add(modeStats);
+                stats.Add(modeStats);
+            }
             await _dbContext.SaveChangesAsync();
         }
 
