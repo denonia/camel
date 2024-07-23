@@ -22,8 +22,6 @@ class Program
         builder.Services.AddTransient<IPerformanceCalculator, ExternalPerformanceCalculator>();
         builder.Services.AddHttpClient();
 
-        builder.Configuration.AddEnvironmentVariables();
-
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration["POSTGRES_CONNECTION"])
                 .UseSnakeCaseNamingConvention());

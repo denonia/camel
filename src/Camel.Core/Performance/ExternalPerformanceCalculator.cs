@@ -21,9 +21,11 @@ public class ExternalPerformanceCalculator : IPerformanceCalculator
         _logger = logger;
     }
 
-    public async Task<double> CalculateScorePpAsync(Score score)
+    public async Task<double> CalculateScorePpAsync(Score score, string? beatmapPath = null)
     {
-        var beatmapPath = await _beatmapService.GetBeatmapPathAsync(score.MapMd5);
+        if (string.IsNullOrEmpty(beatmapPath))
+            beatmapPath = await _beatmapService.GetBeatmapPathAsync(score.MapMd5);
+        
         if (string.IsNullOrEmpty(beatmapPath))
         {
             _logger.LogError("Failed to fetch beatmap for pp calculation: {}", score.MapMd5);
