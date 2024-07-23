@@ -3,6 +3,7 @@ using Camel.Core.Dtos;
 using Camel.Core.Entities;
 using Camel.Core.Enums;
 using Camel.Core.Interfaces;
+using Camel.Core.Performance;
 using Microsoft.EntityFrameworkCore;
 
 namespace Camel.Core.Services;
@@ -10,10 +11,12 @@ namespace Camel.Core.Services;
 public class ScoreService : IScoreService
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly IPerformanceCalculator _performanceCalculator;
 
-    public ScoreService(ApplicationDbContext dbContext)
+    public ScoreService(ApplicationDbContext dbContext, IPerformanceCalculator performanceCalculator)
     {
         _dbContext = dbContext;
+        _performanceCalculator = performanceCalculator;
     }
 
     public async Task<Score?> FindScoreAsync(int scoreId)
@@ -21,9 +24,17 @@ public class ScoreService : IScoreService
         return await _dbContext.Scores.SingleOrDefaultAsync(s => s.Id == scoreId);
     }
 
-    public async Task<Score?> SubmitScoreAsync(string userName, Score score)
+    public async Task<Score?> SubmitScoreAsync(int userId, Score score)
     {
-        var pb = await GetPersonalBestAsync(userName, score.MapMd5);
+        if (score.Pp <= 0)
+            score.Pp = (float)await _performanceCalculator.CalculateScorePpAsync(score);
+
+        var pb = await _dbContext.Scores.AsTracking().SingleOrDefaultAsync(s =>
+            s.User.Id == userId &&
+            s.Mode == score.Mode &&
+            s.MapMd5 == score.MapMd5 &&
+            s.Status == SubmissionStatus.Best);
+
         if (score.Status != SubmissionStatus.Failed)
         {
             if (pb == null)
@@ -35,13 +46,11 @@ public class ScoreService : IScoreService
             }
         }
 
-        var user = await _dbContext.Users
-            .AsTracking()
-            .SingleAsync(u => u.UserName == userName);
-        score.User = user;
+        score.UserId = userId;
         _dbContext.Scores.Add(score);
-        
+
         await _dbContext.SaveChangesAsync();
+
         return pb;
     }
 
@@ -73,10 +82,10 @@ public class ScoreService : IScoreService
         ).ToListAsync();
     }
 
-    public async Task<Score?> GetPersonalBestAsync(string userName, string mapMd5)
+    public async Task<Score?> GetPersonalBestAsync(int userId, string mapMd5)
     {
         return await _dbContext.Scores.SingleOrDefaultAsync(s =>
-            s.User.UserName == userName &&
+            s.User.Id == userId &&
             s.MapMd5 == mapMd5 &&
             s.Status == SubmissionStatus.Best);
     }

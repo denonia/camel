@@ -9,6 +9,9 @@ namespace Camel.Bancho.Services;
 
 public class CryptoService : ICryptoService
 {
+    private const string LegacyDecryptionKey = "h89f2-890h2h89b34g-h80g134n90133";
+    private const string NewDecryptionKey = "osu!-scoreburgr---------";
+
     private readonly CbcBlockCipher _blockCipher;
 
     public CryptoService()
@@ -16,10 +19,11 @@ public class CryptoService : ICryptoService
         var engine = new RijndaelEngine(256);
         _blockCipher = new CbcBlockCipher(engine);
     }
-    
-    public (string[], string) DecryptRijndaelData(byte[] iv, byte[] decryptionKey, byte[] scoreData, byte[] clientHash)
+
+    public (string[], string) DecryptRijndaelData(byte[] iv, string? osuVersion, byte[] scoreData, byte[] clientHash)
     {
-        var keyParam = new KeyParameter(decryptionKey);
+        var key = string.IsNullOrEmpty(osuVersion) ? LegacyDecryptionKey : NewDecryptionKey + osuVersion;
+        var keyParam = new KeyParameter(Encoding.UTF8.GetBytes(key));
         var keyParamWithIV = new ParametersWithIV(keyParam, iv, 0, 32);
 
         var scoreDataBytes = Decrypt(_blockCipher, keyParamWithIV, scoreData);

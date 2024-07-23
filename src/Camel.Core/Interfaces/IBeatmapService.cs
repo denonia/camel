@@ -6,6 +6,5 @@ public interface IBeatmapService
 {
     Task<Beatmap?> FindBeatmapAsync(string md5);
     Task<Beatmap?> FindBeatmapAsync(int beatmapId);
-    Task<string?> GetBeatmapPathAsync(int beatmapId);
-    Task<Stream?> GetBeatmapStreamAsync(int beatmapId);
+    Task<string?> GetBeatmapPathAsync(string md5);
 }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text;
 using Camel.Bancho.Dtos;
 using Camel.Bancho.Middlewares;
@@ -17,35 +18,29 @@ public class ScoreController : ControllerBase
 {
     private readonly IScoreService _scoreService;
     private readonly IStatsService _statsService;
-    private readonly IRankingService _rankingService;
     private readonly IUserSessionService _userSessionService;
     private readonly ICryptoService _cryptoService;
     private readonly IBeatmapService _beatmapService;
-    private readonly IPerformanceCalculator _performanceCalculator;
-    private readonly IConfiguration _configuration;
+    private readonly IReplayService _replayService;
     private readonly ICacheService _cacheService;
     private readonly ILogger<ScoreController> _logger;
 
     public ScoreController(
         IScoreService scoreService,
         IStatsService statsService,
-        IRankingService rankingService,
         IUserSessionService userSessionService,
         ICryptoService cryptoService,
         IBeatmapService beatmapService,
-        IPerformanceCalculator performanceCalculator,
-        IConfiguration configuration,
+        IReplayService replayService,
         ICacheService cacheService,
         ILogger<ScoreController> logger)
     {
         _scoreService = scoreService;
         _statsService = statsService;
-        _rankingService = rankingService;
         _userSessionService = userSessionService;
         _cryptoService = cryptoService;
         _beatmapService = beatmapService;
-        _performanceCalculator = performanceCalculator;
-        _configuration = configuration;
+        _replayService = replayService;
         _cacheService = cacheService;
         _logger = logger;
     }
@@ -65,6 +60,10 @@ public class ScoreController : ControllerBase
         [FromQuery(Name = "h")] int mapPackageHash,
         [FromQuery(Name = "a")] int aqnFilesFound)
     {
+        var session = _userSessionService.GetSessionFromApi(userName, passwordMd5);
+        if (session == null)
+            return Unauthorized();
+        
         if (_cacheService.IsInUnsubmittedCache(mapMd5))
             return Ok("-1|false");
         
@@ -75,7 +74,7 @@ public class ScoreController : ControllerBase
             return Ok("-1|false");
         }
         
-        var personalBest = await _scoreService.GetPersonalBestAsync(userName, mapMd5);
+        var personalBest = await _scoreService.GetPersonalBestAsync(session.User.Id, mapMd5);
         var scores = await _scoreService.GetLeaderboardScoresAsync(mapMd5);
         
         var response = new LeaderboardResponse(beatmap, personalBest, userName, scores);
@@ -113,11 +112,8 @@ public class ScoreController : ControllerBase
         var replayFile = content.Files[0];
         Debug.Assert(replayFile.Name == "score");
         
-        var decryptionKey = string.IsNullOrEmpty(osuVersion) ? "h89f2-890h2h89b34g-h80g134n90133" 
-            : $"osu!-scoreburgr---------{osuVersion}";
-
         var (scoreData, clientHash) = _cryptoService.DecryptRijndaelData(
-            Convert.FromBase64String(ivBase64), Encoding.UTF8.GetBytes(decryptionKey),
+            Convert.FromBase64String(ivBase64), osuVersion,
             Convert.FromBase64String(scoreBase64), Convert.FromBase64String(clientHashBase64));
 
         // Why
@@ -132,37 +128,25 @@ public class ScoreController : ControllerBase
         var score = Score.FromSubmission(scoreData);
 
         if (await _scoreService.ExistsAsync(score.OnlineChecksum))
-            return BadRequest();
-
-        var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
-        var pp = await _performanceCalculator.CalculateScorePpAsync(score, beatmap.Id);
-        score.Pp = (float)pp;
-
-        var previousPb = await _scoreService.SubmitScoreAsync(userName, score);
+            return BadRequest("error: no");
+        
         var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
-        await _statsService.UpdateStatsAfterSubmissionAsync(stats, score, previousPb);
-
-        if (score.Status == SubmissionStatus.Best)
-        {
-            await _rankingService.UpdateUserStatsAsync(session.User.Id, score.Mode, stats.Pp, stats.RankedScore);
-            session.PacketQueue.WriteNotification($"{(int)pp} pp gz");
-        }
+        var previousPb = await _scoreService.SubmitScoreAsync(session.User.Id, score);
+        await _statsService.UpdateStatsAfterSubmissionAsync(session.User.Id, stats, score, previousPb);
 
         _logger.LogInformation("{} has submitted a new score: {}", userName, string.Join('|', scoreData));
 
         if (score.Status != SubmissionStatus.Failed)
         {
-            var dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
-            var path = Path.Combine(Path.GetFullPath(dataDir), "osr", $"{score.Id}.osr");
-            await using var fs = new FileStream(path, FileMode.Create);
-            await replayFile.Data.CopyToAsync(fs);
-
+            await _replayService.SaveReplayAsync(score.Id, replayFile.Data);
+            
+            var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
             var newFormat = Request.Path.Value.Contains("-selector");
             var submissionResponse = new ScoreSubmissionResponse(newFormat, score, beatmap, stats, prevStats, previousPb);
             return Ok(submissionResponse.ToString());
         }
 
-        return Ok();
+        return Ok("error: no");
     }
 }

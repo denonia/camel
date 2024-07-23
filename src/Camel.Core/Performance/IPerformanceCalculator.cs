@@ -4,5 +4,5 @@ namespace Camel.Core.Performance;
 
 public interface IPerformanceCalculator
 {
-    Task<double> CalculateScorePpAsync(Score score, int beatmapId);
+    Task<double> CalculateScorePpAsync(Score score);
 }

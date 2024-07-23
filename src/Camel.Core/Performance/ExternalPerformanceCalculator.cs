@@ -21,12 +21,12 @@ public class ExternalPerformanceCalculator : IPerformanceCalculator
         _logger = logger;
     }
 
-    public async Task<double> CalculateScorePpAsync(Score score, int beatmapId)
+    public async Task<double> CalculateScorePpAsync(Score score)
     {
-        var beatmapPath = await _beatmapService.GetBeatmapPathAsync(beatmapId);
+        var beatmapPath = await _beatmapService.GetBeatmapPathAsync(score.MapMd5);
         if (string.IsNullOrEmpty(beatmapPath))
         {
-            _logger.LogError("Failed to fetch beatmap for pp calculation: {}", beatmapId);
+            _logger.LogError("Failed to fetch beatmap for pp calculation: {}", score.MapMd5);
             return 0.0;
         }
 
@@ -64,7 +64,7 @@ public class ExternalPerformanceCalculator : IPerformanceCalculator
         if (double.TryParse(resultStr, out var result))
             return result;
 
-        _logger.LogError("Failed to calculate pp for beatmap {} ({})", beatmapId,
+        _logger.LogError("Failed to calculate pp for beatmap {} ({})", score.MapMd5,
             await process.StandardError.ReadToEndAsync());
         return 0.0;
     }

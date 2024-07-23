@@ -52,9 +52,9 @@ public class BeatmapService : IBeatmapService
         return setDiffs.SingleOrDefault(b => b.Id == beatmapId);
     }
 
-    public async Task<string?> GetBeatmapPathAsync(int beatmapId)
+    public async Task<string?> GetBeatmapPathAsync(string md5)
     {
-        var beatmap = await FindBeatmapAsync(beatmapId);
+        var beatmap = await FindBeatmapAsync(md5);
         if (!string.IsNullOrEmpty(beatmap.FileName))
         {
             var existingPath = Path.Combine(Path.GetFullPath(_dataDir), "osu", beatmap.FileName);
@@ -62,19 +62,6 @@ public class BeatmapService : IBeatmapService
         }
         
         return await FetchBeatmapFile(beatmap);
-    }
-
-    public async Task<Stream?> GetBeatmapStreamAsync(int beatmapId)
-    {
-        var beatmap = await FindBeatmapAsync(beatmapId);
-        if (!string.IsNullOrEmpty(beatmap.FileName))
-        {
-            var existingPath = Path.Combine(Path.GetFullPath(_dataDir), "osu", beatmap.FileName);
-            return new FileStream(existingPath, FileMode.Open);
-        }
-
-        var newPath = await FetchBeatmapFile(beatmap);
-        return new FileStream(newPath, FileMode.Open);
     }
 
     private async Task<IEnumerable<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);

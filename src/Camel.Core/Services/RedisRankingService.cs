@@ -18,7 +18,7 @@ public class RedisRankingService : IRankingService
         _redis = connectionMultiplexer.GetDatabase();
     }
 
-    public async Task UpdateUserStatsAsync(int userId, GameMode mode, int pp, long rankedScore)
+    public async Task UpdateUserRankAsync(int userId, GameMode mode, int pp, long rankedScore)
     {
         // TODO country ranking
         await _redis.SortedSetAddAsync($"leaderboard:{mode}:pp", userId, pp);

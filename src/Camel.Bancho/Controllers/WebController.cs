@@ -6,13 +6,11 @@ namespace Camel.Bancho.Controllers;
 [Host("osu.ppy.sh", "osu.camel.local")]
 public class WebController : ControllerBase
 {
-    private readonly IScoreService _scoreService;
-    private readonly IConfiguration _configuration;
+    private readonly IReplayService _replayService;
 
-    public WebController(IScoreService scoreService, IConfiguration configuration)
+    public WebController(IReplayService replayService)
     {
-        _scoreService = scoreService;
-        _configuration = configuration;
+        _replayService = replayService;
     }
 
 
@@ -23,19 +21,12 @@ public class WebController : ControllerBase
         [FromQuery(Name = "m")] int mode,
         [FromQuery(Name = "c")] int scoreId)
     {
-        var score = await _scoreService.FindScoreAsync(scoreId);
-        if (score is null)
-            return NotFound();
-        
-        var dataDir = _configuration.GetRequiredSection("DATA_PATH").Value;
-        var path = Path.Combine(Path.GetFullPath(dataDir), "osr", $"{score.Id}.osr");
-
-        if (!System.IO.File.Exists(path))
+        var replayStream = await _replayService.GetReplayAsync(scoreId);
+        if (replayStream is null)
             return NotFound();
         
         // TODO: replay view count if anyone cares
         
-        var fs = new FileStream(path, FileMode.Open);
-        return File(fs, "application/octet-stream");
+        return File(replayStream, "application/octet-stream");
     }
 }
