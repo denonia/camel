@@ -1,4 +1,4 @@
-﻿namespace Camel.Web;
+﻿namespace Camel.Core.Configuration;
 
 public static class DotEnv
 {

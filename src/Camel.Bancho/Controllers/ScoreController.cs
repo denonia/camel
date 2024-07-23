@@ -130,7 +130,7 @@ public class ScoreController : ControllerBase
         if (await _scoreService.ExistsAsync(score.OnlineChecksum))
             return BadRequest("error: no");
         
-        var stats = session.User.Stats.Single(s => s.Mode == score.Mode);
+        var stats = session.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
         var previousPb = await _scoreService.SubmitScoreAsync(session.User.Id, score);
         await _statsService.UpdateStatsAfterSubmissionAsync(session.User.Id, stats, score, previousPb);

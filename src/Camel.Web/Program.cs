@@ -1,3 +1,4 @@
+using Camel.Core.Configuration;
 using Camel.Core.Data;
 using Camel.Core.Entities;
 using Camel.Core.Interfaces;
@@ -13,11 +14,8 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        if (builder.Environment.IsDevelopment())
-            DotEnv.Load(".env.development");
-        else
-            DotEnv.Load(".env");
-        builder.Configuration.AddEnvironmentVariables();
+        
+        builder.LoadConfiguration();
         
         builder.Services.AddTransient<IPasswordHasher<User>, MD5PasswordHasher>();
         builder.Services.AddTransient<Services.Interfaces.IScoreService, Services.ScoreService>();

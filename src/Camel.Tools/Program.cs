@@ -1,4 +1,5 @@
-﻿using Camel.Bancho;
+﻿using Camel.Core;
+using Camel.Core.Configuration;
 using Camel.Core.Data;
 using Camel.Core.Interfaces;
 using Camel.Core.Performance;

@@ -3,6 +3,7 @@ using Camel.Bancho.Middlewares;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
 using Camel.Bancho.Services.Interfaces;
+using Camel.Core.Configuration;
 using Camel.Core.Data;
 using Camel.Core.Interfaces;
 using Camel.Core.Performance;
@@ -17,11 +18,8 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        if (builder.Environment.IsDevelopment())
-            DotEnv.Load(".env.development");
-        else
-            DotEnv.Load(".env");
-        builder.Configuration.AddEnvironmentVariables();
+        
+        builder.LoadConfiguration();
 
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
@@ -43,6 +41,7 @@ public class Program
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
         builder.Services.AddSingleton<IChatService, ChatService>();
         builder.Services.AddSingleton<IMultiplayerService, MultiplayerService>();
+        builder.Services.AddTransient<IReplayService, ReplayService>();
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"]));
