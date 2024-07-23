@@ -1,18 +1,19 @@
 ﻿using System.Text;
+using Camel.Bancho.Models;
 
 namespace Camel.Bancho.Dtos;
 
 public readonly struct LoginRequest
 {
     public LoginRequest(string username, string passwordMd5, string osuVersion, int utcOffset, bool displayCity,
-        string hashes, bool blockNonFriendPm)
+        ClientHashes clientHashes, bool blockNonFriendPm)
     {
         Username = username;
         PasswordMd5 = passwordMd5;
         OsuVersion = osuVersion;
         UtcOffset = utcOffset;
         DisplayCity = displayCity;
-        ClientHashes = hashes;
+        ClientHashes = clientHashes;
         BlockNonFriendPm = blockNonFriendPm;
     }
 
@@ -21,7 +22,7 @@ public readonly struct LoginRequest
     public string OsuVersion { get; }
     public int UtcOffset { get; }
     public bool DisplayCity { get; }
-    public string ClientHashes { get; }
+    public ClientHashes ClientHashes { get; }
     public bool BlockNonFriendPm { get; }
 
     public static LoginRequest FromBytes(byte[] bytes)
@@ -32,6 +33,6 @@ public readonly struct LoginRequest
 
         return new LoginRequest(lines[0], lines[1], 
             rest[0], int.Parse(rest[1]), 
-            rest[2] == "1", rest[3], rest[4] == "1");
+            rest[2] == "1", new ClientHashes(rest[3]), rest[4] == "1");
     }
 }

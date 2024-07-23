@@ -46,11 +46,10 @@ public class Score
             Perfect = data[11] == "True",
             Grade = Enum.Parse<Grade>(data[12].ToUpper()),
             Mods = Convert.ToInt32(data[13]),
-            //passed
             Status = data[14] == "True" ? SubmissionStatus.Submitted : SubmissionStatus.Failed,
             Mode = (GameMode)Convert.ToInt32(data[15]),
             SetAt = DateTime.SpecifyKind(DateTime.ParseExact(data[16], "yyMMddHHmmss", null), DateTimeKind.Utc),
-            // client flags
+            ClientFlags = data[15].ToCharArray().Count(c => c == ' ') & ~4
         };
         result.Accuracy = result.CalculateAccuracy();
 

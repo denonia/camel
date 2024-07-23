@@ -37,7 +37,8 @@ public class CryptoService : ICryptoService
         cipher.Init(false, keyParamWithIV);
         var result = new byte[cipher.GetOutputSize(inputBytes.Length)];
         var length = cipher.ProcessBytes(inputBytes, result, 0);
-        cipher.DoFinal(result, length);
+        var length2 = cipher.DoFinal(result, length);
+        Array.Resize(ref result, length + length2);
         return result;
     }
 }

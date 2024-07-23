@@ -1,13 +1,13 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using Camel.Bancho.Dtos;
 using Camel.Bancho.Middlewares;
+using Camel.Bancho.Models;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Entities;
 using Camel.Core.Enums;
 using Camel.Core.Interfaces;
-using Camel.Core.Performance;
 using HttpMultipartParser;
 using Microsoft.AspNetCore.Mvc;
 
@@ -63,20 +63,20 @@ public class ScoreController : ControllerBase
         var session = _userSessionService.GetSessionFromApi(userName, passwordMd5);
         if (session == null)
             return Unauthorized();
-        
+
         if (_cacheService.IsInUnsubmittedCache(mapMd5))
             return Ok("-1|false");
-        
+
         var beatmap = await _beatmapService.FindBeatmapAsync(mapMd5);
         if (beatmap is null)
         {
             _cacheService.AddUnsubmittedMap(mapMd5);
             return Ok("-1|false");
         }
-        
+
         var personalBest = await _scoreService.GetPersonalBestAsync(session.User.Id, mapMd5);
         var scores = await _scoreService.GetLeaderboardScoresAsync(mapMd5);
-        
+
         var response = new LeaderboardResponse(beatmap, personalBest, userName, scores);
 
         return Ok(response.ToString());
@@ -95,10 +95,10 @@ public class ScoreController : ControllerBase
         [FromForm(Name = "pass")] string passwordMd5,
         [FromForm(Name = "s")] string clientHashBase64,
         [FromForm(Name = "i")] byte[]? flCheatScreenshot,
-        
+
         // 2015 client
         [FromForm(Name = "pl")] string? processListHash,
-            
+
         // latest
         [FromForm(Name = "st")] int? scoreTime,
         [FromForm(Name = "osuver")] string? osuVersion,
@@ -111,7 +111,7 @@ public class ScoreController : ControllerBase
         var content = await MultipartFormDataParser.ParseAsync(Request.Body, Encoding.UTF8);
         var replayFile = content.Files[0];
         Debug.Assert(replayFile.Name == "score");
-        
+
         var (scoreData, clientHash) = _cryptoService.DecryptRijndaelData(
             Convert.FromBase64String(ivBase64), osuVersion,
             Convert.FromBase64String(scoreBase64), Convert.FromBase64String(clientHashBase64));
@@ -120,7 +120,7 @@ public class ScoreController : ControllerBase
         var userName = scoreData[1];
         if (userName.EndsWith(' '))
             userName = userName[..^1];
-        
+
         var session = _userSessionService.GetSessionFromApi(userName, passwordMd5);
         if (session == null)
             return Unauthorized();
@@ -129,7 +129,16 @@ public class ScoreController : ControllerBase
 
         if (await _scoreService.ExistsAsync(score.OnlineChecksum))
             return BadRequest("error: no");
-        
+
+        if (score.Status == SubmissionStatus.Failed)
+            score.TimeElapsed = failTime;
+        else
+            score.TimeElapsed = scoreTime ?? 0;
+
+        if (!ValidateScore(score, session, osuVersion, uniqueIds, clientHash, beatmapHash))
+        {
+        }
+
         var stats = session.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
         var previousPb = await _scoreService.SubmitScoreAsync(session.User.Id, score);
@@ -140,13 +149,52 @@ public class ScoreController : ControllerBase
         if (score.Status != SubmissionStatus.Failed)
         {
             await _replayService.SaveReplayAsync(score.Id, replayFile.Data);
-            
+
             var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
             var newFormat = Request.Path.Value.Contains("-selector");
-            var submissionResponse = new ScoreSubmissionResponse(newFormat, score, beatmap, stats, prevStats, previousPb);
+            var submissionResponse =
+                new ScoreSubmissionResponse(newFormat, score, beatmap, stats, prevStats, previousPb);
             return Ok(submissionResponse.ToString());
         }
 
         return Ok("error: no");
+    }
+
+    private bool ValidateScore(Score score,
+        UserSession userSession,
+        string osuVersion,
+        string uniqueIds,
+        string clientHash,
+        string beatmapHash)
+    {
+        var ids = uniqueIds.Split('|', 2);
+        var uninstallMd5 = Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(ids[0]))).ToLower();
+        var diskSignatureMd5 =
+            Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(ids[1]))).ToLower();
+
+        List<bool> checks =
+        [
+            CheckMatch(osuVersion, userSession.OsuVersion.DateNumber.ToString(), "osu! version", userSession.Username),
+            CheckMatch(clientHash, userSession.ClientHashes.ToString(), "Client hash", userSession.Username),
+            CheckMatch(uninstallMd5, userSession.ClientHashes.UninstallMd5, "Uninstall md5", userSession.Username),
+            CheckMatch(diskSignatureMd5, userSession.ClientHashes.DiskSignatureMd5, "Disk signature md5",
+                userSession.Username),
+            CheckMatch(beatmapHash, score.MapMd5, "Beatmap hash", userSession.Username)
+            // TODO online checksum
+        ];
+
+        return checks.All(c => c);
+    }
+
+    private bool CheckMatch(string first, string second, string criteria, string userName)
+    {
+        if (!string.Equals(first, second))
+        {
+            _logger.LogWarning("{}: {} mismatch: {}, expected {}", userName, criteria,
+                first, second);
+            return false;
+        }
+
+        return true;
     }
 }

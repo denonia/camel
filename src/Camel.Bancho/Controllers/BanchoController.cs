@@ -48,17 +48,7 @@ public class BanchoController : ControllerBase
         inStream.Position = 0;
 
         if (accessToken == null)
-        {
-            try
-            {
-                var request = LoginRequest.FromBytes(inStream.ToArray());
-                return await HandleLoginRequestAsync(request);
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
+            return await HandleLoginRequestAsync(inStream);
 
         var session = _userSessionService.GetSession(accessToken);
         if (session == null)
@@ -83,6 +73,19 @@ public class BanchoController : ControllerBase
         }
 
         return SendPendingPackets(session.PacketQueue);
+    }
+
+    private async Task<IActionResult> HandleLoginRequestAsync(MemoryStream stream)
+    {
+        try
+        {
+            var request = LoginRequest.FromBytes(stream.ToArray());
+            return await HandleLoginRequestAsync(request);
+        }
+        catch
+        {
+            return BadRequest();
+        }
     }
 
     private async Task<FileStreamResult> HandleLoginRequestAsync(LoginRequest request)

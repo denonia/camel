@@ -10,10 +10,10 @@ public class UserSession
 {
     public string Username { get; }
     public string PasswordMd5 { get; }
-    public string OsuVersion { get; }
+    public OsuVersion OsuVersion { get; }
     public int UtcOffset { get; }
     public bool DisplayCity { get; }
-    public string ClientHashes { get; }
+    public ClientHashes ClientHashes { get; }
     public bool BlockNonFriendPm { get; }
     
     public DateTime StartTime { get; } = DateTime.Now;
@@ -34,7 +34,7 @@ public class UserSession
     {
         Username = loginRequest.Username;
         PasswordMd5 = loginRequest.PasswordMd5;
-        OsuVersion = loginRequest.OsuVersion;
+        OsuVersion = OsuVersion.Parse(loginRequest.OsuVersion) ?? throw new ArgumentException("Failed to parse osu! version");
         UtcOffset = loginRequest.UtcOffset;
         DisplayCity = loginRequest.DisplayCity;
         ClientHashes = loginRequest.ClientHashes;
