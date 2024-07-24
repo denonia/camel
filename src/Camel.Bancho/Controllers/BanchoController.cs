@@ -10,13 +10,13 @@ namespace Camel.Bancho.Controllers;
 [Host("c.ppy.sh", "ce.ppy.sh", "c4.ppy.sh", "c.camel.local", "ce.camel.local", "c4.camel.local")]
 public class BanchoController : ControllerBase
 {
-    private readonly BanchoService _banchoService;
+    private readonly IBanchoService _banchoService;
     private readonly IPacketHandlerService _packetHandler;
     private readonly IUserSessionService _userSessionService;
     private readonly ILogger<BanchoController> _logger;
 
     public BanchoController(
-        BanchoService banchoService,
+        IBanchoService banchoService,
         IPacketHandlerService packetHandler,
         IUserSessionService userSessionService,
         ILogger<BanchoController> logger)
