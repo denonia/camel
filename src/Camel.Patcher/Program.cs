@@ -11,7 +11,7 @@ class Program
             {
                 var patcher = new Patcher(o.FileName, 
                     o.ResultFileName ?? ResultFileName(o.FileName, o.ToDomain), 
-                    o.FromDomain, o.ToDomain);
+                    o.FromDomain, o.ToDomain, o.ToIpAddress);
                 patcher.Run();
             });
     }

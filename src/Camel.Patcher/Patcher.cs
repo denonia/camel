@@ -1,21 +1,29 @@
-﻿using Mono.Cecil;
+﻿using System.Net;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace Camel.Patcher;
 
 public class Patcher
 {
+    private static readonly long[] BanchoIps = 
+    [
+        1514805042L // 50.23.74.90
+    ];
+    
     public string FileName { get; }
     public string ResultFileName { get; }
     public string FromDomain { get; }
     public string ToDomain { get; }
+    public long ToIpAddress { get; }
 
-    public Patcher(string fileName, string resultFileName, string fromDomain, string toDomain)
+    public Patcher(string fileName, string resultFileName, string fromDomain, string toDomain, string toIpAddress)
     {
         FileName = fileName;
         ResultFileName = resultFileName;
         FromDomain = fromDomain;
         ToDomain = toDomain;
+        ToIpAddress = IPAddress.Parse(toIpAddress).Address;
     }
 
     public void Run()
@@ -28,6 +36,21 @@ public class Patcher
         
         var module = ModuleDefinition.ReadModule(FileName);
 
+        var ipInstructions = module.Types
+            .SelectMany(t => t.Methods)
+            .Where(m => m.HasBody)
+            .SelectMany(m => m.Body.Instructions)
+            .Where(i => i.OpCode == OpCodes.Ldc_I8)
+            .Where(i => BanchoIps.Contains((i.Operand as long?)!.Value))
+            .ToList();
+        
+        foreach (var instruction in ipInstructions)
+        {
+            Console.WriteLine($"Found Bancho IP: {instruction.Operand}");
+        
+            instruction.Operand = ToIpAddress;
+        }
+        
         var stringInstructions = module.Types
             .SelectMany(t => t.Methods)
             .Where(m => m.HasBody)

@@ -15,4 +15,7 @@ public class CommandLineOptions
     
     [Option('t', "to", Default = "allein.xyz", HelpText = "Destination url")]
     public required string ToDomain { get; set; }
+    
+    [Option('i', "ip", Default = "127.0.0.1", HelpText = "Destination IP address")]
+    public required string ToIpAddress { get; set; }
 }
