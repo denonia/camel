@@ -32,12 +32,13 @@ public class TcpConnectionHandler : ConnectionHandler
         var banchoService = scope.ServiceProvider.GetRequiredService<IBanchoService>();
 
         var readResult = await connection.Transport.Input.ReadAsync();
-        
+
         var pq = new PacketQueue();
 
-        var token = await banchoService.HandleLoginRequestAsync(pq, readResult.Buffer.ToArray());
+        var token = await banchoService.HandleLoginRequestAsync(pq, readResult.Buffer.ToArray(),
+            connection.RemoteEndPoint.ToString());
         await SendPendingPacketsAsync(pq, connection.Transport.Output);
-        
+
         connection.Transport.Input.AdvanceTo(readResult.Buffer.End);
 
         if (string.IsNullOrEmpty(token))
@@ -57,7 +58,7 @@ public class TcpConnectionHandler : ConnectionHandler
         if (transport.Input.TryRead(out var readResult))
         {
             var inStream = new MemoryStream(readResult.Buffer.ToArray());
-            
+
             var reader = new PacketBinaryReader(inStream, Encoding.Default, true);
             while (inStream.Position < inStream.Length)
             {
@@ -67,7 +68,7 @@ public class TcpConnectionHandler : ConnectionHandler
 
                 await _packetHandler.HandleAsync(p.Type, new MemoryStream(p.Data), session);
             }
-            
+
             transport.Input.AdvanceTo(readResult.Buffer.End);
         }
 

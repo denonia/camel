@@ -15,6 +15,7 @@ public class UserSession
     public bool? DisplayCity { get; }
     public ClientHashes? ClientHashes { get; }
     public bool? BlockNonFriendPm { get; }
+    public Location Location { get; }
     
     public DateTime StartTime { get; } = DateTime.Now;
     public DateTime LastActive { get; set; } = DateTime.Now;
@@ -30,7 +31,7 @@ public class UserSession
     public UserSession? Spectating { get; set; } = null;
     public Match? Match { get; set; } = null;
 
-    public UserSession(LoginRequest loginRequest, User user, IEnumerable<Stats> stats, PacketQueue packetQueue)
+    public UserSession(LoginRequest loginRequest, User user, Location location, IEnumerable<Stats> stats, PacketQueue packetQueue)
     {
         Username = loginRequest.Username;
         PasswordMd5 = loginRequest.PasswordMd5;
@@ -40,6 +41,7 @@ public class UserSession
         ClientHashes = loginRequest.ClientHashes;
         BlockNonFriendPm = loginRequest.BlockNonFriendPm;
         User = user;
+        Location = location;
         Stats = stats;
         PacketQueue = packetQueue;
     }

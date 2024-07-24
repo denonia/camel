@@ -55,7 +55,8 @@ public class PacketQueue
 
     public void WriteUserPresence(UserSession userSession, int rank) =>
         WriteUserPresence(userSession.User.Id, userSession.User.UserName,
-            (byte)userSession.UtcOffset, 222, 0, 0, 0, rank);
+            (byte)userSession.UtcOffset, (byte)userSession.Location.CountryId, 0, 
+            (float)userSession.Location.Longitude, (float)userSession.Location.Latitude, rank);
 
     public void WriteUserStats(int id, ClientAction action, string infoText, string mapMd5, int mods, GameMode mode,
         int mapId,

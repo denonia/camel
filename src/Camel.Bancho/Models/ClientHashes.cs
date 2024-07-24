@@ -2,6 +2,8 @@
 
 public readonly struct ClientHashes
 {
+    private readonly string _raw;
+    
     public bool RunningUnderWine { get; }
 
     public string OsuPathMd5 { get; }
@@ -14,6 +16,7 @@ public readonly struct ClientHashes
 
     public ClientHashes(string hashesString)
     {
+        _raw = hashesString;
         var entries = hashesString.Split(':');
         OsuPathMd5 = entries[0];
         AdaptersStr = entries[1];
@@ -28,6 +31,6 @@ public readonly struct ClientHashes
         }
     }
 
-    public override string ToString() =>
-        $"{OsuPathMd5}:{AdaptersStr}:{AdaptersMd5}:{UninstallMd5}:{DiskSignatureMd5}";
+    public override string ToString() => _raw;
+    // $"{OsuPathMd5}:{AdaptersStr}:{AdaptersMd5}:{UninstallMd5}:{DiskSignatureMd5}";
 }
