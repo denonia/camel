@@ -25,12 +25,12 @@ public class Program
 
         builder.WebHost.UseKestrel(options =>
         {
-            options.ListenLocalhost(13380, o => o.UseConnectionHandler<TcpConnectionHandler>());
-            options.ListenLocalhost(13381, o => o.UseConnectionHandler<TcpConnectionHandler>());
-            options.ListenLocalhost(13382, o => o.UseConnectionHandler<TcpConnectionHandler>());
-            options.ListenLocalhost(13383, o => o.UseConnectionHandler<TcpConnectionHandler>());
+            options.ListenAnyIP(13380, o => o.UseConnectionHandler<TcpConnectionHandler>());
+            options.ListenAnyIP(13381, o => o.UseConnectionHandler<TcpConnectionHandler>());
+            options.ListenAnyIP(13382, o => o.UseConnectionHandler<TcpConnectionHandler>());
+            options.ListenAnyIP(13383, o => o.UseConnectionHandler<TcpConnectionHandler>());
 
-            options.ListenLocalhost(8080);
+            options.ListenAnyIP(8080);
         });
 
         builder.Services.AddControllers().AddJsonOptions(options =>
