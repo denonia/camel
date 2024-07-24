@@ -82,8 +82,9 @@ public class BanchoController : ControllerBase
             var request = LoginRequest.FromBytes(stream.ToArray());
             return await HandleLoginRequestAsync(request);
         }
-        catch
+        catch (Exception e)
         {
+            _logger.LogError("Failed to handle login request: {}", e.ToString());
             return BadRequest();
         }
     }
@@ -120,7 +121,7 @@ public class BanchoController : ControllerBase
         pq.WriteUserPresence(newSession, rank);
         pq.WriteUserStats(newSession, rank);
 
-        _logger.LogInformation($"{user.UserName} (ID: {user.Id}) has logged in");
+        _logger.LogInformation($"{user.UserName} (ID: {user.Id}) has logged in from {request.OsuVersion}");
 
         foreach (var otherSession in _userSessionService.GetOnlineUsers().Where(u => u != newSession))
         {
@@ -147,7 +148,4 @@ public class BanchoController : ControllerBase
         ms.Position = 0;
         return File(ms, "application/octet-stream", "");
     }
-
-    [HttpGet("web/bancho_connect.php")]
-    public IActionResult BanchoConnect() => Ok();
 }

@@ -91,9 +91,11 @@ public class ScoreController : ControllerBase
         [FromForm(Name = "score")] string scoreBase64,
         [FromForm(Name = "fs")] byte[] visualSettings,
         [FromForm(Name = "iv")] string ivBase64,
-        [FromForm(Name = "c1")] string uniqueIds,
         [FromForm(Name = "pass")] string passwordMd5,
         [FromForm(Name = "s")] string clientHashBase64,
+
+        // not present in 2013
+        [FromForm(Name = "c1")] string? uniqueIds,
         [FromForm(Name = "i")] byte[]? flCheatScreenshot,
 
         // 2015 client
@@ -135,22 +137,23 @@ public class ScoreController : ControllerBase
         else
             score.TimeElapsed = scoreTime ?? 0;
 
-        if (!ValidateScore(score, session, osuVersion, uniqueIds, clientHash, beatmapHash))
-        {
-        }
+        ValidateScore(score, session, osuVersion, uniqueIds, clientHash, beatmapHash);
 
         var stats = session.Stats.Single(s => s.Mode == score.Mode);
         var prevStats = new Stats(stats);
         var previousPb = await _scoreService.SubmitScoreAsync(session.User.Id, score);
         await _statsService.UpdateStatsAfterSubmissionAsync(session.User.Id, stats, score, previousPb);
 
-        _logger.LogInformation("{} has submitted a new score: {}", userName, string.Join('|', scoreData));
-
         if (score.Status != SubmissionStatus.Failed)
         {
             await _replayService.SaveReplayAsync(score.Id, replayFile.Data);
 
             var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
+
+            _logger.LogInformation("{} ({}) has submitted a new score: {} - {} [{}] - {} pp ({})",
+                userName, session.OsuVersion, beatmap.Artist, beatmap.Title, beatmap.Version, score.Pp.ToString("N0"),
+                string.Join('|', scoreData));
+
             var newFormat = Request.Path.Value.Contains("-selector");
             var submissionResponse =
                 new ScoreSubmissionResponse(newFormat, score, beatmap, stats, prevStats, previousPb);
@@ -160,17 +163,21 @@ public class ScoreController : ControllerBase
         return Ok("error: no");
     }
 
+    private static string? Md5Hex(string? s) =>
+        string.IsNullOrEmpty(s)
+            ? null
+            : Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(s))).ToLower();
+
     private bool ValidateScore(Score score,
         UserSession userSession,
-        string osuVersion,
-        string uniqueIds,
+        string? osuVersion,
+        string? uniqueIds,
         string clientHash,
-        string beatmapHash)
+        string? beatmapHash)
     {
-        var ids = uniqueIds.Split('|', 2);
-        var uninstallMd5 = Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(ids[0]))).ToLower();
-        var diskSignatureMd5 =
-            Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(ids[1]))).ToLower();
+        var ids = uniqueIds?.Split('|', 2);
+        var uninstallMd5 = Md5Hex(ids?[0]);
+        var diskSignatureMd5 = Md5Hex(ids?[1]);
 
         List<bool> checks =
         [
@@ -186,8 +193,12 @@ public class ScoreController : ControllerBase
         return checks.All(c => c);
     }
 
-    private bool CheckMatch(string first, string second, string criteria, string userName)
+    private bool CheckMatch(string? first, string second, string criteria, string userName)
     {
+        // don't care for now
+        if (first is null)
+            return false;
+
         if (!string.Equals(first, second))
         {
             _logger.LogWarning("{}: {} mismatch: {}, expected {}", userName, criteria,

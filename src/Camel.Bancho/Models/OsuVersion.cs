@@ -21,6 +21,8 @@ public readonly struct OsuVersion
         Stream = stream;
     }
 
+    public override string ToString() => Raw;
+
     public static OsuVersion? Parse(string input)
     {
         var match = Regex.Match(input, _osuVersionRegex);

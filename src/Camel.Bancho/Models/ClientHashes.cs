@@ -16,7 +16,7 @@ public readonly struct ClientHashes
     {
         var entries = hashesString[..^1].Split(':', 5);
         OsuPathMd5 = entries[0];
-        AdaptersStr = entries[1][..^1];
+        AdaptersStr = entries[1];
         AdaptersMd5 = entries[2];
         UninstallMd5 = entries[3];
         DiskSignatureMd5 = entries[4];
@@ -29,5 +29,5 @@ public readonly struct ClientHashes
     }
 
     public override string ToString() =>
-        $"{OsuPathMd5}:{AdaptersStr}.:{AdaptersMd5}:{UninstallMd5}:{DiskSignatureMd5}:";
+        $"{OsuPathMd5}:{AdaptersStr}:{AdaptersMd5}:{UninstallMd5}:{DiskSignatureMd5}:";
 }
