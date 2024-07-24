@@ -10,6 +10,7 @@ using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using Camel.Core.Services;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -82,6 +83,11 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
 
         app.MapControllers();
 
