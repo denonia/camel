@@ -1,12 +1,8 @@
 ﻿using System.Text;
-using Camel.Bancho.Dtos;
 using Camel.Bancho.Enums;
-using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
+using Camel.Bancho.Services;
 using Camel.Bancho.Services.Interfaces;
-using Camel.Core.Enums;
-using Camel.Core.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Camel.Bancho.Controllers;
@@ -14,29 +10,20 @@ namespace Camel.Bancho.Controllers;
 [Host("c.ppy.sh", "ce.ppy.sh", "c4.ppy.sh", "c.camel.local", "ce.camel.local", "c4.camel.local")]
 public class BanchoController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly BanchoService _banchoService;
     private readonly IPacketHandlerService _packetHandler;
     private readonly IUserSessionService _userSessionService;
-    private readonly IChatService _chatService;
-    private readonly IStatsService _statsService;
-    private readonly IRankingService _rankingService;
     private readonly ILogger<BanchoController> _logger;
 
     public BanchoController(
-        IAuthService authService,
+        BanchoService banchoService,
         IPacketHandlerService packetHandler,
         IUserSessionService userSessionService,
-        IChatService chatService,
-        IStatsService statsService,
-        IRankingService rankingService,
         ILogger<BanchoController> logger)
     {
-        _authService = authService;
+        _banchoService = banchoService;
         _packetHandler = packetHandler;
         _userSessionService = userSessionService;
-        _chatService = chatService;
-        _statsService = statsService;
-        _rankingService = rankingService;
         _logger = logger;
     }
 
@@ -79,60 +66,17 @@ public class BanchoController : ControllerBase
     {
         try
         {
-            var request = LoginRequest.FromBytes(stream.ToArray());
-            return await HandleLoginRequestAsync(request);
+            var pq = new PacketQueue();
+            var token = await _banchoService.HandleLoginRequestAsync(pq, stream.ToArray());
+            
+            Response.Headers["cho-token"] = token ?? "";
+            return SendPendingPackets(pq);
         }
         catch (Exception e)
         {
             _logger.LogError("Failed to handle login request: {}", e.ToString());
             return BadRequest();
         }
-    }
-
-    private async Task<FileStreamResult> HandleLoginRequestAsync(LoginRequest request)
-    {
-        var pq = new PacketQueue();
-
-        var (user, authResult) = _authService.AuthenticateUser(request.Username, request.PasswordMd5);
-        if (user == null || authResult != PasswordVerificationResult.Success)
-        {
-            pq.WriteUserId(-1);
-            Response.Headers["cho-token"] = "";
-            return SendPendingPackets(pq);
-        }
-
-        pq.WriteProtocolVersion(19);
-        pq.WriteUserId(user.Id);
-        pq.WritePrivileges(Privileges.Supporter);
-
-        foreach (var channel in _chatService.AutoJoinChannels())
-        {
-            pq.WriteChannelInfo(channel.Name, channel.Topic, channel.ParticipantCount);
-        }
-        pq.WriteChannelInfoEnd();
-
-        var stats = await _statsService.GetUserStatsAsync(user.Id);
-        var rank = await _rankingService.GetGlobalRankPpAsync(user.Id, GameMode.Standard);
-        
-        var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(request, user, stats, pq);
-        _userSessionService.AddSession(newToken, newSession);
-
-        pq.WriteUserPresence(newSession, rank);
-        pq.WriteUserStats(newSession, rank);
-
-        _logger.LogInformation($"{user.UserName} (ID: {user.Id}) has logged in from {request.OsuVersion}");
-
-        foreach (var otherSession in _userSessionService.GetOnlineUsers().Where(u => u != newSession))
-        {
-            otherSession.PacketQueue.WriteUserPresence(newSession, rank);
-
-            var otherRank = await _rankingService.GetGlobalRankPpAsync(otherSession.User.Id, otherSession.Status.Mode);
-            pq.WriteUserPresence(otherSession, otherRank);
-        }
-
-        Response.Headers["cho-token"] = newToken;
-        return SendPendingPackets(pq);
     }
 
     private FileStreamResult SendPendingPackets(PacketQueue packetQueue)

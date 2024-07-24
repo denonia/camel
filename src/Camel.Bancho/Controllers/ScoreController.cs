@@ -183,8 +183,8 @@ public class ScoreController : ControllerBase
         [
             CheckMatch(osuVersion, userSession.OsuVersion.DateNumber.ToString(), "osu! version", userSession.Username),
             CheckMatch(clientHash, userSession.ClientHashes.ToString(), "Client hash", userSession.Username),
-            CheckMatch(uninstallMd5, userSession.ClientHashes.UninstallMd5, "Uninstall md5", userSession.Username),
-            CheckMatch(diskSignatureMd5, userSession.ClientHashes.DiskSignatureMd5, "Disk signature md5",
+            CheckMatch(uninstallMd5, userSession.ClientHashes?.UninstallMd5, "Uninstall md5", userSession.Username),
+            CheckMatch(diskSignatureMd5, userSession.ClientHashes?.DiskSignatureMd5, "Disk signature md5",
                 userSession.Username),
             CheckMatch(beatmapHash, score.MapMd5, "Beatmap hash", userSession.Username)
             // TODO online checksum
@@ -193,10 +193,10 @@ public class ScoreController : ControllerBase
         return checks.All(c => c);
     }
 
-    private bool CheckMatch(string? first, string second, string criteria, string userName)
+    private bool CheckMatch(string? first, string? second, string criteria, string userName)
     {
         // don't care for now
-        if (first is null)
+        if (first is null || second is null)
             return false;
 
         if (!string.Equals(first, second))

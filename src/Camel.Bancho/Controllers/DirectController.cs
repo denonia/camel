@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Web;
+﻿using AspNetCore.Proxy;
 using Camel.Bancho.Dtos;
 using Camel.Core.Data;
 using Camel.Core.Entities;
@@ -93,7 +92,7 @@ public class DirectController : ControllerBase
     }
 
     [HttpGet("/d/{mapsetId}")]
-    public IActionResult Download(string mapsetId)
+    public Task Download(string mapsetId)
     {
         var noVideo = mapsetId.EndsWith('n');
         if (noVideo)
@@ -102,6 +101,6 @@ public class DirectController : ControllerBase
         var noVideoParam = !noVideo ? "1" : "0";
         var url = $"https://catboy.best/d/{mapsetId}?n={noVideoParam}";
 
-        return RedirectPermanent(url);
+        return this.HttpProxyAsync(url);
     }
 }

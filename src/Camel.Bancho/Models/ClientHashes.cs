@@ -7,19 +7,19 @@ public readonly struct ClientHashes
     public string OsuPathMd5 { get; }
     public string AdaptersStr { get; }
     public string AdaptersMd5 { get; }
-    public string UninstallMd5 { get; }
-    public string DiskSignatureMd5 { get; }
+    public string? UninstallMd5 { get; }
+    public string? DiskSignatureMd5 { get; }
 
     public List<string> Adapters { get; } = [];
 
     public ClientHashes(string hashesString)
     {
-        var entries = hashesString.Split(':', 5);
+        var entries = hashesString.Split(':');
         OsuPathMd5 = entries[0];
         AdaptersStr = entries[1];
         AdaptersMd5 = entries[2];
-        UninstallMd5 = entries[3];
-        DiskSignatureMd5 = entries[4];
+        UninstallMd5 = entries.ElementAtOrDefault(3);
+        DiskSignatureMd5 = entries.ElementAtOrDefault(4);
 
         RunningUnderWine = AdaptersStr == "runningunderwine";
         if (!RunningUnderWine)

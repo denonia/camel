@@ -8,7 +8,8 @@ public class Patcher
 {
     private static readonly long[] BanchoIps = 
     [
-        1514805042L // 50.23.74.90
+        1514805042L, // 50.23.74.90
+        1565136690L  // 50.23.74.93
     ];
     
     public string FileName { get; }

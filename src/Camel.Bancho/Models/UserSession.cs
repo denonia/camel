@@ -12,9 +12,9 @@ public class UserSession
     public string PasswordMd5 { get; }
     public OsuVersion OsuVersion { get; }
     public int UtcOffset { get; }
-    public bool DisplayCity { get; }
-    public ClientHashes ClientHashes { get; }
-    public bool BlockNonFriendPm { get; }
+    public bool? DisplayCity { get; }
+    public ClientHashes? ClientHashes { get; }
+    public bool? BlockNonFriendPm { get; }
     
     public DateTime StartTime { get; } = DateTime.Now;
     public DateTime LastActive { get; set; } = DateTime.Now;

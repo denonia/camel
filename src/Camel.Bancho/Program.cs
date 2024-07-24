@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using AspNetCore.Proxy;
 using Camel.Bancho.Middlewares;
 using Camel.Bancho.Packets;
 using Camel.Bancho.Services;
@@ -8,6 +9,7 @@ using Camel.Core.Data;
 using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using Camel.Core.Services;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -20,6 +22,16 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         
         builder.LoadConfiguration();
+
+        builder.WebHost.UseKestrel(options =>
+        {
+            options.ListenLocalhost(13380, o => o.UseConnectionHandler<TcpConnectionHandler>());
+            options.ListenLocalhost(13381, o => o.UseConnectionHandler<TcpConnectionHandler>());
+            options.ListenLocalhost(13382, o => o.UseConnectionHandler<TcpConnectionHandler>());
+            options.ListenLocalhost(13383, o => o.UseConnectionHandler<TcpConnectionHandler>());
+
+            options.ListenLocalhost(8080);
+        });
 
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
@@ -42,11 +54,13 @@ public class Program
         builder.Services.AddSingleton<IChatService, ChatService>();
         builder.Services.AddSingleton<IMultiplayerService, MultiplayerService>();
         builder.Services.AddTransient<IReplayService, ReplayService>();
+        builder.Services.AddScoped<IBanchoService, BanchoService>();
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"]));
 
         builder.Services.AddHttpClient();
+        builder.Services.AddProxies();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {

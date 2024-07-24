@@ -14,6 +14,8 @@ public class PacketQueue
     {
     }
 
+    public bool Any() => _packetQueue.Count > 0;
+
     public IEnumerable<IPacket> PendingPackets()
     {
         while (_packetQueue.Count > 0)
