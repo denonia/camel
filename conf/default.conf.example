@@ -7,6 +7,7 @@ map $host $backend_host {
 }
 
 server {
+    listen 80;
 	listen 443 ssl;
 	server_name c.${DOMAIN} ce.${DOMAIN} c4.${DOMAIN} osu.${DOMAIN} b.${DOMAIN};
 	client_max_body_size 20M;
@@ -26,6 +27,7 @@ server {
 }
 
 server {
+    listen 80;
 	listen 443 ssl;
 	server_name camel.${DOMAIN};
 	client_max_body_size 20M;
@@ -45,20 +47,7 @@ server {
 }
 
 server {
-  listen 443 ssl;
-  server_name assets.${DOMAIN};
-
-  ssl_certificate     ${SSL_CERT_PATH};
-  ssl_certificate_key ${SSL_KEY_PATH};
-  ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH:@SECLEVEL=1";
-
-  location / {
-    default_type image/png;
-    root ${DATA_PATH}/a;
-  }
-}
-
-server {
+  listen 80;
   listen 443 ssl;
   server_name a.${DOMAIN};
 

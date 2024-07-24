@@ -24,9 +24,14 @@
     restart: always
     image: nginx
     ports:
+      - 80:80
       - 443:443
+      - 13380:13380
+      - 13381:13381
+      - 13382:13382
+      - 13383:13383
     volumes:
-      - ./conf/nginx.conf:/etc/nginx/templates/default.conf.template
+      - ./conf/default.conf:/etc/nginx/templates/default.conf.template
       - ./.data:/.data
     env_file:
       - '.env'
