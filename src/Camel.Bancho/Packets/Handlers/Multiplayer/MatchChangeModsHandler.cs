@@ -16,8 +16,9 @@ public class MatchChangeModsHandler : IPacketHandler<Mods>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(Mods newMods, UserSession userSession)
+    public Task HandleAsync(Mods newMods, UserSession userSession)
     {
         _multiplayerService.ChangeMods(newMods, userSession);
+        return Task.CompletedTask;
     }
 }

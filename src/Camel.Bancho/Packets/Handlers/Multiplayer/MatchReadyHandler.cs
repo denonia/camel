@@ -15,8 +15,9 @@ public class MatchReadyHandler : IPacketHandler<EmptyPayload>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
+    public Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
         _multiplayerService.Ready(true, userSession);
+        return Task.CompletedTask;
     }
 }

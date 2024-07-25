@@ -27,7 +27,7 @@ public class ChatChannel
 
     public ChatChannel(string name, string topic, bool autoJoin)
     {
-        Name = name;
+        _name = name;
         Topic = topic;
         AutoJoin = autoJoin;
     }

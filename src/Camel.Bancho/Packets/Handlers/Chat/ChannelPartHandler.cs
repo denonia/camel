@@ -16,7 +16,7 @@ public class ChannelPartHandler : IPacketHandler<string>
         _logger = logger;
     }
     
-    public async Task HandleAsync(string channelName, UserSession userSession)
+    public Task HandleAsync(string channelName, UserSession userSession)
     {
         if (_chatService.LeaveChannel(channelName, userSession))
         {
@@ -26,5 +26,7 @@ public class ChannelPartHandler : IPacketHandler<string>
         {
             _logger.LogInformation("{} tried to leave {} but failed", userSession.Username, channelName);
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -17,7 +17,7 @@ public class SendPublicMessageHandler : IPacketHandler<Message>
         _logger = logger;
     }
 
-    public async Task HandleAsync(Message message, UserSession user)
+    public Task HandleAsync(Message message, UserSession user)
     {
         if (_chatService.SendMessage(message.Recipient, message.Text, user))
         {
@@ -28,5 +28,7 @@ public class SendPublicMessageHandler : IPacketHandler<Message>
             _logger.LogInformation("{} unsuccessfully tried to send a message to {} : {}", 
                 user.Username, message.Recipient, message.Text);
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -14,13 +14,13 @@ public class CantSpectateHandler : IPacketHandler<EmptyPayload>
         _logger = logger;
     }
     
-    public async Task HandleAsync(EmptyPayload packet, UserSession userSession)
+    public Task HandleAsync(EmptyPayload packet, UserSession userSession)
     {
         var target = userSession.Spectating;
         if (target is null)
         {
             _logger.LogWarning("{} tried to send CantSpectate while there's no target", userSession.Username);
-            return;
+            return Task.CompletedTask;
         }
 
         target.PacketQueue.WriteSpectatorCantSpectate(userSession.User.Id);
@@ -28,5 +28,7 @@ public class CantSpectateHandler : IPacketHandler<EmptyPayload>
         {
             spectator.PacketQueue.WriteSpectatorCantSpectate(userSession.User.Id);
         }
+
+        return Task.CompletedTask;
     }
 }

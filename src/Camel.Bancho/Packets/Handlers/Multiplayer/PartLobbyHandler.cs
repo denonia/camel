@@ -15,8 +15,9 @@ public class LeaveLobbyHandler : IPacketHandler<EmptyPayload>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
+    public Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
         _multiplayerService.LeaveLobby(userSession);
+        return Task.CompletedTask;
     }
 }

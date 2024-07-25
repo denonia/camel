@@ -36,7 +36,7 @@ public class TcpConnectionHandler : ConnectionHandler
         var pq = new PacketQueue();
 
         var token = await banchoService.HandleLoginRequestAsync(pq, readResult.Buffer.ToArray(),
-            connection.RemoteEndPoint.ToString());
+            connection.RemoteEndPoint!.ToString()!);
         await SendPendingPacketsAsync(pq, connection.Transport.Output);
 
         connection.Transport.Input.AdvanceTo(readResult.Buffer.End);
@@ -44,12 +44,12 @@ public class TcpConnectionHandler : ConnectionHandler
         if (string.IsNullOrEmpty(token))
             return;
 
-        var session = _userSessionService.GetSession(token);
+        var session = _userSessionService.GetSession(token)!;
 
         while (!connection.ConnectionClosed.IsCancellationRequested)
         {
             await UpdateAsync(connection.Transport, session);
-            await Task.Delay(500);
+            await Task.Delay(100);
         }
     }
 

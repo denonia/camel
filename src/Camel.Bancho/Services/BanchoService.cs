@@ -86,7 +86,7 @@ public class BanchoService : IBanchoService
 
     private async Task<Location> FetchLocationAsync(User user, string ipAddress)
     {
-        var path = Path.Combine(_configuration.GetRequiredSection("DATA_PATH").Value, "GeoLite2-City.mmdb");
+        var path = Path.Combine(_configuration.GetRequiredSection("DATA_PATH").Value!, "GeoLite2-City.mmdb");
 
         using var reader = new DatabaseReader(path);
         try

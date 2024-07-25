@@ -6,8 +6,9 @@ namespace Camel.Bancho.Packets.Handlers;
 [PacketHandler(PacketType.ClientReceiveUpdates)]
 public class ReceiveUpdatesHandler : IPacketHandler<PresenceFilter>
 {
-    public async Task HandleAsync(PresenceFilter filter, UserSession userSession)
+    public Task HandleAsync(PresenceFilter filter, UserSession userSession)
     {
         userSession.PresenceFilter = filter;
+        return Task.CompletedTask;
     }
 }

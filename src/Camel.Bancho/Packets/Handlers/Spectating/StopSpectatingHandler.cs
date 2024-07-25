@@ -17,13 +17,13 @@ public class StopSpectatingHandler : IPacketHandler<EmptyPayload>
         _logger = logger;
     }
     
-    public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
+    public Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
         var target = userSession.Spectating;
         if (target is null)
         {
             _logger.LogWarning("{} tried to stop spectating while there's no target", userSession.Username);
-            return;
+            return Task.CompletedTask;
         }
 
         target.Spectators.Remove(userSession);
@@ -36,5 +36,6 @@ public class StopSpectatingHandler : IPacketHandler<EmptyPayload>
         }
         
         _chatService.LeaveSpectatorChannel(target, userSession);
+        return Task.CompletedTask;
     }
 }

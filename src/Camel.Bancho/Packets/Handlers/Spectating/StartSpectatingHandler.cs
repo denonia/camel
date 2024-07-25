@@ -20,13 +20,13 @@ public class StartSpectatingHandler : IPacketHandler<int>
         _logger = logger;
     }
 
-    public async Task HandleAsync(int targetUserId, UserSession userSession)
+    public Task HandleAsync(int targetUserId, UserSession userSession)
     {
         var target = _userSessionService.GetOnlineUsers().SingleOrDefault(s => s.User.Id == targetUserId);
         if (target == null)
         {
             _logger.LogWarning("{} tried to spectate {} but session wasn't found", userSession.Username, targetUserId);
-            return;
+            return Task.CompletedTask;
         }
 
         userSession.Spectating?.Spectators.Remove(userSession);
@@ -43,5 +43,6 @@ public class StartSpectatingHandler : IPacketHandler<int>
 
         target.Spectators.Add(userSession);
         userSession.Spectating = target;
+        return Task.CompletedTask;
     }
 }

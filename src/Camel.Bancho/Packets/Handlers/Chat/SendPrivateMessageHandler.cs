@@ -17,17 +17,18 @@ public class SendPrivateMessageHandler : IPacketHandler<Message>
         _logger = logger;
     }
 
-    public async Task HandleAsync(Message message, UserSession user)
+    public Task HandleAsync(Message message, UserSession user)
     {
         var recipient = _sessionService.GetOnlineUsers().SingleOrDefault(s => s.Username == message.Recipient);
         if (recipient is null)
         {
             _logger.LogInformation("{} tried to send {} a message but the recipient is offline: {}", 
                 user.Username, message.Recipient, message.Text);
-            return;
+            return Task.CompletedTask;
         }
         
         recipient.PacketQueue.WriteSendMessage(user.Username, message.Text, message.Recipient, user.User.Id);
         _logger.LogInformation("{} -> {}: {}", user.Username, message.Recipient, message.Text);
+        return Task.CompletedTask;
     }
 }

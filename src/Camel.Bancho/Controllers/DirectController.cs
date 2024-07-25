@@ -15,7 +15,7 @@ public class DirectController : ControllerBase
     private readonly ApplicationDbContext _dbContext;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    private static string[] Keywords = ["Newest", "Top+Rated", "Most+Played"];
+    private static readonly string[] Keywords = ["Newest", "Top+Rated", "Most+Played"];
 
     public DirectController(ApplicationDbContext dbContext, IHttpClientFactory httpClientFactory)
     {
@@ -39,8 +39,9 @@ public class DirectController : ControllerBase
         };
 
         // TODO support keywords
-        if (!Keywords.Contains(query))
-            queryParams["query"] = query;
+        // nvm apparently this mirror does already
+        // if (!Keywords.Contains(query))
+        //     queryParams["query"] = query;
 
         if (mode != -1)
             queryParams["mode"] = mode.ToString();
@@ -50,8 +51,10 @@ public class DirectController : ControllerBase
 
         var client = _httpClientFactory.CreateClient();
 
-        var url = QueryHelpers.AddQueryString("https://catboy.best/api/search", queryParams);
+        var url = QueryHelpers.AddQueryString("https://catboy.best/api/search", queryParams!);
         var entries = await client.GetFromJsonAsync<List<OsuDirectApiEntry>>(url);
+        if (entries is null)
+            return NotFound("-1\nCould not retrieve data from the beatmap mirror.");
 
         var response = new OsuDirectResponse(entries);
 

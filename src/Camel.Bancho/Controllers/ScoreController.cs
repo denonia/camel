@@ -128,6 +128,10 @@ public class ScoreController : ControllerBase
             return Unauthorized();
 
         var score = Score.FromSubmission(scoreData);
+        var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
+
+        if (beatmap is null)
+            return BadRequest("error: beatmap");
 
         if (await _scoreService.ExistsAsync(score.OnlineChecksum))
             return BadRequest("error: no");
@@ -148,13 +152,11 @@ public class ScoreController : ControllerBase
         {
             await _replayService.SaveReplayAsync(score.Id, replayFile.Data);
 
-            var beatmap = await _beatmapService.FindBeatmapAsync(score.MapMd5);
-
             _logger.LogInformation("{} ({}) has submitted a new score: {} - {} [{}] - {} pp ({})",
                 userName, session.OsuVersion, beatmap.Artist, beatmap.Title, beatmap.Version, score.Pp.ToString("N0"),
                 string.Join('|', scoreData));
 
-            var newFormat = Request.Path.Value.Contains("-selector");
+            var newFormat = Request.Path.Value!.Contains("-selector");
             var submissionResponse =
                 new ScoreSubmissionResponse(newFormat, score, beatmap, stats, prevStats, previousPb);
             return Ok(submissionResponse.ToString());

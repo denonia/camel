@@ -16,7 +16,7 @@ public class ChannelJoinHandler : IPacketHandler<string>
         _logger = logger;
     }
     
-    public async Task HandleAsync(string channelName, UserSession userSession)
+    public Task HandleAsync(string channelName, UserSession userSession)
     {
         if (_chatService.JoinChannel(channelName, userSession))
         {
@@ -26,5 +26,7 @@ public class ChannelJoinHandler : IPacketHandler<string>
         {
             _logger.LogInformation("{} tried to join {} but failed", userSession.Username, channelName);
         }
+
+        return Task.CompletedTask;
     }
 }

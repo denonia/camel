@@ -10,7 +10,6 @@ using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using Camel.Core.Services;
 using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -21,7 +20,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
         builder.LoadConfiguration();
 
         builder.WebHost.UseKestrel(options =>
@@ -58,7 +57,8 @@ public class Program
         builder.Services.AddScoped<IBanchoService, BanchoService>();
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(
-            ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"]));
+            ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"] ??
+                                          throw new Exception("Redis connection string not set")));
 
         builder.Services.AddHttpClient();
         builder.Services.AddProxies();
@@ -66,7 +66,8 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            options.UseNpgsql(builder.Configuration["POSTGRES_CONNECTION"])
+            options.UseNpgsql(builder.Configuration["POSTGRES_CONNECTION"] ??
+                              throw new Exception("PostgreSQL connection string not set"))
                 .UseSnakeCaseNamingConvention();
         });
 

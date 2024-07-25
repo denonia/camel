@@ -47,6 +47,8 @@ public class PacketQueue
         _packetQueue.Enqueue(new Packet(type, ms.ToArray()));
     }
 
+    public void WritePong() => WritePacket(PacketType.ServerPong);
+
     public void WriteNotification(string text) => WritePacket(PacketType.ServerNotification, text);
 
     public void WriteUserId(int id) => WritePacket(PacketType.ServerUserId, id);
@@ -71,7 +73,7 @@ public class PacketQueue
         WritePacket(PacketType.ServerUserPresence, userPresence);
 
     public void WriteUserPresence(UserSession userSession, int rank) =>
-        WriteUserPresence(new UserPresence(userSession.User.Id, userSession.User.UserName,
+        WriteUserPresence(new UserPresence(userSession.User.Id, userSession.User.UserName!,
             (byte)userSession.UtcOffset, (byte)userSession.Location.CountryId, 0,
             (float)userSession.Location.Longitude, (float)userSession.Location.Latitude, rank));
 

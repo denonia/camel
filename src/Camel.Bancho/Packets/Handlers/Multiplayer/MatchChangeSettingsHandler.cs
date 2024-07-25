@@ -15,8 +15,9 @@ public class MatchChangeSettingsHandler : IPacketHandler<MatchState>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(MatchState state, UserSession userSession)
+    public Task HandleAsync(MatchState state, UserSession userSession)
     {
         _multiplayerService.ChangeSettings(state, userSession);
+        return Task.CompletedTask;
     }
 }

@@ -26,7 +26,7 @@ public class ScoreSubmissionResponse
     public override string ToString()
     {
         string Entry(string name, object? before, object? after) =>
-            $"{name}Before:{before ??= ""}|{name}After:{after ??= ""}";
+            $"{name}Before:{before ?? ""}|{name}After:{after ?? ""}";
 
         // TODO: add ranks
         List<string> beatmapRankingEntries =

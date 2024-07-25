@@ -13,7 +13,7 @@ public static class ConfigurationLoader
         else
             DotEnv.Load(".env");
 
-        var exeDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        var exeDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
         builder.Configuration
             .SetBasePath(exeDir)
             .AddJsonFile("appsettings.json")

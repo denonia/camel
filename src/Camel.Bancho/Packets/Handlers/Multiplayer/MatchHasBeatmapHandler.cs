@@ -15,8 +15,9 @@ public class MatchHasBeatmapHandler : IPacketHandler<EmptyPayload>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(EmptyPayload packet, UserSession userSession)
+    public Task HandleAsync(EmptyPayload packet, UserSession userSession)
     {
         _multiplayerService.HasBeatmap(true, userSession);
+        return Task.CompletedTask;
     }
 }

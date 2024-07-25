@@ -15,8 +15,9 @@ public class MatchScoreUpdateHandler : IPacketHandler<ScoreFrame>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(ScoreFrame scoreFrame, UserSession userSession)
+    public Task HandleAsync(ScoreFrame scoreFrame, UserSession userSession)
     {
         _multiplayerService.UpdateScore(scoreFrame, userSession);
+        return Task.CompletedTask;
     }
 }

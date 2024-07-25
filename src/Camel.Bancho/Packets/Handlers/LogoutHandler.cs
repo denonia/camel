@@ -15,7 +15,7 @@ public class LogoutHandler : IPacketHandler<EmptyPayload>
         _sessionService = sessionService;
     }
     
-    public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
+    public Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
         if (DateTime.Now.Subtract(userSession.StartTime).Seconds > 1)
         {
@@ -26,5 +26,7 @@ public class LogoutHandler : IPacketHandler<EmptyPayload>
                 onlineUser.PacketQueue.WriteUserLogout(userSession.User.Id);
             }
         }
+
+        return Task.CompletedTask;
     }
 }

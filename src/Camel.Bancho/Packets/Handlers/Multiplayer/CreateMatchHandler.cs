@@ -15,8 +15,9 @@ public class CreateMatchHandler : IPacketHandler<MatchState>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(MatchState matchState, UserSession userSession)
+    public Task HandleAsync(MatchState matchState, UserSession userSession)
     {
         _multiplayerService.CreateMatch(matchState, userSession);
+        return Task.CompletedTask;
     }
 }

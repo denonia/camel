@@ -271,12 +271,17 @@ public class Match
         var slot = Slots[slotId];
 
         if ((slot.Status & SlotStatus.Locked) != 0)
+        {
             slot.Status = SlotStatus.Open;
+            EnqueueUpdates();
+        }
         else if (slot.User != Host)
+        {
             slot.Status = SlotStatus.Locked;
+            EnqueueUpdates();
+            slot.Reset(SlotStatus.Locked);
+        }
 
-        EnqueueUpdates();
-        slot.Reset(SlotStatus.Locked);
         return true;
     }
 

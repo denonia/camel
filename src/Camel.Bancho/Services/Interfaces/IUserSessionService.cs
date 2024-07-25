@@ -1,5 +1,4 @@
 ﻿using Camel.Bancho.Models;
-using Camel.Bancho.Packets;
 
 namespace Camel.Bancho.Services.Interfaces;
 

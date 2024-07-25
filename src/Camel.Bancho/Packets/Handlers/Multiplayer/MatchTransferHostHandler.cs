@@ -14,8 +14,9 @@ public class MatchTransferHostHandler : IPacketHandler<int>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(int targetSlotId, UserSession userSession)
+    public Task HandleAsync(int targetSlotId, UserSession userSession)
     {
         _multiplayerService.TransferHost(targetSlotId, userSession);
+        return Task.CompletedTask;
     }
 }

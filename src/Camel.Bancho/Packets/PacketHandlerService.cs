@@ -18,7 +18,8 @@ public class PacketHandlerService : IPacketHandlerService
         _logger = logger;
 
         var handlers = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPacketHandler<>)))
+            .Where(t => t.GetInterfaces()
+                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPacketHandler<>)))
             .Where(t => t.GetCustomAttributes(typeof(PacketHandlerAttribute)).Any());
 
         foreach (var handler in handlers)
@@ -26,7 +27,7 @@ public class PacketHandlerService : IPacketHandlerService
             var attr = (PacketHandlerAttribute)handler.GetCustomAttribute(typeof(PacketHandlerAttribute))!;
             _handlers[attr.Type] = handler;
         }
-        
+
         _logger.LogInformation($"Registered {_handlers.Count} client packet handlers (out of total 48)");
     }
 
@@ -34,7 +35,7 @@ public class PacketHandlerService : IPacketHandlerService
     {
         if (type == PacketType.ClientPing)
             return;
-        
+
         if (_handlers.TryGetValue(type, out var handler))
         {
             var payloadType = handler.GetInterfaces()
@@ -56,11 +57,13 @@ public class PacketHandlerService : IPacketHandlerService
             else if (payloadType == typeof(Mods))
                 payload = (Mods)reader.ReadInt32();
             else
-                payload = payloadType.GetMethod("ReadFromStream").Invoke(null, [reader]);
+                payload = payloadType.GetMethod("ReadFromStream")?.Invoke(null, [reader]) ??
+                          throw new Exception("Could not read packet handler input");
 
             using var scope = _serviceProvider.CreateScope();
             var handlerInstance = ActivatorUtilities.CreateInstance(scope.ServiceProvider, handler);
-            var result = (Task)handler.GetMethod("HandleAsync")!.Invoke(handlerInstance, [payload, userSession]);
+
+            var result = (Task)handler.GetMethod("HandleAsync")!.Invoke(handlerInstance, [payload, userSession])!;
             await result;
         }
         else

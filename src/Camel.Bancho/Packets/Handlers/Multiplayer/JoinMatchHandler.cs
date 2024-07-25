@@ -15,11 +15,13 @@ public class JoinMatchHandler : IPacketHandler<MatchJoin>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(MatchJoin packet, UserSession userSession)
+    public Task HandleAsync(MatchJoin packet, UserSession userSession)
     {
         if (!_multiplayerService.JoinMatch(packet.MatchId, packet.Password, userSession))
         {
             userSession.PacketQueue.WriteMatchJoinFail();
         }
+
+        return Task.CompletedTask;
     }
 }

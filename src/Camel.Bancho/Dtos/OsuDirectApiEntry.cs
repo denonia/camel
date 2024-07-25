@@ -4,86 +4,86 @@ namespace Camel.Bancho.Dtos;
 
 public class ChildrenBeatmap
 {
-    [JsonPropertyName("BeatmapID")] public int BeatmapID { get; set; }
+    [JsonPropertyName("BeatmapID")] public required int BeatmapID { get; set; }
 
-    [JsonPropertyName("ParentSetID")] public int ParentSetID { get; set; }
+    [JsonPropertyName("ParentSetID")] public required int ParentSetID { get; set; }
 
-    [JsonPropertyName("DiffName")] public string DiffName { get; set; }
+    [JsonPropertyName("DiffName")] public required string DiffName { get; set; }
 
-    [JsonPropertyName("FileMD5")] public string FileMD5 { get; set; }
+    [JsonPropertyName("FileMD5")] public required string FileMD5 { get; set; }
 
-    [JsonPropertyName("Mode")] public int Mode { get; set; }
+    [JsonPropertyName("Mode")] public required int Mode { get; set; }
 
-    [JsonPropertyName("BPM")] public double BPM { get; set; }
+    [JsonPropertyName("BPM")] public required double BPM { get; set; }
 
-    [JsonPropertyName("AR")] public double AR { get; set; }
+    [JsonPropertyName("AR")] public required double AR { get; set; }
 
-    [JsonPropertyName("OD")] public double OD { get; set; }
+    [JsonPropertyName("OD")] public required double OD { get; set; }
 
-    [JsonPropertyName("CS")] public double CS { get; set; }
+    [JsonPropertyName("CS")] public required double CS { get; set; }
 
-    [JsonPropertyName("HP")] public double HP { get; set; }
+    [JsonPropertyName("HP")] public required double HP { get; set; }
 
-    [JsonPropertyName("TotalLength")] public int TotalLength { get; set; }
+    [JsonPropertyName("TotalLength")] public required int TotalLength { get; set; }
 
-    [JsonPropertyName("HitLength")] public int HitLength { get; set; }
+    [JsonPropertyName("HitLength")] public required int HitLength { get; set; }
 
-    [JsonPropertyName("Playcount")] public int Playcount { get; set; }
+    [JsonPropertyName("Playcount")] public required int Playcount { get; set; }
 
-    [JsonPropertyName("Passcount")] public int Passcount { get; set; }
+    [JsonPropertyName("Passcount")] public required int Passcount { get; set; }
 
-    [JsonPropertyName("MaxCombo")] public int? MaxCombo { get; set; }
+    [JsonPropertyName("MaxCombo")] public required int? MaxCombo { get; set; }
 
-    [JsonPropertyName("DifficultyRating")] public double DifficultyRating { get; set; }
+    [JsonPropertyName("DifficultyRating")] public required double DifficultyRating { get; set; }
 }
 
 public class Genre
 {
-    [JsonPropertyName("id")] public int Id { get; set; }
+    [JsonPropertyName("id")] public required int Id { get; set; }
 
-    [JsonPropertyName("name")] public string Name { get; set; }
+    [JsonPropertyName("name")] public required string Name { get; set; }
 }
 
 public class Language
 {
-    [JsonPropertyName("id")] public int Id { get; set; }
+    [JsonPropertyName("id")] public required int Id { get; set; }
 
-    [JsonPropertyName("name")] public string Name { get; set; }
+    [JsonPropertyName("name")] public required string Name { get; set; }
 }
 
 public class OsuDirectApiEntry
 {
-    [JsonPropertyName("SetID")] public int SetID { get; set; }
+    [JsonPropertyName("SetID")] public required int SetID { get; set; }
 
-    [JsonPropertyName("RankedStatus")] public int RankedStatus { get; set; }
+    [JsonPropertyName("RankedStatus")] public required int RankedStatus { get; set; }
 
-    [JsonPropertyName("ChildrenBeatmaps")] public List<ChildrenBeatmap> ChildrenBeatmaps { get; set; }
+    [JsonPropertyName("ChildrenBeatmaps")] public required List<ChildrenBeatmap> ChildrenBeatmaps { get; set; }
 
-    [JsonPropertyName("ApprovedDate")] public DateTime ApprovedDate { get; set; }
+    [JsonPropertyName("ApprovedDate")] public required DateTime ApprovedDate { get; set; }
 
-    [JsonPropertyName("LastUpdate")] public DateTime LastUpdate { get; set; }
+    [JsonPropertyName("LastUpdate")] public required DateTime LastUpdate { get; set; }
 
-    [JsonPropertyName("LastChecked")] public DateTime LastChecked { get; set; }
+    [JsonPropertyName("LastChecked")] public required DateTime LastChecked { get; set; }
 
-    [JsonPropertyName("Artist")] public string Artist { get; set; }
+    [JsonPropertyName("Artist")] public required string Artist { get; set; }
 
-    [JsonPropertyName("Title")] public string Title { get; set; }
+    [JsonPropertyName("Title")] public required string Title { get; set; }
 
-    [JsonPropertyName("Creator")] public string Creator { get; set; }
+    [JsonPropertyName("Creator")] public required string Creator { get; set; }
 
-    [JsonPropertyName("CreatorID")] public int CreatorID { get; set; }
+    [JsonPropertyName("CreatorID")] public required int CreatorID { get; set; }
 
-    [JsonPropertyName("Source")] public string Source { get; set; }
+    [JsonPropertyName("Source")] public required string Source { get; set; }
 
-    [JsonPropertyName("Tags")] public string Tags { get; set; }
+    [JsonPropertyName("Tags")] public required string Tags { get; set; }
 
-    [JsonPropertyName("HasVideo")] public bool HasVideo { get; set; }
+    [JsonPropertyName("HasVideo")] public required bool HasVideo { get; set; }
 
-    [JsonPropertyName("Genre")] public Genre Genre { get; set; }
+    [JsonPropertyName("Genre")] public required Genre Genre { get; set; }
 
-    [JsonPropertyName("Language")] public Language Language { get; set; }
+    [JsonPropertyName("Language")] public required Language Language { get; set; }
 
-    [JsonPropertyName("Favourites")] public int Favourites { get; set; }
+    [JsonPropertyName("Favourites")] public required int Favourites { get; set; }
 
-    [JsonPropertyName("StarRating")] public double StarRating { get; set; }
+    [JsonPropertyName("StarRating")] public required double StarRating { get; set; }
 }

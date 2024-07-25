@@ -15,8 +15,9 @@ public class MatchChangeTeamHandler : IPacketHandler<EmptyPayload>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
+    public Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
         _multiplayerService.ChangeTeam(userSession);
+        return Task.CompletedTask;
     }
 }

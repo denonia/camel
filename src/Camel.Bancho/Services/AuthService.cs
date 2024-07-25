@@ -2,7 +2,6 @@
 using Camel.Core.Data;
 using Camel.Core.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Camel.Bancho.Services;
 
@@ -24,7 +23,7 @@ public class AuthService : IAuthService
         if (user == null)
             return (null, PasswordVerificationResult.Failed);
         
-        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, passwordMd5);
+        var result = hasher.VerifyHashedPassword(user, user.PasswordHash!, passwordMd5);
 
         return (user, result);
     }

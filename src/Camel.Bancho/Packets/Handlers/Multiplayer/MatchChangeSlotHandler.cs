@@ -14,8 +14,9 @@ public class MatchChangeSlotHandler : IPacketHandler<int>
         _multiplayerService = multiplayerService;
     }
     
-    public async Task HandleAsync(int slotId, UserSession userSession)
+    public Task HandleAsync(int slotId, UserSession userSession)
     {
         _multiplayerService.ChangeSlot(slotId, userSession);
+        return Task.CompletedTask;
     }
 }

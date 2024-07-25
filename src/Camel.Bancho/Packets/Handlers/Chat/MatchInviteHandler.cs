@@ -16,7 +16,7 @@ public class MatchInviteHandler : IPacketHandler<int>
         _multiplayerService = multiplayerService;
     }
 
-    public async Task HandleAsync(int targetId, UserSession userSession)
+    public Task HandleAsync(int targetId, UserSession userSession)
     {
         var target = _userSessionService.GetOnlineUsers().SingleOrDefault(u => u.User.Id == targetId);
         var match = _multiplayerService.ActiveMatch(userSession);
@@ -25,5 +25,7 @@ public class MatchInviteHandler : IPacketHandler<int>
         {
             target.PacketQueue.WriteMatchInvite(userSession, target, match);
         }
+
+        return Task.CompletedTask;
     }
 }
