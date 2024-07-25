@@ -34,7 +34,13 @@ public class BanchoController : ControllerBase
         inStream.Position = 0;
 
         if (accessToken == null)
-            return await HandleLoginRequestAsync(inStream, Request.HttpContext.Connection.RemoteIpAddress.ToString());
+        {
+            var forwardedFor = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            var ipAddress = string.IsNullOrEmpty(forwardedFor) 
+                ? Request.HttpContext.Connection.RemoteIpAddress!.ToString()
+                : forwardedFor.Split(", ").First();
+            return await HandleLoginRequestAsync(inStream, ipAddress);
+        }
 
         var session = _userSessionService.GetSession(accessToken);
         if (session == null)
