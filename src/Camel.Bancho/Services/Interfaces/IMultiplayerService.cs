@@ -1,5 +1,5 @@
 ﻿using Camel.Bancho.Models;
-using Camel.Bancho.Packets.Multiplayer;
+using Camel.Bancho.Packets.Payloads;
 
 namespace Camel.Bancho.Services.Interfaces;
 

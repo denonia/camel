@@ -1,14 +1,13 @@
 ﻿using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
-using Camel.Bancho.Packets.Client;
 
 namespace Camel.Bancho.Packets.Handlers;
 
 [PacketHandler(PacketType.ClientReceiveUpdates)]
-public class ReceiveUpdatesHandler : IPacketHandler<ReceiveUpdatesPacket>
+public class ReceiveUpdatesHandler : IPacketHandler<PresenceFilter>
 {
-    public async Task HandleAsync(ReceiveUpdatesPacket packet, UserSession userSession)
+    public async Task HandleAsync(PresenceFilter filter, UserSession userSession)
     {
-        userSession.PresenceFilter = packet.Value;
+        userSession.PresenceFilter = filter;
     }
 }

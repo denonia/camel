@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 
 namespace Camel.Bancho.Packets;
 
@@ -35,17 +36,28 @@ public class PacketHandlerService : IPacketHandlerService
         
         if (_handlers.TryGetValue(type, out var handler))
         {
-            var packetType = handler.GetInterfaces()
+            var payloadType = handler.GetInterfaces()
                 .Single(i => i.GetGenericTypeDefinition() == typeof(IPacketHandler<>))
                 .GetGenericArguments().Single();
 
-            // TODO: ensure ReadFromStream exists
             var reader = new PacketBinaryReader(stream);
-            var packet = packetType.GetMethod("ReadFromStream").Invoke(null, [reader]);
+
+            // can't do a switch on typeof so here we go
+            object payload;
+            if (payloadType == typeof(int))
+                payload = reader.ReadInt32();
+            else if (payloadType == typeof(int[]))
+                payload = reader.ReadInt32Array();
+            else if (payloadType == typeof(string))
+                payload = reader.ReadString();
+            else if (payloadType == typeof(PresenceFilter))
+                payload = (PresenceFilter)reader.ReadInt32();
+            else
+                payload = payloadType.GetMethod("ReadFromStream").Invoke(null, [reader]);
 
             using var scope = _serviceProvider.CreateScope();
             var handlerInstance = ActivatorUtilities.CreateInstance(scope.ServiceProvider, handler);
-            var result = (Task)handler.GetMethod("HandleAsync")!.Invoke(handlerInstance, [packet, userSession]);
+            var result = (Task)handler.GetMethod("HandleAsync")!.Invoke(handlerInstance, [payload, userSession]);
             await result;
         }
         else

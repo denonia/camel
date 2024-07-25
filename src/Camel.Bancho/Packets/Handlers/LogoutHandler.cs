@@ -1,13 +1,12 @@
 ﻿using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
-using Camel.Bancho.Packets.Client;
-using Camel.Bancho.Packets.Server;
+using Camel.Bancho.Packets.Payloads;
 using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Packets.Handlers;
 
 [PacketHandler(PacketType.ClientLogout)]
-public class LogoutHandler : IPacketHandler<LogoutPacket>
+public class LogoutHandler : IPacketHandler<EmptyPayload>
 {
     private readonly IUserSessionService _sessionService;
 
@@ -16,16 +15,15 @@ public class LogoutHandler : IPacketHandler<LogoutPacket>
         _sessionService = sessionService;
     }
     
-    public async Task HandleAsync(LogoutPacket packet, UserSession userSession)
+    public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
         if (DateTime.Now.Subtract(userSession.StartTime).Seconds > 1)
         {
             _sessionService.EndSession(userSession);
 
-            var logoutPacket = new UserLogoutPacket(userSession.User.Id);
             foreach (var onlineUser in _sessionService.GetOnlineUsers())
             {
-                onlineUser.PacketQueue.WritePacket(logoutPacket);
+                onlineUser.PacketQueue.WriteUserLogout(userSession.User.Id);
             }
         }
     }

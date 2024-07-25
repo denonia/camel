@@ -1,6 +1,5 @@
 ﻿using Camel.Bancho.Models;
-using Camel.Bancho.Packets.Multiplayer;
-using Camel.Bancho.Packets.Server;
+using Camel.Bancho.Packets.Payloads;
 using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Services;
@@ -41,8 +40,7 @@ public class MultiplayerService : IMultiplayerService
 
         _chatService.JoinMultiplayerChannel(match, host);
 
-        var successPacket = new MatchJoinSuccessPacket(match.State);
-        host.PacketQueue.WritePacket(successPacket);
+        host.PacketQueue.WriteMatchJoinSuccess(match.State);
         host.Match = match;
 
         _activeMatches.Add(match);
@@ -58,8 +56,7 @@ public class MultiplayerService : IMultiplayerService
         if (match is null || !match.Join(password, user))
             return false;
         
-        var successPacket = new MatchJoinSuccessPacket(match.State);
-        user.PacketQueue.WritePacket(successPacket);
+        user.PacketQueue.WriteMatchJoinSuccess(match.State);
         user.Match = match;
 
         _chatService.JoinMultiplayerChannel(match, user);

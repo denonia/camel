@@ -1,6 +1,5 @@
 ﻿using Camel.Bancho.Enums.Multiplayer;
-using Camel.Bancho.Packets.Multiplayer;
-using Camel.Bancho.Packets.Server;
+using Camel.Bancho.Packets.Payloads;
 using Camel.Core.Enums;
 
 namespace Camel.Bancho.Models;
@@ -59,7 +58,7 @@ public class Match
     public MatchState State => new MatchState(Id, InProgress, PowerPlay, Mods, Name, Password, MapName, MapId, MapMd5,
         Slots.Select(s => s.Status), Slots.Select(s => s.Team),
         Slots.Where(s => s.User is not null).Select(s => s.User!.User.Id),
-        Host.User.Id, Mode, WinCondition, TeamType, FreeMods, Slots.Select(s => s.Mods), Seed);
+        Host.User.Id, Mode, WinCondition, TeamType, FreeMods, Slots.Select(s => s.Mods), Seed, true);
 
     private MatchSlot NextFreeSlot() => Slots.First(s => (s.Status & SlotStatus.Open) != 0);
 
@@ -142,8 +141,7 @@ public class Match
     {
         foreach (var userSession in Players)
         {
-            var packet = new UpdateMatchPacket(State);
-            userSession.PacketQueue.WritePacket(packet);
+            userSession.PacketQueue.WriteUpdateMatch(State);
         }
     }
 }

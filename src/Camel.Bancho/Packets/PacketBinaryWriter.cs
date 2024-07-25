@@ -28,22 +28,21 @@ public class PacketBinaryWriter : BinaryWriter
         }
     }
 
-    public void Write(IPacket packet)
+    public void Write(Packet packet)
     {
-        // don't know the packet body length beforehand
-        // so we just return back and write it lmao
         OutStream.Write((short)packet.Type);
         OutStream.WriteByte(0);
         
-        var lengthPos = OutStream.Position;
-        OutStream.Write((int)0);
+        // var lengthPos = OutStream.Position;
+        OutStream.Write(packet.Data.Length);
+        OutStream.Write(packet.Data);
         
-        packet.WriteToStream(this);
-        var endPos = OutStream.Position;
-        
-        var dataLength = OutStream.Position - lengthPos - 4;
-        OutStream.Position = lengthPos;
-        OutStream.Write((int)dataLength);
-        OutStream.Position = endPos;
+        // packet.WriteToStream(this);
+        // var endPos = OutStream.Position;
+        //
+        // var dataLength = OutStream.Position - lengthPos - 4;
+        // OutStream.Position = lengthPos;
+        // OutStream.Write((int)dataLength);
+        // OutStream.Position = endPos;
     }
 }

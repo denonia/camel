@@ -1,5 +1,4 @@
 ﻿using Camel.Bancho.Models;
-using Camel.Bancho.Packets.Server;
 using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Services;
@@ -21,7 +20,7 @@ public class ChatService : IChatService
     {
         if (_channels.TryGetValue(channelName, out var channel) && channel.AddParticipant(user))
         {
-            user.PacketQueue.WritePacket(new ChannelJoinSuccessPacket(channel.Name));
+            user.PacketQueue.WriteChannelJoinSuccess(channel.Name);
 
             foreach (var participant in channel.Participants)
                 participant.PacketQueue.WriteChannelInfo(channel.Name, channel.Topic, channel.ParticipantCount);

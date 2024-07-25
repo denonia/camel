@@ -1,6 +1,5 @@
 ﻿using Camel.Bancho.Models;
 using Camel.Bancho.Packets;
-using Camel.Bancho.Packets.Server;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Entities;
 
@@ -33,11 +32,10 @@ public class UserSessionService : IUserSessionService
             {
                 var target = session.Spectating;
                 target.Spectators.Remove(userSession);
-                target.PacketQueue.WritePacket(new SpectatorLeftPacket(userSession.User.Id));
-                var leftPacket = new FellowSpectatorLeftPacket(userSession.User.Id);
+                target.PacketQueue.WriteSpectatorLeft(userSession.User.Id);
                 foreach (var spectator in target.Spectators)
                 {
-                    spectator.PacketQueue.WritePacket(leftPacket);
+                    spectator.PacketQueue.WriteFellowSpectatorLeft(userSession.User.Id);
                 }
             }
         }
@@ -57,16 +55,5 @@ public class UserSessionService : IUserSessionService
     public IEnumerable<UserSession> GetOnlineUsers()
     {
         return _activeSessions.Values;
-    }
-
-    public void WriteGlobalPacket(IPacket packet, Func<UserSession, bool>? predicate = null)
-    {
-        var targets = predicate == null ? GetOnlineUsers() 
-            : GetOnlineUsers().Where(predicate);
-        
-        foreach (var session in targets)
-        {
-            session.PacketQueue.WritePacket(packet);
-        }
     }
 }

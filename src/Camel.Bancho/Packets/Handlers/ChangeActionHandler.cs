@@ -1,13 +1,13 @@
 ﻿using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
-using Camel.Bancho.Packets.Client;
+using Camel.Bancho.Packets.Payloads;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Interfaces;
 
 namespace Camel.Bancho.Packets.Handlers;
 
 [PacketHandler(PacketType.ClientChangeAction)]
-public class ChangeActionHandler : IPacketHandler<ChangeActionPacket>
+public class ChangeActionHandler : IPacketHandler<ChangeAction>
 {
     private readonly IUserSessionService _userSessionService;
     private readonly IRankingService _rankingService;
@@ -17,11 +17,11 @@ public class ChangeActionHandler : IPacketHandler<ChangeActionPacket>
         _userSessionService = userSessionService;
         _rankingService = rankingService;
     }
-    
-    public async Task HandleAsync(ChangeActionPacket packet, UserSession userSession)
+
+    public async Task HandleAsync(ChangeAction packet, UserSession userSession)
     {
-        // TODO: mapId?
-        userSession.Status = new UserStatus(packet.Action, packet.InfoText, packet.MapMd5, packet.Mods, packet.Mode, 0);
+        userSession.Status = new UserStatus(packet.Action, packet.InfoText, packet.MapMd5, packet.Mods, packet.Mode,
+            packet.BeatmapId);
 
         foreach (var user in _userSessionService.GetOnlineUsers())
         {

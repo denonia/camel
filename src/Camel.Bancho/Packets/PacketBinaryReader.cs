@@ -25,6 +25,17 @@ public class PacketBinaryReader : BinaryReader
         BaseStream.ReadExactly(bytes, 0, (int)length);
         return Encoding.UTF8.GetString(bytes.AsSpan());
     }
+
+    public int[] ReadInt32Array()
+    {
+        var length = ReadInt16();
+
+        var result = new int[length];
+        for (var i = 0; i < length; i++)
+            result[i] = ReadInt32();
+
+        return result;
+    }
     
     public Packet ReadPacket()
     {
