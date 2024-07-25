@@ -34,6 +34,9 @@ public class ChatChannel
 
     public bool AddParticipant(UserSession user)
     {
+        if (Participants.Contains(user))
+            return false;
+        
         // TODO permissions or whatever
         _participants.Add(user);
         return true;

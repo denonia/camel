@@ -32,6 +32,7 @@ internal class MultiplayerService : IMultiplayerService
     public void LeaveLobby(UserSession user)
     {
         _lobbyParticipants.Remove(user);
+        _chatService.LeaveChannel("#lobby", user);
     }
 
     private void UpdateLobby(Match match)
