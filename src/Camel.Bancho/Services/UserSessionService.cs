@@ -9,11 +9,21 @@ public class UserSessionService : IUserSessionService
 {
     private readonly Dictionary<string, UserSession> _activeSessions = new();
 
+    private readonly ILogger<UserSessionService> _logger;
+
+    public UserSessionService(ILogger<UserSessionService> logger)
+    {
+        _logger = logger;
+    }
+
     public void AddSession(string accessToken, UserSession userSession)
     {
         EndSession(userSession);
-        
+
         _activeSessions[accessToken] = userSession;
+
+        _logger.LogInformation(
+            $"{userSession.User.UserName} (ID: {userSession.User.Id}) has logged in from {userSession.OsuVersion}");
     }
 
     public void EndSession(UserSession userSession)
@@ -21,10 +31,12 @@ public class UserSessionService : IUserSessionService
         var existing = _activeSessions
             .SingleOrDefault(s => s.Value.Username == userSession.Username);
 
-        if (!existing.Equals(default(KeyValuePair<string, UserSession>)))
+        if (!Equals(existing, default(KeyValuePair<string, UserSession>)))
         {
+            _logger.LogInformation($"{userSession.User.UserName} (ID: {userSession.User.Id}) has logged out");
+
             _activeSessions.Remove(existing.Key);
-            
+
             // TODO same as StopSpectatingHandler
             // move this somewhere else
             var session = existing.Value;

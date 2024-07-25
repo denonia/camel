@@ -1,32 +1,32 @@
 ﻿namespace Camel.Bancho.Packets.Payloads;
 
-public readonly struct ScoreFrame
+public readonly struct ScoreFrame : IPacketPayload
 {
-    private int Time { get; }
-    private byte Id { get; }
-    private ushort Count300 { get; }
-    private ushort Count100 { get; }
-    private ushort Count50 { get; }
-    private ushort CountGeki { get; }
-    private ushort CountKatu { get; }
-    private ushort CountMiss { get; }
-    private int TotalScore { get; }
-    private ushort MaxCombo { get; }
-    private ushort CurrentCombo { get; }
-    private bool Perfect { get; }
-    private byte CurrentHp { get; }
-    private byte TagByte { get; }
-    private bool ScoreV2 { get; }
-    private double? ComboPortion { get; }
-    private double? BonusPortion { get; }
+    public int Time { get; }
+    public byte MultiSlotId { get; init; }
+    public ushort Count300 { get; }
+    public ushort Count100 { get; }
+    public ushort Count50 { get; }
+    public ushort CountGeki { get; }
+    public ushort CountKatu { get; }
+    public ushort CountMiss { get; }
+    public int TotalScore { get; }
+    public ushort MaxCombo { get; }
+    public ushort CurrentCombo { get; }
+    public bool Perfect { get; }
+    public byte CurrentHp { get; }
+    public byte TagByte { get; }
+    public bool ScoreV2 { get; }
+    public double? ComboPortion { get; }
+    public double? BonusPortion { get; }
 
-    public ScoreFrame(int time, byte id,
+    public ScoreFrame(int time, byte multiSlotId,
         ushort count300, ushort count100, ushort count50, ushort countGeki, ushort countKatu, ushort countMiss,
         int totalScore, ushort maxCombo, ushort currentCombo, bool perfect, byte currentHp,
         byte tagByte, bool scoreV2, double? comboPortion, double? bonusPortion)
     {
         Time = time;
-        Id = id;
+        MultiSlotId = multiSlotId;
         Count300 = count300;
         Count100 = count100;
         Count50 = count50;
@@ -47,7 +47,7 @@ public readonly struct ScoreFrame
     public void WriteToStream(PacketBinaryWriter writer)
     {
         writer.Write(Time);
-        writer.Write(Id);
+        writer.Write(MultiSlotId);
         writer.Write(Count300);
         writer.Write(Count100);
         writer.Write(Count50);

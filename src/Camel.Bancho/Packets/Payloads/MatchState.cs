@@ -1,4 +1,5 @@
 ﻿using Camel.Bancho.Enums.Multiplayer;
+using Camel.Bancho.Models;
 using Camel.Core.Enums;
 
 namespace Camel.Bancho.Packets.Payloads;
@@ -52,6 +53,15 @@ public readonly struct MatchState : IPacketPayload
         SlotMods = slotMods;
         Seed = seed;
         WritePassword = writePassword;
+    }
+
+    public MatchState(Match match, bool writePassword) : this(match.Id, match.InProgress, match.PowerPlay, match.Mods,
+        match.Name, match.Password, match.MapName, match.MapId, match.MapMd5,
+        match.Slots.Select(s => s.Status), match.Slots.Select(s => s.Team),
+        match.Slots.Where(s => s.User is not null).Select(s => s.User!.User.Id),
+        match.Host.User.Id, match.Mode, match.WinCondition, match.TeamType, match.FreeMods,
+        match.Slots.Select(s => s.Mods), match.Seed, writePassword)
+    {
     }
 
     public void WriteToStream(PacketBinaryWriter writer)
@@ -121,7 +131,7 @@ public readonly struct MatchState : IPacketPayload
         var slotStatuses = Enumerable.Range(0, 16).Select(_ => (SlotStatus)reader.ReadByte()).ToList();
         var slotTeams = Enumerable.Range(0, 16).Select(_ => (Team)reader.ReadByte()).ToList();
 
-        var playerCount = slotStatuses.Count(s => (s & SlotStatus.HasPlayer) == SlotStatus.HasPlayer);
+        var playerCount = slotStatuses.Count(s => (s & SlotStatus.HasPlayer) != 0);
         var slotIds = Enumerable.Range(0, playerCount).Select(_ => reader.ReadInt32()).ToList();
 
         var hostId = reader.ReadInt32();

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
+using Camel.Core.Enums;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 
 namespace Camel.Bancho.Packets;
@@ -52,6 +53,8 @@ public class PacketHandlerService : IPacketHandlerService
                 payload = reader.ReadString();
             else if (payloadType == typeof(PresenceFilter))
                 payload = (PresenceFilter)reader.ReadInt32();
+            else if (payloadType == typeof(Mods))
+                payload = (Mods)reader.ReadInt32();
             else
                 payload = payloadType.GetMethod("ReadFromStream").Invoke(null, [reader]);
 

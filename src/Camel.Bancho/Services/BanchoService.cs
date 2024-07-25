@@ -71,8 +71,6 @@ public class BanchoService : IBanchoService
         pq.WriteUserPresence(newSession, rank);
         pq.WriteUserStats(newSession, rank);
 
-        _logger.LogInformation($"{user.UserName} (ID: {user.Id}) has logged in from {request.OsuVersion}");
-
         await InsertSessionToDbAsync(request, user.Id, ipAddress);
 
         foreach (var otherSession in _userSessionService.GetOnlineUsers().Where(u => u != newSession))

@@ -106,11 +106,28 @@ public class PacketQueue
     public void WriteUserLogout(int userId) => WritePacket(PacketType.ServerUserLogout, userId);
 
     public void WriteGetAttention() => WritePacket(PacketType.ServerGetAttention);
-    
+
     public void WriteNewMatch(MatchState state) => WritePacket(PacketType.ServerNewMatch, state);
     public void WriteMatchJoinSuccess(MatchState state) => WritePacket(PacketType.ServerMatchJoinSuccess, state);
     public void WriteMatchJoinFail() => WritePacket(PacketType.ServerMatchJoinFail);
     public void WriteUpdateMatch(MatchState state) => WritePacket(PacketType.ServerUpdateMatch, state);
-    public void WriteMatchStart() => WritePacket(PacketType.ServerMatchStart);
+    public void WriteMatchStart(MatchState state) => WritePacket(PacketType.ServerMatchStart, state);
+    public void WriteMatchAllPlayersLoaded() => WritePacket(PacketType.ServerMatchAllPlayersLoaded);
+    public void WriteMatchPlayerSkipped(int slotId) => WritePacket(PacketType.ServerMatchPlayerSkipped, slotId);
+    public void WriteMatchPlayerFailed(int slotId) => WritePacket(PacketType.ServerMatchPlayerFailed, slotId);
+    public void WriteMatchSkip() => WritePacket(PacketType.ServerMatchSkip);
+    public void WriteMatchComplete() => WritePacket(PacketType.ServerMatchComplete);
+
+    public void WriteMatchScoreUpdate(ScoreFrame scoreFrame) =>
+        WritePacket(PacketType.ServerMatchScoreUpdate, scoreFrame);
+
     public void WriteDisposeMatch(int matchId) => WritePacket(PacketType.ServerDisposeMatch, matchId);
+    public void WriteMatchTransferHost() => WritePacket(PacketType.ServerMatchTransferHost);
+
+    public void WriteMatchInvite(string sender, string text, string recipient, int senderId) =>
+        WritePacket(PacketType.ServerMatchInvite, new Message(sender, text, recipient, senderId));
+
+    public void WriteMatchInvite(UserSession sender, UserSession target, Match match) =>
+        WritePacket(PacketType.ServerMatchInvite, new Message(sender.Username, 
+            $"Come join my game: {match.ChatLink}", target.Username, sender.User.Id));
 }

@@ -10,6 +10,11 @@ public class MatchSlot
     public Team Team { get; set; }
     public Mods Mods { get; set; } = Mods.NoMod;
 
+    public bool Loaded { get; set; }
+    public bool Skipped { get; set; }
+
+    public bool HasPlayer => User != null;
+
     public MatchSlot(UserSession? user, SlotStatus status, Team team)
     {
         User = user;
@@ -25,11 +30,18 @@ public class MatchSlot
         Mods = other.Mods;
     }
 
-    public void Reset()
+    public void Reset(SlotStatus status = SlotStatus.Open)
     {
         User = null;
-        Status = SlotStatus.Open;
+        Status = status;
         Team = Team.Neutral;
         Mods = Mods.NoMod;
+    }
+
+    public void MapEnded()
+    {
+        Status = SlotStatus.NotReady;
+        Loaded = false;
+        Skipped = false;
     }
 }
