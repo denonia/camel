@@ -5,18 +5,18 @@ using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Packets.Handlers.Multiplayer;
 
-[PacketHandler(PacketType.ClientJoinLobby)]
-public class JoinLobbyHandler : IPacketHandler<EmptyPayload>
+[PacketHandler(PacketType.ClientMatchStart)]
+public class MatchStartHandler : IPacketHandler<EmptyPayload>
 {
     private readonly IMultiplayerService _multiplayerService;
 
-    public JoinLobbyHandler(IMultiplayerService multiplayerService)
+    public MatchStartHandler(IMultiplayerService multiplayerService)
     {
         _multiplayerService = multiplayerService;
     }
     
     public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
-        _multiplayerService.JoinLobby(userSession);
+        _multiplayerService.Start(userSession);
     }
 }

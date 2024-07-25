@@ -1,14 +1,22 @@
 ﻿using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
 using Camel.Bancho.Packets.Payloads;
+using Camel.Bancho.Services.Interfaces;
 
 namespace Camel.Bancho.Packets.Handlers.Multiplayer;
 
 [PacketHandler(PacketType.ClientMatchNotReady)]
 public class MatchNotReadyHandler : IPacketHandler<EmptyPayload>
 {
+    private readonly IMultiplayerService _multiplayerService;
+
+    public MatchNotReadyHandler(IMultiplayerService multiplayerService)
+    {
+        _multiplayerService = multiplayerService;
+    }
+    
     public async Task HandleAsync(EmptyPayload payload, UserSession userSession)
     {
-        userSession.Match?.Ready(false, userSession);
+        _multiplayerService.Ready(false, userSession);
     }
 }

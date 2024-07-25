@@ -111,4 +111,6 @@ public class PacketQueue
     public void WriteMatchJoinSuccess(MatchState state) => WritePacket(PacketType.ServerMatchJoinSuccess, state);
     public void WriteMatchJoinFail() => WritePacket(PacketType.ServerMatchJoinFail);
     public void WriteUpdateMatch(MatchState state) => WritePacket(PacketType.ServerUpdateMatch, state);
+    public void WriteMatchStart() => WritePacket(PacketType.ServerMatchStart);
+    public void WriteDisposeMatch(int matchId) => WritePacket(PacketType.ServerDisposeMatch, matchId);
 }

@@ -10,6 +10,7 @@ public class ChatService : IChatService
     public ChatService()
     {
         _channels["#osu"] = new ChatChannel("#osu", "The primary channel", true);
+        _channels["#lobby"] = new ChatChannel("#lobby", "Lobby", false);
         _channels["#camel"] = new ChatChannel("#camel", "Camel", true);
         _channels["#mapping"] = new ChatChannel("#mapping", "For the mappers", true);
     }
@@ -81,9 +82,11 @@ public class ChatService : IChatService
         }
         else if (channelName == "#multiplayer")
         {
-            if (user.Match is null) 
-                return false;
-            channelName = $"#multiplayer_{user.Match.Id}";
+            var multiChannel = _channels.Values
+                .Where(c => c.Name == "#multiplayer")
+                .SingleOrDefault(c => c.Participants.Contains(user));
+            
+            return multiChannel is not null && multiChannel.SendMessage(message, user);
         }
 
         return _channels.TryGetValue(channelName, out var channel) && channel.SendMessage(message, user);

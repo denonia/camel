@@ -7,10 +7,10 @@ namespace Camel.Bancho.Models;
 public class Match
 {
     public short Id { get; }
-    public bool InProgress { get; set; } = false;
+    public bool InProgress { get; private set; } = false;
     public bool PowerPlay { get; } = false;
-    public Mods Mods { get; set; } = Mods.NoMod;
-    public string Name { get; set; }
+    public Mods Mods { get; private set; } = Mods.NoMod;
+    public string Name { get; private set; }
     public string? Password { get; }
     public bool MatchHistoryPublic { get; }
 
@@ -18,12 +18,12 @@ public class Match
     public int MapId { get; }
     public string MapMd5 { get; }
 
-    public List<MatchSlot> Slots { get; set; } = [];
-    public UserSession Host { get; set; }
+    public List<MatchSlot> Slots { get; private set; } = [];
+    public UserSession Host { get; private set; }
 
     public GameMode Mode { get; }
-    public WinCondition WinCondition { get; set; } = WinCondition.Score;
-    public TeamType TeamType { get; set; } = TeamType.HeadToHead;
+    public WinCondition WinCondition { get; private set; } = WinCondition.Score;
+    public TeamType TeamType { get; private set; } = TeamType.HeadToHead;
     public bool FreeMods { get; } = false;
     public int Seed { get; }
 
@@ -55,29 +55,34 @@ public class Match
             Slots.Add(new MatchSlot(null, SlotStatus.Locked, Team.Neutral));
     }
 
-    public MatchState State => new MatchState(Id, InProgress, PowerPlay, Mods, Name, Password, MapName, MapId, MapMd5,
+    public MatchState State => new(Id, InProgress, PowerPlay, Mods, Name, Password, MapName, MapId, MapMd5,
         Slots.Select(s => s.Status), Slots.Select(s => s.Team),
         Slots.Where(s => s.User is not null).Select(s => s.User!.User.Id),
         Host.User.Id, Mode, WinCondition, TeamType, FreeMods, Slots.Select(s => s.Mods), Seed, true);
 
+    public MatchState PublicState => new(Id, InProgress, PowerPlay, Mods, Name, Password, MapName, MapId, MapMd5,
+        Slots.Select(s => s.Status), Slots.Select(s => s.Team),
+        Slots.Where(s => s.User is not null).Select(s => s.User!.User.Id),
+        Host.User.Id, Mode, WinCondition, TeamType, FreeMods, Slots.Select(s => s.Mods), Seed, false);
+
     private MatchSlot NextFreeSlot() => Slots.First(s => (s.Status & SlotStatus.Open) != 0);
 
-    public bool Join(string? password, UserSession userSession)
+    public bool Join(string? password, UserSession requester)
     {
         if (FreeSlots <= 0 || Password != password)
             return false;
 
         var slot = NextFreeSlot();
-        slot.User = userSession;
+        slot.User = requester;
         slot.Status = SlotStatus.NotReady;
-        
+
         EnqueueUpdates();
         return true;
     }
 
-    public bool Leave(UserSession userSession)
+    public bool Leave(UserSession requester)
     {
-        var slot = Slots.SingleOrDefault(s => s.User == userSession);
+        var slot = Slots.SingleOrDefault(s => s.User == requester);
         if (slot is null)
             return false;
 
@@ -85,10 +90,10 @@ public class Match
         EnqueueUpdates();
         return true;
     }
-    
-    public bool Ready(bool ready, UserSession userSession)
+
+    public bool Ready(bool ready, UserSession requester)
     {
-        var slot = Slots.SingleOrDefault(s => s.User == userSession);
+        var slot = Slots.SingleOrDefault(s => s.User == requester);
         if (slot is null)
             return false;
 
@@ -97,7 +102,7 @@ public class Match
         return true;
     }
 
-    public bool ChangeSlot(int slotId, UserSession userSession)
+    public bool ChangeSlot(int slotId, UserSession requester)
     {
         if (slotId is >= 16 or < 0)
             return false;
@@ -106,7 +111,7 @@ public class Match
         if ((slot.Status & SlotStatus.Open) == 0)
             return false;
 
-        var oldSlot = Slots.SingleOrDefault(s => s.User == userSession);
+        var oldSlot = Slots.SingleOrDefault(s => s.User == requester);
         if (oldSlot is null)
             return false;
 
@@ -132,12 +137,31 @@ public class Match
             slot.Reset();
             slot.Status = SlotStatus.Locked;
         }
-        
+
         EnqueueUpdates();
         return true;
     }
 
-    public void EnqueueUpdates()
+    public bool Start(UserSession requester)
+    {
+        if (requester != Host)
+            return false;
+
+        InProgress = true;
+
+        var mapHavers = Slots.Where(s => s.Status != SlotStatus.NoMap);
+        foreach (var slot in mapHavers)
+        {
+            slot.Status = SlotStatus.Playing;
+            slot.User!.PacketQueue.WriteMatchStart();
+        }
+
+        EnqueueUpdates();
+
+        return true;
+    }
+
+    private void EnqueueUpdates()
     {
         foreach (var userSession in Players)
         {

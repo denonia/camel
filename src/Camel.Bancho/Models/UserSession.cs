@@ -29,7 +29,6 @@ public class UserSession
     public PacketQueue PacketQueue { get; }
     public List<UserSession> Spectators { get; } = [];
     public UserSession? Spectating { get; set; } = null;
-    public Match? Match { get; set; } = null;
 
     public UserSession(LoginRequest loginRequest, User user, Location location, IEnumerable<Stats> stats, PacketQueue packetQueue)
     {
