@@ -5,7 +5,6 @@ namespace Camel.Core.Entities;
 public class Score
 {
     public int Id { get; set; }
-    public string MapMd5 { get; set; }
     public int ScoreNum { get; set; }
     public float Pp { get; set; }
     public float Accuracy { get; set; }
@@ -28,6 +27,12 @@ public class Score
 
     public int UserId { get; set; }
     public User User { get; set; }
+    
+    public string MapMd5 { get; set; }
+    public Beatmap Beatmap { get; set; }
+    
+    public int SessionId { get; set; }
+    public LoginSession Session { get; set; }
 
     public static Score FromSubmission(string[] data)
     {

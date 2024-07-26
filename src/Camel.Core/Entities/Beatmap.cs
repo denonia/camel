@@ -25,4 +25,6 @@ public class Beatmap
     public float OverallDifficulty { get; set; }
     public float HpDrain { get; set; }
     public float StarRate { get; set; }
+
+    public IEnumerable<Score> Scores { get; set; }
 }

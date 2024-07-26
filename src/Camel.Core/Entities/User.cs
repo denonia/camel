@@ -9,4 +9,7 @@ public class User : IdentityUser<int>
     public IEnumerable<Stats> Stats { get; set; }
     public IEnumerable<Score> Scores { get; set; }
     public IEnumerable<LoginSession> LoginSessions { get; set; }
+    
+    public IEnumerable<Relationship> Added { get; set; }
+    public IEnumerable<Relationship> AddedBy { get; set; }
 }
