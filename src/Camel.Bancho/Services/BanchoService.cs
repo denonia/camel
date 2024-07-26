@@ -20,12 +20,14 @@ public class BanchoService : IBanchoService
     private readonly IChatService _chatService;
     private readonly IStatsService _statsService;
     private readonly IRankingService _rankingService;
+    private readonly UserManager<User> _userManager;
     private readonly ApplicationDbContext _dbContext;
     private readonly IConfiguration _configuration;
     private readonly ILogger<BanchoService> _logger;
 
     public BanchoService(IUserSessionService userSessionService, IAuthService authService, IChatService chatService,
-        IStatsService statsService, IRankingService rankingService, ApplicationDbContext dbContext,
+        IStatsService statsService, IRankingService rankingService, UserManager<User> userManager,
+        ApplicationDbContext dbContext,
         IConfiguration configuration, ILogger<BanchoService> logger)
     {
         _userSessionService = userSessionService;
@@ -33,6 +35,7 @@ public class BanchoService : IBanchoService
         _chatService = chatService;
         _statsService = statsService;
         _rankingService = rankingService;
+        _userManager = userManager;
         _dbContext = dbContext;
         _configuration = configuration;
         _logger = logger;
@@ -51,7 +54,13 @@ public class BanchoService : IBanchoService
 
         pq.WriteProtocolVersion(19);
         pq.WriteUserId(user.Id);
-        pq.WritePrivileges(Privileges.Supporter);
+
+        pq.WritePrivileges(
+            // await _userManager.IsInRoleAsync(user, "Owner") ? Privileges.Owner :
+            // await _userManager.IsInRoleAsync(user, "Developer") ? Privileges.Developer :
+            await _userManager.IsInRoleAsync(user, "Moderator") ? Privileges.Moderator :
+            Privileges.Supporter
+        );
 
         foreach (var channel in _chatService.AutoJoinChannels())
         {
@@ -63,15 +72,15 @@ public class BanchoService : IBanchoService
         var stats = await _statsService.GetUserStatsAsync(user.Id);
         var rank = await _rankingService.GetGlobalRankPpAsync(user.Id, GameMode.Standard);
         var location = await FetchLocationAsync(user, ipAddress);
+        
+        var sessionId = await InsertSessionToDbAsync(request, user.Id, ipAddress);
 
         var newToken = Guid.NewGuid().ToString();
-        var newSession = new UserSession(request, user, location, stats, pq);
+        var newSession = new UserSession(sessionId, request, user, location, stats, pq);
         _userSessionService.AddSession(newToken, newSession);
 
         pq.WriteUserPresence(newSession, rank);
         pq.WriteUserStats(newSession, rank);
-
-        await InsertSessionToDbAsync(request, user.Id, ipAddress);
 
         foreach (var otherSession in _userSessionService.GetOnlineUsers().Where(u => u != newSession))
         {
@@ -92,7 +101,7 @@ public class BanchoService : IBanchoService
         try
         {
             var result = reader.City(ipAddress);
-            
+
             if (user.Country == "XX")
             {
                 _dbContext.Attach(user);
@@ -114,7 +123,7 @@ public class BanchoService : IBanchoService
         return new Location(ipAddress, 0, 0, "XX", "Unknown", "Unknown");
     }
 
-    private async Task InsertSessionToDbAsync(LoginRequest loginRequest, int userId, string ipAddress)
+    private async Task<int> InsertSessionToDbAsync(LoginRequest loginRequest, int userId, string ipAddress)
     {
         var session = new LoginSession(userId,
             loginRequest.OsuVersion,
@@ -127,5 +136,6 @@ public class BanchoService : IBanchoService
             ipAddress);
         _dbContext.LoginSessions.Add(session);
         await _dbContext.SaveChangesAsync();
+        return session.Id;
     }
 }

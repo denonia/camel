@@ -29,7 +29,6 @@ public class Score
     public User User { get; set; }
     
     public string MapMd5 { get; set; }
-    public Beatmap Beatmap { get; set; }
     
     public int SessionId { get; set; }
     public LoginSession Session { get; set; }

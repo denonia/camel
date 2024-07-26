@@ -91,10 +91,14 @@ public class BeatmapService : IBeatmapService
                 Md5 = d.FileMd5,
                 Artist = d.Artist,
                 Title = d.Title,
+                ArtistUnicode = d.ArtistUnicode,
+                TitleUnicode = d.TitleUnicode,
                 Version = d.Version,
                 Creator = d.Creator,
+                Source = d.Source,
                 FileName = "",
                 LastUpdate = d.LastUpdate,
+                ApprovedDate = d.ApprovedDate,
                 TotalLength = d.TotalLength,
                 MaxCombo = d.MaxCombo ?? 0,
                 Mode = (GameMode)d.Mode,
@@ -103,7 +107,9 @@ public class BeatmapService : IBeatmapService
                 ApproachRate = d.DiffApproach,
                 OverallDifficulty = d.DiffOverall,
                 HpDrain = d.DiffDrain,
-                StarRate = d.Difficultyrating
+                StarRate = d.Difficultyrating,
+                Status = d.Approved.FromOsuApiStatus(),
+                BeatmapSource = BeatmapSource.Osu
             }
         ).ToList();
 

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Camel.Core.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240726144555_AddRelationshipsTable")]
-    partial class AddRelationshipsTable
+    [Migration("20240726213831_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,18 +27,35 @@ namespace Camel.Core.Migrations
 
             modelBuilder.Entity("Camel.Core.Entities.Beatmap", b =>
                 {
-                    b.Property<string>("Md5")
-                        .HasColumnType("text")
-                        .HasColumnName("md5");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<float>("ApproachRate")
                         .HasColumnType("real")
                         .HasColumnName("approach_rate");
 
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_date");
+
                     b.Property<string>("Artist")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("artist");
+
+                    b.Property<string>("ArtistUnicode")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("artist_unicode");
+
+                    b.Property<int>("BeatmapSource")
+                        .HasColumnType("integer")
+                        .HasColumnName("beatmap_source");
 
                     b.Property<float>("Bpm")
                         .HasColumnType("real")
@@ -50,12 +67,13 @@ namespace Camel.Core.Migrations
 
                     b.Property<string>("Creator")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("creator");
 
                     b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("file_name");
 
                     b.Property<bool>("Frozen")
@@ -65,10 +83,6 @@ namespace Camel.Core.Migrations
                     b.Property<float>("HpDrain")
                         .HasColumnType("real")
                         .HasColumnName("hp_drain");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
 
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamp with time zone")
@@ -81,6 +95,12 @@ namespace Camel.Core.Migrations
                     b.Property<int>("MaxCombo")
                         .HasColumnType("integer")
                         .HasColumnName("max_combo");
+
+                    b.Property<string>("Md5")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("md5");
 
                     b.Property<byte>("Mode")
                         .HasColumnType("smallint")
@@ -98,14 +118,29 @@ namespace Camel.Core.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("plays");
 
+                    b.Property<string>("Source")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("source");
+
                     b.Property<float>("StarRate")
                         .HasColumnType("real")
                         .HasColumnName("star_rate");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("title");
+
+                    b.Property<string>("TitleUnicode")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("title_unicode");
 
                     b.Property<int>("TotalLength")
                         .HasColumnType("integer")
@@ -113,10 +148,11 @@ namespace Camel.Core.Migrations
 
                     b.Property<string>("Version")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("version");
 
-                    b.HasKey("Md5")
+                    b.HasKey("Id")
                         .HasName("pk_beatmaps");
 
                     b.HasIndex("FileName")
@@ -148,11 +184,13 @@ namespace Camel.Core.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AdaptersMd5")
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("adapters_md5");
 
                     b.Property<string>("AdaptersStr")
-                        .HasColumnType("text")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("adapters_str");
 
                     b.Property<DateTime>("DateTime")
@@ -160,21 +198,25 @@ namespace Camel.Core.Migrations
                         .HasColumnName("date_time");
 
                     b.Property<string>("DiskSignatureMd5")
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("disk_signature_md5");
 
                     b.Property<string>("IpAddress")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("ip_address");
 
                     b.Property<string>("OsuPathMd5")
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("osu_path_md5");
 
                     b.Property<string>("OsuVersion")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("osu_version");
 
                     b.Property<bool>("RunningUnderWine")
@@ -192,9 +234,6 @@ namespace Camel.Core.Migrations
                     b.HasKey("Id")
                         .HasName("pk_login_sessions");
 
-                    b.HasIndex("DateTime")
-                        .HasDatabaseName("ix_login_sessions_date_time");
-
                     b.HasIndex("OsuVersion")
                         .HasDatabaseName("ix_login_sessions_osu_version");
 
@@ -202,6 +241,33 @@ namespace Camel.Core.Migrations
                         .HasDatabaseName("ix_login_sessions_user_id");
 
                     b.ToTable("login_sessions", (string)null);
+                });
+
+            modelBuilder.Entity("Camel.Core.Entities.Profile", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Discord")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("discord");
+
+                    b.Property<string>("Twitter")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("twitter");
+
+                    b.Property<string>("UserPage")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("user_page");
+
+                    b.HasKey("Id")
+                        .HasName("pk_profiles");
+
+                    b.ToTable("profiles", (string)null);
                 });
 
             modelBuilder.Entity("Camel.Core.Entities.Relationship", b =>
@@ -274,6 +340,10 @@ namespace Camel.Core.Migrations
                         .HasColumnType("real")
                         .HasColumnName("accuracy");
 
+                    b.Property<int?>("BeatmapId")
+                        .HasColumnType("integer")
+                        .HasColumnName("beatmap_id");
+
                     b.Property<int>("ClientFlags")
                         .HasColumnType("integer")
                         .HasColumnName("client_flags");
@@ -308,7 +378,8 @@ namespace Camel.Core.Migrations
 
                     b.Property<string>("MapMd5")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("map_md5");
 
                     b.Property<int>("MaxCombo")
@@ -325,7 +396,8 @@ namespace Camel.Core.Migrations
 
                     b.Property<string>("OnlineChecksum")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("online_checksum");
 
                     b.Property<bool>("Perfect")
@@ -363,6 +435,9 @@ namespace Camel.Core.Migrations
                     b.HasKey("Id")
                         .HasName("pk_scores");
 
+                    b.HasIndex("BeatmapId")
+                        .HasDatabaseName("ix_scores_beatmap_id");
+
                     b.HasIndex("MapMd5")
                         .HasDatabaseName("ix_scores_map_md5");
 
@@ -390,6 +465,9 @@ namespace Camel.Core.Migrations
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_scores_user_id");
+
+                    b.HasIndex("MapMd5", "Status", "Mode")
+                        .HasDatabaseName("ix_scores_map_md5_status_mode");
 
                     b.ToTable("scores", (string)null);
                 });
@@ -522,6 +600,10 @@ namespace Camel.Core.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
@@ -721,6 +803,18 @@ namespace Camel.Core.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Camel.Core.Entities.Profile", b =>
+                {
+                    b.HasOne("Camel.Core.Entities.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("Camel.Core.Entities.Profile", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_profiles_users_id");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Camel.Core.Entities.Relationship", b =>
                 {
                     b.HasOne("Camel.Core.Entities.User", "FirstUser")
@@ -744,12 +838,10 @@ namespace Camel.Core.Migrations
 
             modelBuilder.Entity("Camel.Core.Entities.Score", b =>
                 {
-                    b.HasOne("Camel.Core.Entities.Beatmap", "Beatmap")
+                    b.HasOne("Camel.Core.Entities.Beatmap", null)
                         .WithMany("Scores")
-                        .HasForeignKey("MapMd5")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_scores_beatmaps_map_md5");
+                        .HasForeignKey("BeatmapId")
+                        .HasConstraintName("fk_scores_beatmaps_beatmap_id");
 
                     b.HasOne("Camel.Core.Entities.LoginSession", "Session")
                         .WithMany()
@@ -764,8 +856,6 @@ namespace Camel.Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_scores_users_user_id");
-
-                    b.Navigation("Beatmap");
 
                     b.Navigation("Session");
 
@@ -853,6 +943,9 @@ namespace Camel.Core.Migrations
                     b.Navigation("AddedBy");
 
                     b.Navigation("LoginSessions");
+
+                    b.Navigation("Profile")
+                        .IsRequired();
 
                     b.Navigation("Scores");
 

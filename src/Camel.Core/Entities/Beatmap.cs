@@ -9,10 +9,14 @@ public class Beatmap
     public string Md5 { get; set; }
     public string Artist { get; set; }
     public string Title { get; set; }
+    public string? ArtistUnicode { get; set; }
+    public string? TitleUnicode { get; set; }
     public string Version { get; set; }
     public string Creator { get; set; }
-    public string FileName { get; set; }
+    public string? Source { get; set; }
+    public string? FileName { get; set; }
     public DateTime LastUpdate { get; set; }
+    public DateTime? ApprovedDate { get; set; }
     public int TotalLength { get; set; }
     public int MaxCombo { get; set; }
     public bool Frozen { get; set; }
@@ -25,6 +29,8 @@ public class Beatmap
     public float OverallDifficulty { get; set; }
     public float HpDrain { get; set; }
     public float StarRate { get; set; }
+    public RankedStatus Status { get; set; }
+    public BeatmapSource BeatmapSource { get; set; }
 
     public IEnumerable<Score> Scores { get; set; }
 }

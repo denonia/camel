@@ -8,6 +8,8 @@ namespace Camel.Bancho.Models;
 
 public class UserSession
 {
+    public int SessionId { get; }
+
     public string Username { get; }
     public string PasswordMd5 { get; }
     public OsuVersion OsuVersion { get; }
@@ -16,13 +18,13 @@ public class UserSession
     public ClientHashes? ClientHashes { get; }
     public bool? BlockNonFriendPm { get; }
     public Location Location { get; }
-    
+
     public DateTime StartTime { get; } = DateTime.Now;
     public DateTime LastActive { get; set; } = DateTime.Now;
 
     public PresenceFilter PresenceFilter { get; set; } = PresenceFilter.Nil;
     public UserStatus Status { get; set; }
-    
+
     public User User { get; }
     public IEnumerable<Stats> Stats { get; }
 
@@ -30,11 +32,14 @@ public class UserSession
     public List<UserSession> Spectators { get; } = [];
     public UserSession? Spectating { get; set; } = null;
 
-    public UserSession(LoginRequest loginRequest, User user, Location location, IEnumerable<Stats> stats, PacketQueue packetQueue)
+    public UserSession(int sessionId, LoginRequest loginRequest, User user, Location location, IEnumerable<Stats> stats,
+        PacketQueue packetQueue)
     {
+        SessionId = sessionId;
         Username = loginRequest.Username;
         PasswordMd5 = loginRequest.PasswordMd5;
-        OsuVersion = OsuVersion.Parse(loginRequest.OsuVersion) ?? throw new ArgumentException("Failed to parse osu! version");
+        OsuVersion = OsuVersion.Parse(loginRequest.OsuVersion) ??
+                     throw new ArgumentException("Failed to parse osu! version");
         UtcOffset = loginRequest.UtcOffset;
         DisplayCity = loginRequest.DisplayCity;
         ClientHashes = loginRequest.ClientHashes;

@@ -1,6 +1,6 @@
 ﻿namespace Camel.Core.Enums;
 
-public enum RankedStatus
+public enum ClientRankedStatus
 {
     NotSubmitted = -1,
     Pending = 0,
@@ -9,6 +9,17 @@ public enum RankedStatus
     Approved = 3,
     Qualified = 4,
     Loved = 5,
+}
+
+public enum RankedStatus
+{
+    Graveyard = -2,
+    Wip = -1,
+    Pending = 0,
+    Ranked = 1,
+    Approved = 2,
+    Qualified = 3,
+    Loved = 4
 }
 
 public static class RankedStatusMethods
@@ -24,6 +35,21 @@ public static class RankedStatusMethods
             5 => RankedStatus.Pending,
             7 => RankedStatus.Ranked, // played before
             8 => RankedStatus.Loved,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+    }
+    
+    public static RankedStatus FromOsuApiStatus(this int status)
+    {
+        return status switch
+        {
+            -2 => RankedStatus.Graveyard,
+            -1 => RankedStatus.Wip,
+            0 => RankedStatus.Pending,
+            1 => RankedStatus.Ranked,
+            2 => RankedStatus.Approved,
+            3 => RankedStatus.Qualified,
+            4 => RankedStatus.Loved,
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
     }

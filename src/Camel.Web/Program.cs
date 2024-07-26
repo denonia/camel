@@ -6,6 +6,7 @@ using Camel.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using Role = Camel.Core.Entities.Role;
 
 namespace Camel.Web;
 
@@ -46,12 +47,27 @@ public class Program
                 options.Password.RequireNonAlphanumeric = false;
                 options.SignIn.RequireConfirmedAccount = false;
             })
+            .AddRoles<Role>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddRazorPages();
 
         builder.Services.Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
 
         var app = builder.Build();
+        
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            dbContext.Database.Migrate();
+            
+            if (!dbContext.Users.Any())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+                var seeder = new DatabaseSeeder(userManager, roleManager);
+                seeder.SeedAsync().Wait();
+            }
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

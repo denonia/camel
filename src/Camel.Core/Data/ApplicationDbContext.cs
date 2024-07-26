@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
     public DbSet<Beatmap> Beatmaps { get; set; }
     public DbSet<LoginSession> LoginSessions { get; set; }
     public DbSet<Relationship> Relationships { get; set; }
+    public DbSet<Profile> Profiles { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -29,6 +30,10 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
             entity.Property(u => u.Country)
                 .HasMaxLength(2)
                 .HasDefaultValue("XX");
+
+            entity.HasOne<Profile>(u => u.Profile)
+                .WithOne(p => p.User)
+                .HasForeignKey<Profile>(p => p.Id);
         });
 
         builder.Entity<Role>(entity => { entity.ToTable("roles"); });
@@ -70,13 +75,12 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
 
         builder.Entity<Score>(entity =>
         {
+            entity.Property(s => s.MapMd5).HasMaxLength(32);
+            entity.Property(s => s.OnlineChecksum).HasMaxLength(32);
+
             entity.HasOne<User>(s => s.User)
                 .WithMany(u => u.Scores)
                 .HasForeignKey(u => u.UserId);
-            
-            entity.HasOne<Beatmap>(s => s.Beatmap)
-                .WithMany(b => b.Scores)
-                .HasForeignKey(u => u.MapMd5);
 
             entity.HasIndex(s => s.UserId);
             entity.HasIndex(s => s.MapMd5);
@@ -86,27 +90,43 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
             entity.HasIndex(s => s.Status);
             entity.HasIndex(s => s.Mode);
             entity.HasIndex(s => s.OnlineChecksum).IsUnique();
+            entity.HasIndex(s => s.SessionId);
+            entity.HasIndex(s => new { s.MapMd5, s.Status, s.Mode });
         });
 
         builder.Entity<Beatmap>(entity =>
         {
-            entity.HasKey(b => b.Md5);
-            
-            entity.HasIndex(e => e.Id);
-            entity.HasIndex(e => e.MapsetId);
-            entity.HasIndex(e => e.Md5).IsUnique();
-            entity.HasIndex(e => e.FileName);
-            entity.HasIndex(e => e.Mode);
+            entity.Property(b => b.Md5).HasMaxLength(32);
+            entity.Property(b => b.Artist).HasMaxLength(128);
+            entity.Property(b => b.Title).HasMaxLength(128);
+            entity.Property(b => b.ArtistUnicode).HasMaxLength(128);
+            entity.Property(b => b.TitleUnicode).HasMaxLength(128);
+            entity.Property(b => b.Version).HasMaxLength(128);
+            entity.Property(b => b.Source).HasMaxLength(128);
+            entity.Property(b => b.FileName).HasMaxLength(256);
+            entity.Property(b => b.Creator).HasMaxLength(32);
+
+            entity.HasIndex(b => b.Id);
+            entity.HasIndex(b => b.MapsetId);
+            entity.HasIndex(b => b.Md5).IsUnique();
+            entity.HasIndex(b => b.FileName);
+            entity.HasIndex(b => b.Mode);
         });
 
         builder.Entity<LoginSession>(entity =>
         {
+            entity.Property(s => s.OsuVersion).HasMaxLength(32);
+            entity.Property(s => s.OsuPathMd5).HasMaxLength(32);
+            entity.Property(s => s.AdaptersStr).HasMaxLength(128);
+            entity.Property(s => s.AdaptersMd5).HasMaxLength(32);
+            entity.Property(s => s.DiskSignatureMd5).HasMaxLength(32);
+            entity.Property(s => s.IpAddress).HasMaxLength(32);
+
             entity.HasOne<User>(s => s.User)
                 .WithMany(u => u.LoginSessions)
                 .HasForeignKey(s => s.UserId);
 
             entity.HasIndex(s => s.UserId);
-            entity.HasIndex(s => s.DateTime);
             entity.HasIndex(s => s.OsuVersion);
         });
 
@@ -121,6 +141,13 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
             entity.HasOne<User>(r => r.SecondUser)
                 .WithMany(u => u.AddedBy)
                 .HasForeignKey(r => r.SecondUserId);
+        });
+
+        builder.Entity<Profile>(entity =>
+        {
+            entity.Property(p => p.Twitter).HasMaxLength(64);
+            entity.Property(p => p.Discord).HasMaxLength(64);
+            entity.Property(p => p.UserPage).HasMaxLength(1024);
         });
     }
 }

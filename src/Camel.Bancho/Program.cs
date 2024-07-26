@@ -6,12 +6,15 @@ using Camel.Bancho.Services;
 using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Configuration;
 using Camel.Core.Data;
+using Camel.Core.Entities;
 using Camel.Core.Interfaces;
 using Camel.Core.Performance;
 using Camel.Core.Services;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using Role = Camel.Core.Entities.Role;
 
 namespace Camel.Bancho;
 
@@ -70,14 +73,18 @@ public class Program
                               throw new Exception("PostgreSQL connection string not set"))
                 .UseSnakeCaseNamingConvention();
         });
+        
+        builder.Services.AddIdentity<User, Role>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.SignIn.RequireConfirmedAccount = false;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>();
 
         var app = builder.Build();
-
-        using (var scope = app.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            dbContext.Database.Migrate();
-        }
 
         if (app.Environment.IsDevelopment())
         {

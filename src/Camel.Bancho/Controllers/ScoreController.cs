@@ -141,6 +141,8 @@ public class ScoreController : ControllerBase
         else
             score.TimeElapsed = scoreTime ?? 0;
 
+        score.SessionId = session.SessionId;
+
         ValidateScore(score, session, osuVersion, uniqueIds, clientHash, beatmapHash);
 
         var stats = session.Stats.Single(s => s.Mode == score.Mode);
