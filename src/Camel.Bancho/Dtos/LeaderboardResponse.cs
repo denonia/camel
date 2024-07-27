@@ -24,7 +24,6 @@ public class LeaderboardResponse
     {
         var sb = new StringBuilder();
         
-        // TODO: status and rating
         sb.Append($"{ClientRankedStatus.Ranked}|false|{Beatmap.Id}|{Beatmap.MapsetId}|{Scores.Count}|0|\n");
         sb.Append($"0\n{Beatmap.Artist} - {Beatmap.Title} [{Beatmap.Version}]\n10.0\n");
         

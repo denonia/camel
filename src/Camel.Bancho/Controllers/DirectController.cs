@@ -38,10 +38,7 @@ public class DirectController : ControllerBase
             { "offset", (pageNumber * 100).ToString() }
         };
 
-        // TODO support keywords
-        // nvm apparently this mirror does already
-        // if (!Keywords.Contains(query))
-        //     queryParams["query"] = query;
+        queryParams["query"] = query;
 
         if (mode != -1)
             queryParams["mode"] = mode.ToString();

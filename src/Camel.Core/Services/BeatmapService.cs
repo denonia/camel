@@ -108,7 +108,7 @@ public class BeatmapService : IBeatmapService
                 OverallDifficulty = d.DiffOverall,
                 HpDrain = d.DiffDrain,
                 StarRate = d.Difficultyrating,
-                Status = d.Approved.FromOsuApiStatus(),
+                Status = (RankedStatus)d.Approved,
                 BeatmapSource = BeatmapSource.Osu
             }
         ).ToList();

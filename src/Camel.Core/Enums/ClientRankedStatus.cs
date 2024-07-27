@@ -39,17 +39,17 @@ public static class RankedStatusMethods
         };
     }
     
-    public static RankedStatus FromOsuApiStatus(this int status)
+    public static ClientRankedStatus ToClientStatus(this RankedStatus status)
     {
         return status switch
         {
-            -2 => RankedStatus.Graveyard,
-            -1 => RankedStatus.Wip,
-            0 => RankedStatus.Pending,
-            1 => RankedStatus.Ranked,
-            2 => RankedStatus.Approved,
-            3 => RankedStatus.Qualified,
-            4 => RankedStatus.Loved,
+            RankedStatus.Graveyard => ClientRankedStatus.Pending,
+            RankedStatus.Wip => ClientRankedStatus.Pending,
+            RankedStatus.Pending => ClientRankedStatus.Pending,
+            RankedStatus.Ranked => ClientRankedStatus.Ranked,
+            RankedStatus.Approved => ClientRankedStatus.Approved,
+            RankedStatus.Qualified => ClientRankedStatus.Qualified,
+            RankedStatus.Loved => ClientRankedStatus.Loved,
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
     }
