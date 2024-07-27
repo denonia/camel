@@ -3,7 +3,7 @@ using Camel.Core.Enums;
 using Camel.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Camel.Web.Pages.Leaderboard;
+namespace Camel.Web.Pages.Leaderboards;
 
 public class Index : PageModel
 {

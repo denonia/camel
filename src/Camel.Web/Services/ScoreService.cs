@@ -23,10 +23,11 @@ public class ScoreService : IScoreService
              s.count_geki, s.count_katu, s.count_miss, 
              s.max_combo, s.mods, s.perfect, 
              s.score_num, s.set_at, s.user_id, 
-             s.grade, s.accuracy, s.pp, u.user_name
+             s.grade, s.accuracy, s.pp, u.user_name, ls.osu_version
              FROM scores s 
              INNER JOIN users u ON u.id = s.user_id 
              INNER JOIN beatmaps b ON b.md5 = s.map_md5
+             INNER JOIN login_sessions ls ON ls.id = s.session_id
              WHERE b.id = {beatmapId} AND s.status = {SubmissionStatus.Best} 
              ORDER BY s.score_num DESC LIMIT 50
              """
@@ -42,10 +43,10 @@ public class ScoreService : IScoreService
              s.max_combo, s.mods, s.perfect, 
              s.score_num, s.set_at,
              s.grade, s.accuracy, s.pp,
-             b.artist, b.title, b.version, b.id AS beatmap_id
+             b.artist, b.title, b.version, b.id AS beatmap_id, ls.osu_version
              FROM scores s 
-             INNER JOIN users u ON u.id = s.user_id 
              INNER JOIN beatmaps b ON b.md5 = s.map_md5
+             INNER JOIN login_sessions ls ON ls.id = s.session_id
              WHERE s.user_id = {userId} AND s.status = {SubmissionStatus.Best} AND s.mode = {mode}
              ORDER BY s.pp DESC LIMIT 50
              """

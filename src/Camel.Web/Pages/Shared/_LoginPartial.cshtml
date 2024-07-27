@@ -4,25 +4,26 @@
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 
-<ul>
-    @if (SignInManager.IsSignedIn(User))
-    {
-        <li>
-            <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">hello @User.Identity?.Name!</a>
-        </li>
-        <li class="nav-item">
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
-                <button type="submit">logout</button>
-            </form>
-        </li>
-    }
-    else
-    {
-        <li class="nav-item">
-            <a asp-area="Identity" asp-page="/Account/Register">register</a>
-        </li>
-        <li class="nav-item">
-            <a asp-area="Identity" asp-page="/Account/Login">login</a>
-        </li>
-    }
-</ul>
+@if (SignInManager.IsSignedIn(User))
+{
+    <li role="menuitem">
+        @* <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">hello @User.Identity?.Name!</a> *@
+        <a>Hello @User.Identity?.Name!</a>
+    </li>
+    <li role="menuitem">
+        <a asp-area="Identity" asp-page="/Account/Logout" title="Logout">Logout</a>
+    </li>
+}
+else
+{
+    <li role="menuitem">
+        <a asp-area="Identity" asp-page="/Account/Login">
+            Log in
+        </a>
+    </li>
+    <li role="menuitem">
+        <a asp-area="Identity" asp-page="/Account/Register">
+            Register
+        </a>
+    </li>
+}

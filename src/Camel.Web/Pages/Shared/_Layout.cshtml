@@ -4,34 +4,60 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"]</title>
+    @* <link rel="stylesheet" href="https://unpkg.com/7.css"> *@
+    <link rel="stylesheet" href="https://unpkg.com/7.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
 </head>
 <body>
-<header>
-    <nav>
-        <div>
-            <a asp-area="" asp-page="/Index">camel</a>
-            
-            <ul>
-                <li>
-                    <a asp-area="" asp-page="/Index">home</a>
-                </li>
-            </ul>
-            <partial name="_LoginPartial"/>
+<div class="window title-color glass active" style="margin: 32px; width: 800px">
+    <div class="title-bar">
+        <div class="title-bar-text">
+            Camel version beta 1.0
         </div>
-    </nav>
-</header>
-<div class="container">
-    <main>
-        @RenderBody()
-    </main>
-</div>
-
-<footer>
-    <div>
-        &copy; 2024 - camel no rights reserved idc
+        <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize" disabled></button>
+            <button aria-label="Close"></button>
+        </div>
     </div>
-</footer>
+    <div class="window-body">
+        <ul role="menubar" class="can-hover">
+            <li role="menuitem" tabindex="0" aria-haspopup="true">
+                File
+                <ul role="menu">
+                    <li role="menuitem">
+                        <a asp-area="" asp-page="/Index">
+                            Home
+                        </a>
+                    </li>
+                    <li role="menuitem" class="has-divider">
+                        <a asp-area="" asp-page="/Leaderboards/Index">
+                            Leaderboards
+                        </a>
+                    </li>
+                    <partial name="_LoginPartial"/>
+                </ul>
+            </li>
+            <li role="menuitem" tabindex="0" aria-haspopup="true">
+                Help
+                <ul role="menu">
+                    <li role="menuitem">
+                        <a href="#menubar">View Help</a>
+                    </li>
+                    <li role="menuitem">
+                        <a href="#menubar">About</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div style="margin: 0 12px 12px">
+            @RenderBody()
+        </div>
+    </div>
+    <div class="status-bar">
+        <p class="status-bar-field">&copy; 2007 Camel Industries. No rights reserved</p>
+    </div>
+</div>
 
 <script src="~/js/site.js" asp-append-version="true"></script>
 

@@ -7,7 +7,7 @@ public class LeaderboardScore
     public int Id { get; set; }
     public int ScoreNum { get; set; }
     public int MaxCombo { get; set; }
-    public int Mods { get; set; }
+    public Mods Mods { get; set; }
     public int Count300 { get; set; }
     public int Count100 { get; set; }
     public int Count50 { get; set; }
@@ -22,4 +22,5 @@ public class LeaderboardScore
     
     public int UserId { get; set; }
     public string UserName { get; set; }
+    public string OsuVersion { get; set; }
 }
