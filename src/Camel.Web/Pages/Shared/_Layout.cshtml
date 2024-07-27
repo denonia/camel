@@ -4,12 +4,11 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"]</title>
-    @* <link rel="stylesheet" href="https://unpkg.com/7.css"> *@
     <link rel="stylesheet" href="https://unpkg.com/7.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
 </head>
 <body>
-<div class="window title-color glass active" style="margin: 32px; width: 800px">
+<div class="window title-color glass active" style="margin: 32px; width: fit-content">
     <div class="title-bar">
         <div class="title-bar-text">
             Camel version beta 1.0
@@ -25,27 +24,27 @@
             <li role="menuitem" tabindex="0" aria-haspopup="true">
                 File
                 <ul role="menu">
-                    <li role="menuitem">
+                    <li role="menuitem" class="has-divider">
                         <a asp-area="" asp-page="/Index">
                             Home
-                        </a>
-                    </li>
-                    <li role="menuitem" class="has-divider">
-                        <a asp-area="" asp-page="/Leaderboards/Index">
-                            Leaderboards
                         </a>
                     </li>
                     <partial name="_LoginPartial"/>
                 </ul>
             </li>
             <li role="menuitem" tabindex="0" aria-haspopup="true">
+                Leaderboards
+                <ul role="menu">
+                    <li role="menuitem">
+                        <a asp-area="" asp-page="/leaderboards/index">osu!standard</a>
+                    </li>
+                </ul>
+            </li>
+            <li role="menuitem" tabindex="0" aria-haspopup="true">
                 Help
                 <ul role="menu">
                     <li role="menuitem">
-                        <a href="#menubar">View Help</a>
-                    </li>
-                    <li role="menuitem">
-                        <a href="#menubar">About</a>
+                        <a asp-area="" asp-page="/about">About</a>
                     </li>
                 </ul>
             </li>

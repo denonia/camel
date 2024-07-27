@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
+        <PackageReference Include="Humanizer" Version="3.0.0-beta.54" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
@@ -77,6 +78,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Areas\Identity\Data\" />
       <Folder Include="wwwroot\lib\" />
     </ItemGroup>
 

@@ -34,15 +34,22 @@ public class RedisRankingService : IRankingService
 
         var userNames = await _dbContext.Users
             .Where(u => ids.Contains(u.Id))
-            .Select(u => new Tuple<int, string>(u.Id, u.UserName))
+            .Select(u => new
+            {
+                u.Id, u.UserName,
+                u.Stats.Single(s => s.Mode == mode).Accuracy,
+                u.Stats.Single(s => s.Mode == mode).Plays
+            })
             .ToListAsync();
-        
+
         var result = idPps.Select((entry, i) => new UserRankingEntry
         {
             UserId = (int)entry.Element,
             Pp = (int)entry.Score,
             Rank = offset + i + 1,
-            UserName = userNames.SingleOrDefault(x => x.Item1 == (int)entry.Element).Item2
+            UserName = userNames.Single(x => x.Id == (int)entry.Element).UserName!,
+            Accuracy = userNames.Single(x => x.Id == (int)entry.Element).Accuracy,
+            Plays = userNames.Single(x => x.Id == (int)entry.Element).Plays
         });
 
         return result;

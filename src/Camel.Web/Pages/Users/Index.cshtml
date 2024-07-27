@@ -1,49 +1,50 @@
 ﻿@page "{userId:int}"
+@using Humanizer
 @model Camel.Web.Pages.Users.Index
 
 @{
 }
 
-<div>
+<div style="width: 1024px;">
     <h3>@Model.User.UserName</h3>
-    <table>
+    <table style="width: 300px">
         <tbody>
         <tr>
             <th>Rank</th>
-            <td>#@Model.Rank</td>
+            <td>#@Model.Rank.ToString("N0")</td>
         </tr>
         <tr>
             <th>Total pp</th>
-            <td>@Model.Stats.Pp</td>
+            <td>@Model.Stats.Pp.ToString("N0")</td>
         </tr>
         <tr>
             <th>Accuracy</th>
-            <td>@Model.Stats.Accuracy</td>
+            <td>@Model.Stats.Accuracy.ToString("F2")%</td>
         </tr>
         <tr>
             <th>Play count</th>
-            <td>@Model.Stats.Plays</td>
+            <td>@Model.Stats.Plays.ToString("N0")</td>
         </tr>
         <tr>
             <th>Total score</th>
-            <td>@Model.Stats.TotalScore</td>
+            <td>@Model.Stats.TotalScore.ToString("N0")</td>
         </tr>
         <tr>
             <th>Ranked score</th>
-            <td>@Model.Stats.RankedScore</td>
+            <td>@Model.Stats.RankedScore.ToString("N0")</td>
         </tr>
         <tr>
             <th>Total hits</th>
-            <td>@Model.Stats.TotalHits</td>
+            <td>@Model.Stats.TotalHits.ToString("N0")</td>
         </tr>
         <tr>
             <th>Max combo</th>
-            <td>@Model.Stats.MaxCombo</td>
+            <td>@Model.Stats.MaxCombo.ToString("N0")</td>
         </tr>
         </tbody>
     </table>
 
-    <div class="has-scrollbar" >
+    <div>
         <table>
             <thead class="table-head">
             <tr>
@@ -74,16 +75,16 @@
                             @score.Artist - @score.Title [@score.Version]
                         </a>
                     </td>
-                    <td>@score.Pp</td>
+                    <td>@score.Pp.ToString("N0")</td>
                     <td>@score.Grade</td>
-                    <td>@score.ScoreNum</td>
-                    <td>@score.Accuracy</td>
-                    <td>@score.MaxCombo</td>
-                    <td>@score.Count300</td>
-                    <td>@score.Count100</td>
-                    <td>@score.Count50</td>
-                    <td>@score.CountMiss</td>
-                    <td>@score.SetAt</td>
+                    <td>@score.ScoreNum.ToString("N0")</td>
+                    <td>@score.Accuracy.ToString("F2")%</td>
+                    <td>@score.MaxCombo.ToString("N0")</td>
+                    <td>@score.Count300.ToString("N0")</td>
+                    <td>@score.Count100.ToString("N0")</td>
+                    <td>@score.Count50.ToString("N0")</td>
+                    <td>@score.CountMiss.ToString("N0")</td>
+                    <td title="@score.SetAt">@score.SetAt.Humanize()</td>
                     <td>@ModsHelper.GetModsString(score.Mods)</td>
                     <td>@score.OsuVersion</td>
                 </tr>

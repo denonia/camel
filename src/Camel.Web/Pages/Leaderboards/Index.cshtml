@@ -12,18 +12,22 @@
         <th>#</th>
         <th>Name</th>
         <th>pp</th>
+        <th>Accuracy</th>
+        <th>Play count</th>
         </thead>
         <tbody>
         @foreach (var entry in Model.RankingEntries)
         {
             <tr>
-                <td>@entry.Rank</td>
+                <td>@entry.Rank.ToString("N0")</td>
                 <td>
                     <a asp-page="/users/index" asp-route-userId="@entry.UserId">
                         @entry.UserName
                     </a>
                 </td>
-                <td>@entry.Pp</td>
+                <td>@entry.Pp.ToString("N0")</td>
+                <td>@entry.Accuracy.ToString("F2")%</td>
+                <td>@entry.Plays.ToString("N0")</td>
             </tr>
         }
         </tbody>

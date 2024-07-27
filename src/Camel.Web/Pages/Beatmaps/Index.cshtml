@@ -1,4 +1,6 @@
 ﻿@page "{beatmapId:int}"
+@using Humanizer
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Index
 
 @{
@@ -36,16 +38,16 @@
                         @score.UserName
                     </a>
                 </td>
-                <td>@score.Pp</td>
+                <td>@score.Pp.ToString("N0")</td>
                 <td>@score.Grade</td>
-                <td>@score.ScoreNum</td>
-                <td>@score.Accuracy%</td>
-                <td>@score.MaxCombo</td>
-                <td>@score.Count300</td>
-                <td>@score.Count100</td>
-                <td>@score.Count50</td>
-                <td>@score.CountMiss</td>
-                <td>@score.SetAt</td>
+                <td>@score.ScoreNum.ToString("N0")</td>
+                <td>@score.Accuracy.ToString("F2")%</td>
+                <td>@score.MaxCombo.ToString("N0")</td>
+                <td>@score.Count300.ToString("N0")</td>
+                <td>@score.Count100.ToString("N0")</td>
+                <td>@score.Count50.ToString("N0")</td>
+                <td>@score.CountMiss.ToString("N0")</td>
+                <td title="@score.SetAt">@score.SetAt.Humanize()</td>
                 <td>@ModsHelper.GetModsString(score.Mods)</td>
                 <td>@score.OsuVersion</td>
             </tr>
