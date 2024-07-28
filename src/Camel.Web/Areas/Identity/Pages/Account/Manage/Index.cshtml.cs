@@ -83,7 +83,14 @@ namespace Camel.Web.Areas.Identity.Pages.Account.Manage
         private async Task LoadAsync(User user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
-            var profile = await _dbContext.Profiles.SingleAsync(p => p.Id == user.Id);
+            var profile = await _dbContext.Profiles.SingleOrDefaultAsync(p => p.Id == user.Id);
+
+            if (profile is null)
+            {
+                profile = new Profile { Id = user.Id };
+                _dbContext.Profiles.Add(profile);
+                await _dbContext.SaveChangesAsync();
+            }
 
             Username = userName;
 
