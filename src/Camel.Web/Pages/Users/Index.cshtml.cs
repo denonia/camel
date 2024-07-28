@@ -24,7 +24,7 @@ public class Index : PageModel
     }
 
     public User User { get; set; }
-    public Stats Stats { get; set; }
+    public Stats? Stats { get; set; }
     public IEnumerable<ProfileScore> Scores { get; set; }
     public int Rank { get; set; }
 
@@ -36,7 +36,7 @@ public class Index : PageModel
         if (User is null)
             return NotFound();
 
-        Stats = User.Stats.Single(s => s.Mode == GameMode.Standard);
+        Stats = User.Stats.SingleOrDefault(s => s.Mode == GameMode.Standard);
         Scores = await _scoreService.GetUserBestScoresAsync(userId, GameMode.Standard);
         Rank = await _rankingService.GetGlobalRankPpAsync(userId, GameMode.Standard);
 

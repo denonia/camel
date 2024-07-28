@@ -7,89 +7,96 @@
 
 <div style="width: 1024px;">
     <h3>@Model.User.UserName</h3>
-    <table style="width: 300px">
-        <tbody>
-        <tr>
-            <th>Rank</th>
-            <td>#@Model.Rank.ToString("N0")</td>
-        </tr>
-        <tr>
-            <th>Total pp</th>
-            <td>@Model.Stats.Pp.ToString("N0")</td>
-        </tr>
-        <tr>
-            <th>Accuracy</th>
-            <td>@Model.Stats.Accuracy.ToString("F2")%</td>
-        </tr>
-        <tr>
-            <th>Play count</th>
-            <td>@Model.Stats.Plays.ToString("N0")</td>
-        </tr>
-        <tr>
-            <th>Total score</th>
-            <td>@Model.Stats.TotalScore.ToString("N0")</td>
-        </tr>
-        <tr>
-            <th>Ranked score</th>
-            <td>@Model.Stats.RankedScore.ToString("N0")</td>
-        </tr>
-        <tr>
-            <th>Total hits</th>
-            <td>@Model.Stats.TotalHits.ToString("N0")</td>
-        </tr>
-        <tr>
-            <th>Max combo</th>
-            <td>@Model.Stats.MaxCombo.ToString("N0")</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <div>
-        <table>
-            <thead class="table-head">
+    @if (Model.Stats is null)
+    {
+        <p>This user hasn't set any scores yet.</p>
+    }
+    else
+    {
+        <table style="width: 300px">
+            <tbody>
             <tr>
-                <th>#</th>
-                <th>Title</th>
-                <th>pp</th>
-                <th>Grade</th>
-                <th>Score</th>
-                <th>Accuracy</th>
-                <th>Max Combo</th>
-                <th>300</th>
-                <th>100</th>
-                <th>50</th>
-                <th>Miss</th>
-                <th>Time</th>
-                <th>Mods</th>
-                <th>osu!version</th>
+                <th>Rank</th>
+                <td>#@Model.Rank.ToString("N0")</td>
             </tr>
-            </thead>
-            <br>
-            <tbody class="table-body">
-            @foreach (var (score, place) in Model.Scores.Select((s, i) => (s, i + 1)))
-            {
-                <tr>
-                    <td>@place</td>
-                    <td>
-                        <a asp-page="/beatmaps/index" asp-route-beatmapId="@score.BeatmapId">
-                            @score.Artist - @score.Title [@score.Version]
-                        </a>
-                    </td>
-                    <td>@score.Pp.ToString("N0")</td>
-                    <td>@score.Grade</td>
-                    <td>@score.ScoreNum.ToString("N0")</td>
-                    <td>@score.Accuracy.ToString("F2")%</td>
-                    <td>@score.MaxCombo.ToString("N0")</td>
-                    <td>@score.Count300.ToString("N0")</td>
-                    <td>@score.Count100.ToString("N0")</td>
-                    <td>@score.Count50.ToString("N0")</td>
-                    <td>@score.CountMiss.ToString("N0")</td>
-                    <td title="@score.SetAt">@score.SetAt.Humanize()</td>
-                    <td>@ModsHelper.GetModsString(score.Mods)</td>
-                    <td>@score.OsuVersion</td>
-                </tr>
-            }
+            <tr>
+                <th>Total pp</th>
+                <td>@Model.Stats.Pp.ToString("N0")</td>
+            </tr>
+            <tr>
+                <th>Accuracy</th>
+                <td>@Model.Stats.Accuracy.ToString("F2")%</td>
+            </tr>
+            <tr>
+                <th>Play count</th>
+                <td>@Model.Stats.Plays.ToString("N0")</td>
+            </tr>
+            <tr>
+                <th>Total score</th>
+                <td>@Model.Stats.TotalScore.ToString("N0")</td>
+            </tr>
+            <tr>
+                <th>Ranked score</th>
+                <td>@Model.Stats.RankedScore.ToString("N0")</td>
+            </tr>
+            <tr>
+                <th>Total hits</th>
+                <td>@Model.Stats.TotalHits.ToString("N0")</td>
+            </tr>
+            <tr>
+                <th>Max combo</th>
+                <td>@Model.Stats.MaxCombo.ToString("N0")</td>
+            </tr>
             </tbody>
         </table>
-    </div>
-</div>
+
+        <div>
+            <table>
+                <thead class="table-head">
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>pp</th>
+                    <th>Grade</th>
+                    <th>Score</th>
+                    <th>Accuracy</th>
+                    <th>Max Combo</th>
+                    <th>300</th>
+                    <th>100</th>
+                    <th>50</th>
+                    <th>Miss</th>
+                    <th>Time</th>
+                    <th>Mods</th>
+                    <th>osu!version</th>
+                </tr>
+                </thead>
+                <br>
+                <tbody class="table-body">
+                @foreach (var (score, place) in Model.Scores.Select((s, i) => (s, i + 1)))
+                {
+                    <tr>
+                        <td>@place</td>
+                        <td>
+                            <a asp-page="/beatmaps/index" asp-route-beatmapId="@score.BeatmapId">
+                                @score.Artist - @score.Title [@score.Version]
+                            </a>
+                        </td>
+                        <td>@score.Pp.ToString("N0")</td>
+                        <td>@score.Grade</td>
+                        <td>@score.ScoreNum.ToString("N0")</td>
+                        <td>@score.Accuracy.ToString("F2")%</td>
+                        <td>@score.MaxCombo.ToString("N0")</td>
+                        <td>@score.Count300.ToString("N0")</td>
+                        <td>@score.Count100.ToString("N0")</td>
+                        <td>@score.Count50.ToString("N0")</td>
+                        <td>@score.CountMiss.ToString("N0")</td>
+                        <td title="@score.SetAt">@score.SetAt.Humanize()</td>
+                        <td>@ModsHelper.GetModsString(score.Mods)</td>
+                        <td>@score.OsuVersion</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div >
