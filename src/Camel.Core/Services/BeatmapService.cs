@@ -19,8 +19,10 @@ public class BeatmapService : IBeatmapService
     private readonly ApplicationDbContext _dbContext;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
-    
+
     private readonly string _dataDir;
+
+    private static readonly object LockObject = new();
 
     public BeatmapService(ApplicationDbContext dbContext,
         IHttpClientFactory httpClientFactory, IConfiguration configuration)
@@ -35,9 +37,9 @@ public class BeatmapService : IBeatmapService
     public async Task<Beatmap?> FindBeatmapAsync(string md5)
     {
         var map = await _dbContext.Beatmaps.SingleOrDefaultAsync(b => b.Md5 == md5);
-        if (map != null) 
+        if (map != null)
             return map;
-        
+
         var setDiffs = await FetchFromApiByHash(md5);
         return setDiffs.SingleOrDefault(b => b.Md5 == md5);
     }
@@ -47,7 +49,7 @@ public class BeatmapService : IBeatmapService
         var map = await _dbContext.Beatmaps.SingleOrDefaultAsync(b => b.Id == beatmapId);
         if (map != null)
             return map;
-        
+
         var setDiffs = await FetchFromApiById(beatmapId);
         return setDiffs.SingleOrDefault(b => b.Id == beatmapId);
     }
@@ -60,13 +62,14 @@ public class BeatmapService : IBeatmapService
             var existingPath = Path.Combine(Path.GetFullPath(_dataDir), "osu", beatmap.FileName);
             return existingPath;
         }
-        
+
         return await FetchBeatmapFile(beatmap);
     }
 
     private async Task<IEnumerable<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);
-    
-    private async Task<IEnumerable<Beatmap>> FetchFromApiById(int beatmapId) => await FetchFromApi(IdApiBaseUrl + beatmapId);
+
+    private async Task<IEnumerable<Beatmap>> FetchFromApiById(int beatmapId) =>
+        await FetchFromApi(IdApiBaseUrl + beatmapId);
 
     private async Task<IEnumerable<Beatmap>> FetchFromApi(string url)
     {
@@ -76,13 +79,13 @@ public class BeatmapService : IBeatmapService
         // Why do they not just return 404 (39 is length of 'not found' message)
         if (response.Content.Headers.ContentLength <= 39)
             return [];
-        
+
         var stream = await response.Content.ReadAsStreamAsync();
         var diffs = await JsonSerializer.DeserializeAsync<OsuDirectBeatmap[]>(stream);
 
         if (diffs is null)
             return [];
-        
+
         var beatmaps = diffs.Select(d =>
             new Beatmap
             {
@@ -128,9 +131,13 @@ public class BeatmapService : IBeatmapService
         var fileName = file.Content.Headers.ContentDisposition.FileName.Trim('"');
         var path = Path.Combine(Path.GetFullPath(_dataDir), "osu", fileName);
 
-        await using var fs = new FileStream(path, FileMode.Create);
         var contentStream = await file.Content.ReadAsStreamAsync();
-        await contentStream.CopyToAsync(fs);
+        // TODO everyone submits multi scores at once. fetch this earlier?
+        lock (LockObject)
+        {
+            using var fs = new FileStream(path, FileMode.Create);
+            contentStream.CopyTo(fs);
+        }
 
         beatmap.FileName = fileName;
         await _dbContext.SaveChangesAsync();

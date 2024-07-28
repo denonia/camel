@@ -3,6 +3,8 @@ using Camel.Core.Data;
 using Camel.Core.Entities;
 using Camel.Core.Interfaces;
 using Camel.Core.Services;
+using Camel.Web.Services;
+using Camel.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -22,6 +24,7 @@ public class Program
         builder.Services.AddTransient<Services.Interfaces.IScoreService, Services.ScoreService>();
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
+        builder.Services.AddTransient<ICommentService, CommentService>();
         
         builder.Services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"] ?? 

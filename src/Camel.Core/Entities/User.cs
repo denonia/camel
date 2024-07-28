@@ -12,6 +12,9 @@ public class User : IdentityUser<int>
     public IEnumerable<Score> Scores { get; set; }
     public IEnumerable<LoginSession> LoginSessions { get; set; }
     
+    public IEnumerable<Comment> PostedComments { get; set; }
+    public IEnumerable<Comment> Comments { get; set; }
+    
     public IEnumerable<Relationship> Added { get; set; }
     public IEnumerable<Relationship> AddedBy { get; set; }
 }

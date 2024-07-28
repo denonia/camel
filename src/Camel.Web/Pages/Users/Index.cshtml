@@ -6,59 +6,72 @@
 }
 
 <div style="width: 1024px;">
-    <h3>@Model.User.UserName</h3>
-    <img src="@Model.AvatarUrl" class="avatar" alt="Avatar">
+    <div class="row">
+        <div class="avatar-card">
+            <h3>@Model.RequestedUser.UserName</h3>
+            <img src="@Model.AvatarUrl(Model.RequestedUser.Id)" class="avatar" alt="Avatar">
+        </div>
+    </div >
+
     @if (Model.Profile.UserPage is not null)
     {
         <div class="has-scrollbar userpage">
             <span style="white-space: pre-wrap">@Model.Profile.UserPage</span>
         </div>
     }
-    
-    @if (Model.Stats is null)
-    {
-        <p>This user hasn't set any scores yet.</p>
-    }
-    else
-    {
-        <table style="width: 300px">
-            <tbody>
-            <tr>
-                <th>Rank</th>
-                <td>#@Model.Rank.ToString("N0")</td>
-            </tr>
-            <tr>
-                <th>Total pp</th>
-                <td>@Model.Stats.Pp.ToString("N0")</td>
-            </tr>
-            <tr>
-                <th>Accuracy</th>
-                <td>@Model.Stats.Accuracy.ToString("F2")%</td>
-            </tr>
-            <tr>
-                <th>Play count</th>
-                <td>@Model.Stats.Plays.ToString("N0")</td>
-            </tr>
-            <tr>
-                <th>Total score</th>
-                <td>@Model.Stats.TotalScore.ToString("N0")</td>
-            </tr>
-            <tr>
-                <th>Ranked score</th>
-                <td>@Model.Stats.RankedScore.ToString("N0")</td>
-            </tr>
-            <tr>
-                <th>Total hits</th>
-                <td>@Model.Stats.TotalHits.ToString("N0")</td>
-            </tr>
-            <tr>
-                <th>Max combo</th>
-                <td>@Model.Stats.MaxCombo.ToString("N0")</td>
-            </tr>
-            </tbody>
-        </table>
 
-        <div>
+    <div class="stats">
+        @if (Model.Stats is null)
+        {
+            <p>This user hasn't set any scores yet.</p>
+        }
+        else
+        {
+            <table style="width: 300px">
+                <tbody>
+                <tr>
+                    <th>Rank</th>
+                    <td>#@Model.Rank.ToString("N0")</td>
+                </tr>
+                <tr>
+                    <th>Total pp</th>
+                    <td>@Model.Stats.Pp.ToString("N0")</td>
+                </tr>
+                <tr>
+                    <th>Accuracy</th>
+                    <td>@Model.Stats.Accuracy.ToString("F2")%</td>
+                </tr>
+                <tr>
+                    <th>Play count</th>
+                    <td>@Model.Stats.Plays.ToString("N0")</td>
+                </tr>
+                <tr>
+                    <th>Total score</th>
+                    <td>@Model.Stats.TotalScore.ToString("N0")</td>
+                </tr>
+                <tr>
+                    <th>Ranked score</th>
+                    <td>@Model.Stats.RankedScore.ToString("N0")</td>
+                </tr>
+                <tr>
+                    <th>Total hits</th>
+                    <td>@Model.Stats.TotalHits.ToString("N0")</td>
+                </tr>
+                <tr>
+                    <th>Max combo</th>
+                    <td>@Model.Stats.MaxCombo.ToString("N0")</td>
+                </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <section class="tabs">
+        <menu role="tablist" aria-label="Sample Tabs">
+            <button role="tab" aria-controls="tab-A" aria-selected="true">Best performance</button>
+            <button role="tab" aria-controls="tab-B">Comments (@Model.Comments.Count)</button>
+        </menu>
+        <article role="tabpanel" id="tab-A">
             <table>
                 <thead class="table-head">
                 <tr>
@@ -105,6 +118,40 @@
                 }
                 </tbody>
             </table>
-        </div>
-    }
+        </article>
+        <article role="tabpanel" id="tab-B" hidden>
+            <form method="post">
+                <div class="field-row-stacked" style="width: 300px; margin-bottom: 14px;">
+                    <textarea asp-for="Comment" rows="4"></textarea>
+                    <span asp-validation-for="Comment" class="text-danger"></span>
+                    <button type="submit" style="width: 50px">Post</button>
+                </div>
+            </form>
+
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="card">
+                    <div class="row">
+                        <img src="@Model.AvatarUrl(comment.AuthorId)" class="comment-avatar" alt="Avatar">
+                        <div>
+                            <span class="comment-name">
+                                <a asp-page="/users/index" asp-route-userId="@comment.AuthorId">
+                                    @comment.AuthorName
+                                </a>
+                            </span>
+                            <span class="comment-date" title="@comment.PostedAt">@comment.PostedAt.Humanize()</span>
+                            @if (comment.AuthorName == User.Identity?.Name || Model.RequestedUser.UserName == User.Identity?.Name)
+                            {
+                                <form method="post">
+                                    <input type="hidden" asp-for="CommentId" value="@comment.Id"/>
+                                    <button type="submit">Delete</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                    <p>@comment.Text</p>
+                </div>
+            }
+        </article>
+    </section>
 </div >

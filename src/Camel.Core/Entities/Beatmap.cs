@@ -33,4 +33,5 @@ public class Beatmap
     public BeatmapSource BeatmapSource { get; set; }
 
     public IEnumerable<Score> Scores { get; set; }
+    public IEnumerable<Comment> Comments { get; set; }
 }

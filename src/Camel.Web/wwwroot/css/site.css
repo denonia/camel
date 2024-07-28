@@ -144,11 +144,55 @@ input[type=file]::file-selector-button:not(:hover):before input[type=file]::-ms-
     height: 128px;
 }
 
+.comment-avatar {
+    width: 64px;
+    height: 64px;
+}
+
+.comment-name {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.comment-date {
+    display: block;
+    margin-bottom: 4px;
+}
+
 .userpage {
     max-height: 128px;
     overflow: auto;
+    border: 1px solid #cdd7db;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px #fff;
+    margin-bottom: 14px;
+    padding: 10px;
+}
+
+.card {
+    border: 1px solid #cdd7db;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px #fff;
+    margin-bottom: 14px;
+    padding: 10px;
+}
+
+.stats {
     margin-bottom: 14px;
 }
+
+.row {
+    display: flex;
+}
+
+.avatar-card {
+    width: 160px;
+}
+
+/*.column {*/
+/*    flex: 50%;*/
+/*}*/
 
 /*tr:hover {*/
 /*  background-color: #188cff!important; !* Change this to your preferred highlight color *!*/

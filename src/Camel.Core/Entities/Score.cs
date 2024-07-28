@@ -33,6 +33,8 @@ public class Score
     public int SessionId { get; set; }
     public LoginSession Session { get; set; }
 
+    public IEnumerable<Comment> Comments { get; set; }
+
     public static Score FromSubmission(string[] data)
     {
         var result = new Score

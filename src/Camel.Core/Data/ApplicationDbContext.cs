@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Camel.Core.Data;
 
@@ -13,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
     public DbSet<LoginSession> LoginSessions { get; set; }
     public DbSet<Relationship> Relationships { get; set; }
     public DbSet<Profile> Profiles { get; set; }
+    public DbSet<Comment> Comments { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -148,6 +150,27 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
             entity.Property(p => p.Twitter).HasMaxLength(64);
             entity.Property(p => p.Discord).HasMaxLength(64);
             entity.Property(p => p.UserPage).HasMaxLength(1024);
+        });
+
+        builder.Entity<Comment>(entity =>
+        {
+            entity.Property(c => c.Text).HasMaxLength(300);
+
+            entity.HasOne<User>(c => c.Author)
+                .WithMany(a => a.PostedComments)
+                .HasForeignKey(c => c.AuthorId);
+            
+            entity.HasOne<User>(c => c.User)
+                .WithMany(a => a.Comments)
+                .HasForeignKey(c => c.UserId);
+            
+            entity.HasOne<Beatmap>(c => c.Beatmap)
+                .WithMany(b => b.Comments)
+                .HasForeignKey(c => c.BeatmapId);
+            
+            entity.HasOne<Score>(c => c.Score)
+                .WithMany(s => s.Comments)
+                .HasForeignKey(c => c.ScoreId);
         });
     }
 }
