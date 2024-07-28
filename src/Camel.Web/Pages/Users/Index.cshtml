@@ -8,6 +8,13 @@
 <div style="width: 1024px;">
     <h3>@Model.User.UserName</h3>
     <img src="@Model.AvatarUrl" class="avatar" alt="Avatar">
+    @if (Model.Profile.UserPage is not null)
+    {
+        <div class="has-scrollbar userpage">
+            <span style="white-space: pre-wrap">@Model.Profile.UserPage</span>
+        </div>
+    }
+    
     @if (Model.Stats is null)
     {
         <p>This user hasn't set any scores yet.</p>

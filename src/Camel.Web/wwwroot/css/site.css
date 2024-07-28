@@ -144,6 +144,12 @@ input[type=file]::file-selector-button:not(:hover):before input[type=file]::-ms-
     height: 128px;
 }
 
+.userpage {
+    max-height: 128px;
+    overflow: auto;
+    margin-bottom: 14px;
+}
+
 /*tr:hover {*/
 /*  background-color: #188cff!important; !* Change this to your preferred highlight color *!*/
 /*  color: #FFF!important;*/

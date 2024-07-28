@@ -8,10 +8,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Azure;
+using Camel.Core.Data;
 using Camel.Core.Entities;
+using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Camel.Web.Areas.Identity.Pages.Account.Manage
 {
@@ -21,15 +25,18 @@ namespace Camel.Web.Areas.Identity.Pages.Account.Manage
 
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
 
         public IndexModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
+            ApplicationDbContext dbContext,
             IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _dbContext = dbContext;
             _configuration = configuration;
         }
 
@@ -69,18 +76,20 @@ namespace Camel.Web.Areas.Identity.Pages.Account.Manage
 
             // [FileExtensions(Extensions = "jpg,jpeg,png", ErrorMessage = "File must be .jpg or .png")]
             public IFormFile AvatarFile { set; get; }
+
+            [MaxLength(1024)] public string Userpage { set; get; }
         }
 
         private async Task LoadAsync(User user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
-            // var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            var profile = await _dbContext.Profiles.SingleAsync(p => p.Id == user.Id);
 
             Username = userName;
 
             Input = new InputModel
             {
-                // PhoneNumber = phoneNumber
+                Userpage = profile.UserPage
             };
         }
 
@@ -147,6 +156,11 @@ namespace Camel.Web.Areas.Identity.Pages.Account.Manage
                 await using var fs = new FileStream(avatarPath, FileMode.Create);
                 await Input.AvatarFile.CopyToAsync(fs);
             }
+
+            await _dbContext.Profiles
+                .Where(p => p.Id == user.Id)
+                .ExecuteUpdateAsync(p =>
+                    p.SetProperty(profile => profile.UserPage, Input.Userpage));
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";

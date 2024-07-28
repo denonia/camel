@@ -23,8 +23,9 @@ public class Index : PageModel
         _rankingService = rankingService;
     }
 
-    public User User { get; set; }
+    public User? User { get; set; }
     public Stats? Stats { get; set; }
+    public Profile? Profile { get; set; }
     public IEnumerable<ProfileScore> Scores { get; set; }
     public int Rank { get; set; }
     
@@ -34,6 +35,7 @@ public class Index : PageModel
     {
         User = await _dbContext.Users
             .Include(u => u.Stats)
+            .Include(u => u.Profile)
             .SingleOrDefaultAsync(u => u.Id == userId);
         if (User is null)
             return NotFound();
@@ -41,6 +43,14 @@ public class Index : PageModel
         Stats = User.Stats.SingleOrDefault(s => s.Mode == GameMode.Standard);
         Scores = await _scoreService.GetUserBestScoresAsync(userId, GameMode.Standard);
         Rank = await _rankingService.GetGlobalRankPpAsync(userId, GameMode.Standard);
+        Profile = User.Profile;
+
+        if (Profile is null)
+        {
+            Profile = new Profile { Id = User.Id };
+            _dbContext.Profiles.Add(Profile);
+            await _dbContext.SaveChangesAsync();
+        }
 
         return Page();
     }

@@ -20,6 +20,11 @@
                 <input asp-for="Input.AvatarFile" placeholder="Choose your avatar picture."/>
                 <span asp-validation-for="Input.AvatarFile" class="text-danger"></span>
             </div>
+            <div class="field-row-stacked">
+                <label asp-for="Input.Userpage">Userpage</label>
+                <textarea asp-for="Input.Userpage" rows="4"></textarea>
+                <span asp-validation-for="Input.Userpage" class="text-danger"></span>
+            </div>
             @* <div class="form-floating mb-3"> *@
             @*     <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/> *@
             @*     <label asp-for="Input.PhoneNumber" class="form-label"></label> *@

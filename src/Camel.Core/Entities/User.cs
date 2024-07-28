@@ -6,7 +6,7 @@ public class User : IdentityUser<int>
 {
     public DateTime JoinedAt { get; set; } = DateTime.Now.ToUniversalTime();
     public string Country { get; set; }
-    public Profile Profile { get; set; }
+    public Profile? Profile { get; set; }
     
     public IEnumerable<Stats> Stats { get; set; }
     public IEnumerable<Score> Scores { get; set; }
