@@ -8,9 +8,11 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li role="menuitem">
-        @* <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">hello @User.Identity?.Name!</a> *@
         <a asp-area="" asp-page="/users/index" asp-route-userId="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
             @User.Identity?.Name
+        </a>
+        <a asp-area="identity" asp-page="/account/manage/index" title="Settings">
+            Settings
         </a>
     </li>
     <li role="menuitem">

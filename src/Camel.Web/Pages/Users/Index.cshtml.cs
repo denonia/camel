@@ -27,6 +27,8 @@ public class Index : PageModel
     public Stats? Stats { get; set; }
     public IEnumerable<ProfileScore> Scores { get; set; }
     public int Rank { get; set; }
+    
+    public string AvatarUrl => $"https://a.allein.xyz/{User.Id}";
 
     public async Task<IActionResult> OnGetAsync(int userId)
     {
