@@ -1,4 +1,5 @@
 ﻿@page "{userId:int}"
+@using Camel.Web.Enums
 @using Humanizer
 @model Camel.Web.Pages.Users.Index
 
@@ -10,6 +11,32 @@
         <div class="avatar-card">
             <h3>@Model.RequestedUser.UserName</h3>
             <img src="@Model.AvatarUrl(Model.RequestedUser.Id)" class="avatar" alt="Avatar">
+
+            @if (Model.FriendType == FriendType.MutualFriend)
+            {
+                <b class="text-pink">Mutual friend</b>
+            }
+            @if (Model.FriendType == FriendType.Friend)
+            {
+                <b class="text-green">Friend</b>
+            }
+            @if (User.Identity.IsAuthenticated)
+            {
+                @if (Model.FriendType == FriendType.None)
+                {
+                    <form method="post">
+                        <input type="hidden" asp-for="AddFriend" value="true"/>
+                        <button type="submit" style="margin: 6px 0 14px 0">Add friend</button>
+                    </form>
+                }
+                else
+                {
+                    <form method="post">
+                        <input type="hidden" asp-for="RemoveFriend" value="true"/>
+                        <button type="submit" style="margin: 6px 0 14px 0">Remove friend</button>
+                    </form>
+                }
+            }
         </div>
     </div >
 

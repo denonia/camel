@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Azure;
+using System.Security.Claims;
 using Camel.Core.Data;
 using Camel.Core.Entities;
 using Camel.Core.Enums;
 using Camel.Core.Interfaces;
 using Camel.Web.Dtos;
+using Camel.Web.Enums;
 using Camel.Web.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using IScoreService = Camel.Web.Services.Interfaces.IScoreService;
 
 namespace Camel.Web.Pages.Users;
@@ -22,15 +21,17 @@ public class Index : PageModel
     private readonly IScoreService _scoreService;
     private readonly IRankingService _rankingService;
     private readonly ICommentService _commentService;
+    private readonly IRelationshipService _relationshipService;
     private readonly UserManager<User> _userManager;
 
     public Index(ApplicationDbContext dbContext, IScoreService scoreService, IRankingService rankingService,
-        ICommentService commentService, UserManager<User> userManager)
+        ICommentService commentService, IRelationshipService relationshipService, UserManager<User> userManager)
     {
         _dbContext = dbContext;
         _scoreService = scoreService;
         _rankingService = rankingService;
         _commentService = commentService;
+        _relationshipService = relationshipService;
         _userManager = userManager;
     }
 
@@ -39,12 +40,15 @@ public class Index : PageModel
     public Profile? Profile { get; set; }
     public IEnumerable<ProfileScore> Scores { get; set; }
     public IList<CommentDto> Comments { get; set; }
+    public FriendType FriendType { get; set; }
     public int Rank { get; set; }
 
     public string AvatarUrl(int id) => $"https://a.allein.xyz/{id}";
 
     [BindProperty] public int? CommentId { get; set; }
     [BindProperty] [MaxLength(300)] public string? Comment { get; set; }
+    [BindProperty] public bool AddFriend { get; set; }
+    [BindProperty] public bool RemoveFriend { get; set; }
 
     public async Task<IActionResult> OnGetAsync(int userId)
     {
@@ -68,20 +72,27 @@ public class Index : PageModel
             await _dbContext.SaveChangesAsync();
         }
 
+        if (User.Identity.IsAuthenticated)
+        {
+            var ownId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            FriendType = await _relationshipService.GetFriendTypeAsync(ownId, userId);
+        }
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(int userId)
     {
+        if (!User.Identity.IsAuthenticated)
+            return Unauthorized();
+        
+        var ownId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            
         if (ModelState.IsValid && !string.IsNullOrEmpty(Comment))
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user is null)
-                return Unauthorized();
-
             var comment = new Comment
             {
-                AuthorId = user.Id,
+                AuthorId = ownId,
                 UserId = userId,
                 Text = Comment
             };
@@ -95,12 +106,17 @@ public class Index : PageModel
             if (comment is null)
                 return NotFound();
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user is null || comment.AuthorId != user.Id && comment.UserId != user.Id)
+            if (comment.AuthorId != ownId && comment.UserId != ownId)
                 return Unauthorized();
 
             await _commentService.DeleteCommentAsync(comment.Id);
         }
+
+        if (AddFriend)
+            await _relationshipService.AddFriendAsync(ownId, userId);
+        
+        if (RemoveFriend)
+            await _relationshipService.RemoveFriendAsync(ownId, userId);
 
         return RedirectToPage();
     }

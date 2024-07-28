@@ -190,6 +190,14 @@ input[type=file]::file-selector-button:not(:hover):before input[type=file]::-ms-
     width: 160px;
 }
 
+.text-green {
+    color: #3cb371;
+}
+
+.text-pink {
+    color: #ff1473;
+}
+
 /*.column {*/
 /*    flex: 50%;*/
 /*}*/

@@ -1,0 +1,48 @@
+@page
+@using Humanizer
+@using Microsoft.EntityFrameworkCore.Query
+@model Camel.Web.Pages.Friends
+
+@{
+}
+
+<h4>Friend list</h4>
+
+@if (Model.FriendCount > 0)
+{
+    <p>You have @("friend".ToQuantity(Model.FriendCount)) (@Model.MutualCount mutual)</p>
+}
+else
+{
+    <p>You have no friends :(</p>
+}
+
+@foreach (var friend in Model.FriendList)
+{
+    <div class="card">
+        <div class="row">
+            <img src="@Model.AvatarUrl(friend.Id)" class="comment-avatar" alt="Avatar">
+            <div style="padding-left: 6px">
+                <span class="comment-name">
+                    <a asp-page="/users/index" asp-route-userId="@friend.Id">
+                        @friend.UserName
+                    </a>
+                </span>
+                @if (friend.Mutual)
+                {
+                    <b class="text-pink">Mutual friend</b>
+                }
+                else
+                {
+                    <b class="text-green">Friend</b>
+                }
+                <div style="padding-top: 4px">
+                    <form method="post">
+                        <input type="hidden" asp-for="FriendId" value="@friend.Id"/>
+                        <button type="submit">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

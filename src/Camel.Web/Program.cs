@@ -25,6 +25,7 @@ public class Program
         builder.Services.AddTransient<IBeatmapService, BeatmapService>();
         builder.Services.AddTransient<IRankingService, RedisRankingService>();
         builder.Services.AddTransient<ICommentService, CommentService>();
+        builder.Services.AddTransient<IRelationshipService, RelationshipService>();
         
         builder.Services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(builder.Configuration["REDIS_CONNECTION"] ?? 

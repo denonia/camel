@@ -11,6 +11,9 @@
         <a asp-area="" asp-page="/users/index" asp-route-userId="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
             @User.Identity?.Name
         </a>
+        <a asp-area="" asp-page="/friends" title="Friends">
+            Friends
+        </a>
         <a asp-area="identity" asp-page="/account/manage/index" title="Settings">
             Settings
         </a>
