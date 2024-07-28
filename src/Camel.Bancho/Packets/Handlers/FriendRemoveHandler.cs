@@ -1,6 +1,7 @@
 using Camel.Bancho.Enums;
 using Camel.Bancho.Models;
 using Camel.Bancho.Services;
+using Camel.Bancho.Services.Interfaces;
 using Camel.Core.Data;
 using Camel.Core.Entities;
 using Camel.Core.Enums;
@@ -11,10 +12,10 @@ namespace Camel.Bancho.Packets.Handlers;
 [PacketHandler(PacketType.ClientFriendRemove)]
 public class FriendRemoveHandler : IPacketHandler<int>
 {
-    private readonly UserSessionService _userSessionService;
+    private readonly IUserSessionService _userSessionService;
     private readonly ApplicationDbContext _dbContext;
 
-    public FriendRemoveHandler(UserSessionService userSessionService, ApplicationDbContext dbContext)
+    public FriendRemoveHandler(IUserSessionService userSessionService, ApplicationDbContext dbContext)
     {
         _userSessionService = userSessionService;
         _dbContext = dbContext;
