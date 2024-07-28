@@ -9,6 +9,40 @@
 <div style="width: 1024px;">
     <h3>@Model.Beatmap.Artist - @Model.Beatmap.Title [@Model.Beatmap.Version] by @Model.Beatmap.Creator</h3>
 
+
+    <table style="width: 200px">
+        <tbody>
+        <tr>
+            <th>BPM</th>
+            <td>@Model.Beatmap.Bpm.ToString("N0")</td>
+        </tr>
+        <tr>
+            <th>CS</th>
+            <td>@Model.Beatmap.CircleSize.ToString("F1")</td>
+        </tr>
+        <tr>
+            <th>AR</th>
+            <td>@Model.Beatmap.ApproachRate.ToString("F1")</td>
+        </tr>
+        <tr>
+            <th>OD</th>
+            <td>@Model.Beatmap.OverallDifficulty.ToString("F1")</td>
+        </tr>
+        <tr>
+            <th>HP</th>
+            <td>@Model.Beatmap.HpDrain.ToString("F1")</td>
+        </tr>
+        <tr>
+            <th>Stars</th>
+            <td>@Model.Beatmap.StarRate.ToString("F2")</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form style="margin: 16px 0 16px">
+        <button formaction="@Model.OsuUrl" formtarget="_blank">osu! website</button>
+    </form>
+
     <table>
         <thead class="table-head">
         <tr>

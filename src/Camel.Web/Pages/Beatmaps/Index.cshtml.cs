@@ -21,6 +21,8 @@ public class Index : PageModel
 
     public Beatmap Beatmap { get; set; }
     public IEnumerable<LeaderboardScore> Scores { get; set; }
+
+    public string OsuUrl => $"https://osu.ppy.sh/beatmapsets/{Beatmap.MapsetId}#osu/{Beatmap.Id}";
     
     public async Task<IActionResult> OnGetAsync(int beatmapId)
     {

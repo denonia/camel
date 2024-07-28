@@ -1,17 +1,15 @@
 using System.Security.Claims;
 using Camel.Core.Data;
-using Camel.Core.Enums;
 using Camel.Web.Dtos;
 using Camel.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Build.Framework;
 
 namespace Camel.Web.Pages;
 
 [Authorize]
-public class Friends : PageModel
+public class Friends : PageModelBase
 {
     private readonly IRelationshipService _relationshipService;
     private readonly ApplicationDbContext _dbContext;
@@ -23,9 +21,6 @@ public class Friends : PageModel
 
     [BindProperty] [Required] public int FriendId { get; set; }
 
-    public string AvatarUrl(int id) => $"https://a.allein.xyz/{id}";
-
-
     public Friends(IRelationshipService relationshipService)
     {
         _relationshipService = relationshipService;
@@ -33,8 +28,7 @@ public class Friends : PageModel
 
     public async Task OnGetAsync()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        FriendList = await _relationshipService.GetFriendsAsync(userId);
+        FriendList = await _relationshipService.GetFriendsAsync(CurrentUserId);
     }
 
     public async Task<IActionResult> OnPostAsync()

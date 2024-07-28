@@ -21,7 +21,6 @@ internal class MultiplayerService : IMultiplayerService
     public void JoinLobby(UserSession user)
     {
         _lobbyParticipants.Add(user);
-        _chatService.JoinChannel("#lobby", user);
 
         foreach (var match in ActiveMatches())
         {
@@ -32,7 +31,6 @@ internal class MultiplayerService : IMultiplayerService
     public void LeaveLobby(UserSession user)
     {
         _lobbyParticipants.Remove(user);
-        _chatService.LeaveChannel("#lobby", user);
     }
 
     private void UpdateLobby(Match match)
