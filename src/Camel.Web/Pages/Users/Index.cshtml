@@ -20,7 +20,7 @@
             {
                 <b class="text-green">Friend</b>
             }
-            @if (User.Identity.IsAuthenticated)
+            @if (User.Identity.IsAuthenticated && Model.RequestedUser.UserName != User.Identity.Name)
             {
                 @if (Model.FriendType == FriendType.None)
                 {
