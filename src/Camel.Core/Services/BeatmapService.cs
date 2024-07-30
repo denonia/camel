@@ -22,8 +22,6 @@ public class BeatmapService : IBeatmapService
 
     private readonly string _dataDir;
 
-    private static readonly object LockObject = new();
-
     public BeatmapService(ApplicationDbContext dbContext,
         IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
@@ -66,12 +64,23 @@ public class BeatmapService : IBeatmapService
         return await FetchBeatmapFile(beatmap);
     }
 
-    private async Task<IEnumerable<Beatmap>> FetchFromApiByHash(string md5) => await FetchFromApi(HashApiBaseUrl + md5);
+    private async Task<IList<Beatmap>> FetchFromApiByHash(string md5)
+    {
+        var result = await FetchFromApi(HashApiBaseUrl + md5);
+        if (result.Any())
+            await FetchBeatmapFile(result.Single(b => b.Md5 == md5));
+        return result;
+    }
 
-    private async Task<IEnumerable<Beatmap>> FetchFromApiById(int beatmapId) =>
-        await FetchFromApi(IdApiBaseUrl + beatmapId);
+    private async Task<IList<Beatmap>> FetchFromApiById(int beatmapId) 
+    {
+        var result = await FetchFromApi(IdApiBaseUrl + beatmapId);
+        if (result.Any())
+            await FetchBeatmapFile(result.Single(b => b.Id == beatmapId));
+        return result;
+    }
 
-    private async Task<IEnumerable<Beatmap>> FetchFromApi(string url)
+    private async Task<IList<Beatmap>> FetchFromApi(string url)
     {
         var httpClient = _httpClientFactory.CreateClient();
 
@@ -132,12 +141,8 @@ public class BeatmapService : IBeatmapService
         var path = Path.Combine(Path.GetFullPath(_dataDir), "osu", fileName);
 
         var contentStream = await file.Content.ReadAsStreamAsync();
-        // TODO everyone submits multi scores at once. fetch this earlier?
-        lock (LockObject)
-        {
-            using var fs = new FileStream(path, FileMode.Create);
-            contentStream.CopyTo(fs);
-        }
+        await using var fs = new FileStream(path, FileMode.Create);
+        await contentStream.CopyToAsync(fs);
 
         beatmap.FileName = fileName;
         await _dbContext.SaveChangesAsync();
